@@ -16,6 +16,7 @@ from .language_intelligence import analyze_language_coverage
 from .knowledge_graph import build_knowledge_graph
 from .analyst_report import build_analyst_report
 from .command_center import build_command_center
+from .country_explorer import build_country_explorer
 from .rss_collector import collect_feeds
 from .source_intelligence import assess_source_intelligence
 from .trend_registry import TrendRegistry, signal_id
@@ -107,6 +108,7 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
     }
     report["analyst_report"] = build_analyst_report(report, limit=limit)
     report["command_center"] = build_command_center(report, limit=limit)
+    report["country_explorer"] = build_country_explorer(report, limit=limit)
     return report
 
 def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[str, Any]] = (),
@@ -135,6 +137,7 @@ def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[st
     report["monitoring"] = build_monitoring_status(report["collection"], report["signals"])
     report["analyst_report"] = build_analyst_report(report, limit=limit)
     report["command_center"] = build_command_center(report, limit=limit)
+    report["country_explorer"] = build_country_explorer(report, limit=limit)
     if research_question and research_question.strip():
         report["research"] = build_research_report(
             research_question, report["signals"], report["collection"], limit=limit
@@ -147,4 +150,5 @@ def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[st
         )
         report["analyst_report"] = build_analyst_report(report, limit=limit)
         report["command_center"] = build_command_center(report, limit=limit)
+        report["country_explorer"] = build_country_explorer(report, limit=limit)
     return report
