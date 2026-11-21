@@ -249,6 +249,7 @@ def render_regional_intelligence_html(data: dict[str, Any]) -> str:
                 f"<td>{esc(item.get('maximum_region'))}: {esc(item.get('maximum'))}</td>"
                 f"<td>{esc(item.get('range'))} {esc(item.get('unit'))}</td></tr>"
             )
+    spread_body = "".join(spread_rows) or '<tr><td colspan="6">No comparable spread available.</td></tr>'
     coverage = data.get("regions_with_indicator_data") if isinstance(data.get("regions_with_indicator_data"), dict) else {}
     catalog = data.get("bps_region_catalog") if isinstance(data.get("bps_region_catalog"), dict) else {}
     return (
@@ -258,7 +259,7 @@ def render_regional_intelligence_html(data: dict[str, Any]) -> str:
         f'<article class="metric"><div class="muted">Regencies/cities represented</div><strong>{esc(coverage.get("regency_city", 0))}</strong><small>With supplied indicator data</small></article>'
         f'<article class="metric"><div class="muted">BPS region catalog</div><strong>{esc(catalog.get("region_count", 0))}</strong><small>{esc(catalog.get("status", "not configured"))}</small></article></div>'
         f'<h3>Comparable regional rankings</h3><div class="table-wrap"><table><thead><tr><th>Level</th><th>Indicator</th><th>Period</th><th>Rank</th><th>Region</th><th>Value</th></tr></thead><tbody>{ranking_body}</tbody></table></div>'
-        f'<h3>Regional spread (minimum to maximum)</h3><div class="table-wrap"><table><thead><tr><th>Level</th><th>Indicator</th><th>Period</th><th>Minimum</th><th>Maximum</th><th>Range</th></tr></thead><tbody>{"".join(spread_rows) or "<tr><td colspan=\"6\">No comparable spread available.</td></tr>"}</tbody></table></div>'
+        f'<h3>Regional spread (minimum to maximum)</h3><div class="table-wrap"><table><thead><tr><th>Level</th><th>Indicator</th><th>Period</th><th>Minimum</th><th>Maximum</th><th>Range</th></tr></thead><tbody>{spread_body}</tbody></table></div>'
         '<p class="muted">Source: <a href="https://webapi.bps.go.id/documentation/" target="_blank" rel="noopener noreferrer">BPS WebAPI documentation</a>. A BPS API key is required for domain discovery.</p>'
         '<p class="notice">Rankings compare like-for-like indicator, period and administrative level only. BPS domain discovery is not the same as loading regional statistics. No national-to-regional downscaling, causal inference, forecasts or policy advice.</p></section>'
     )
