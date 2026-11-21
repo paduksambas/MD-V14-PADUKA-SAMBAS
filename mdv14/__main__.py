@@ -103,8 +103,23 @@ def main() -> int:
                 regional_input = json.load(handle)
         except (OSError, json.JSONDecodeError) as exc:
             parser.error(f"cannot read --regional-data: {exc}")
-    bps_catalog = fetch_bps_region_catalog(os.environ.get(args.bps_api_key_env))
-    report["regional_intelligence"] = build_regional_intelligence(regional_input, bps_catalog)
+    bps_key = os.environ.get(args.bps_api_key_env)
+    bps_catalog = fetch_bps_region_catalog(bps_key)
+    bps_table_result = {"build": "4.0", "status": "not_configured", "request_count": 0,
+                        "requests_succeeded": 0, "requests_failed": 0, "observations": [], "errors": []}
+    if args.bps_tables_config:
+        try:
+            with open(args.bps_tables_config, "r", encoding="utf-8") as handle:
+                bps_config = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            parser.error(f"cannot read --bps-tables-config: {exc}")
+        bps_table_result = fetch_bps_regional_tables(bps_key, bps_config)
+    existing_rows = regional_input.get("observations", []) if isinstance(regional_input, dict) else regional_input
+    if not isinstance(existing_rows, list):
+        parser.error("--regional-data must contain an observations array or JSON array")
+    combined_regional_input = {"observations": existing_rows + bps_table_result.get("observations", [])}
+    report["bps_regional_tables"] = bps_table_result
+    report["regional_intelligence"] = build_regional_intelligence(combined_regional_input, bps_catalog)
     try:
         report["fred_market_data"] = fetch_fred_market_data(
             os.environ.get(args.fred_api_key_env), start_date=market_start_date,
