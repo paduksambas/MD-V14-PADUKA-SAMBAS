@@ -4,9 +4,9 @@
 Build 2.3 adds an auditable research orchestration layer over configured RSS/Atom feeds and manually supplied records. It produces a question-framed research report with literal keyword relevance, source and country diversity, collection health, evidence completeness, candidate records, research gaps, and suggested review steps.
 
 ## How to use
-Run the existing feed-enabled CLI with a feed catalog and local signals as needed:
+Run the existing feed-enabled CLI with your own JSON feed catalog (an array of objects with `id`, `name`, and HTTPS `url`) and local signals as needed:
 ```bash
-python -m mdv14 --feeds examples/feeds.sample.json --output build/research-report.json
+python -m mdv14 --feeds path/to/your-feeds.json --output build/research-report.json
 ```
 The Python API is:
 ```python
