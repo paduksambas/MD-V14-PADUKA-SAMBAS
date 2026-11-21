@@ -12,6 +12,8 @@ on:
       - 'mdv14/country_explorer.py'
       - 'mdv14/economic_intelligence.py'
       - 'mdv14/economic_data.py'
+      - 'mdv14/market_data.py'
+      - 'tests/test_market_data.py'
       - 'mdv14/__main__.py'
       - 'tests/test_economic_data.py'
       - 'mdv14/dashboard.py'
@@ -46,6 +48,8 @@ jobs:
           restore-keys: |
             mdv14-history-${{ runner.os }}-
       - name: Run RSS/Atom monitoring cycle
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: |
           python -m mdv14 --feeds examples/feeds.sample.json \
             --database build/mdv14-history.sqlite3 \
