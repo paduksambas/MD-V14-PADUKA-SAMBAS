@@ -42,6 +42,7 @@ class FredMarketDataTests(unittest.TestCase):
         fetch.side_effect = RuntimeError("bad key secret")
         result = fetch_fred_market_data("secret", series_ids=["SP500"])
         self.assertEqual(result["requests_failed"], 1)
+        self.assertEqual(result["status"], "unavailable")
         self.assertNotIn("secret", str(result))
         self.assertEqual(result["observations"], [])
 
