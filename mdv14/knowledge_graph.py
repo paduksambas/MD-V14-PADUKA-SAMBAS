@@ -150,17 +150,13 @@ def build_knowledge_graph(signals: Iterable[dict[str, Any]], *, limit: int = 100
     for left_id, right_id in combinations(ids, 2):
         for entity_id in sorted(record_entities[left_id] & record_entities[right_id]):
             add_edge("event:" + left_id, "event:" + right_id, "shared_entity", left_id)
-            edges[tuple(sorted(("event:" + left_id, "event:" + right_id))) + ("shared_entity",)]["supporting_record_ids"].append(right_id)
+            add_edge("event:" + left_id, "event:" + right_id, "shared_entity", right_id)
         for topic_id in sorted(record_topics[left_id] & record_topics[right_id]):
             add_edge("event:" + left_id, "event:" + right_id, "shared_topic", left_id)
-            key = tuple(sorted(("event:" + left_id, "event:" + right_id))) + ("shared_topic",)
-            if right_id not in edges[key]["supporting_record_ids"]:
-                edges[key]["supporting_record_ids"].append(right_id)
+            add_edge("event:" + left_id, "event:" + right_id, "shared_topic", right_id)
         for country_id in sorted(record_countries[left_id] & record_countries[right_id]):
             add_edge("event:" + left_id, "event:" + right_id, "same_declared_country", left_id)
-            key = tuple(sorted(("event:" + left_id, "event:" + right_id))) + ("same_declared_country",)
-            if right_id not in edges[key]["supporting_record_ids"]:
-                edges[key]["supporting_record_ids"].append(right_id)
+            add_edge("event:" + left_id, "event:" + right_id, "same_declared_country", right_id)
 
     node_rows = sorted(nodes.values(), key=lambda item: (item["type"], item["label"].casefold()))
     edge_rows = sorted(edges.values(), key=lambda item: (item["relation"], item["source"], item["target"]))
