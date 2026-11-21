@@ -9,6 +9,7 @@ from .economic_intelligence import render_economic_intelligence_html
 from .economic_data import render_world_bank_html
 from .market_data import render_fred_html, render_public_market_html
 from .market_analytics import render_market_analytics_html
+from .public_assets import render_public_asset_html
 
 
 def _cell(value: Any) -> str:
@@ -81,7 +82,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     country_explorer_html = render_country_explorer_html(report.get("country_explorer") or {})
     economic_intelligence_html = render_economic_intelligence_html(report.get("economic_intelligence") or {})
     world_bank_html = render_world_bank_html(report.get("economic_data") or {})
-    public_market_html = render_public_market_html(report.get("market_data") or {})
+    public_market_html = render_public_market_html(report.get("market_data") or {})\n    public_asset_html = render_public_asset_html(report.get("public_asset_data") or {})
     fred_market_html = render_fred_html(report.get("fred_market_data") or {})
     market_analytics_html = render_market_analytics_html(report.get("market_analytics") or {})
 
