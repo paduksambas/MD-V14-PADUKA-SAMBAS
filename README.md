@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 2.9 — AI Analyst & Autonomous Strategic Reporting (deterministic analyst report composer)
 - Build 2.8 — Advanced Entity Recognition & Cross-Language Knowledge Graph
 - Build 2.7 — Global Source Expansion & Multilingual Intelligence
 - Build 2.6 — Live Global Intelligence Monitoring & Automated Intelligence Dashboard
@@ -37,6 +38,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/monitoring.py — collection-cycle health, feed status, and publisher-timestamp freshness indicators
 - mdv14/language_intelligence.py — explicit language metadata coverage and supported-language declarations
 - mdv14/knowledge_graph.py — curated multilingual entity aliases and traceable event/entity/topic/country graph
+- mdv14/analyst_report.py — executive brief, traceable findings, uncertainty register, and human review actions
 - mdv14/dashboard.py — self-contained offline HTML analytics dashboard with global country/topic, rising-signal, and related-event views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -52,6 +54,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 2.9 Analyst & Strategic Reporting
+The pipeline emits `analyst_report` with an executive summary, traceable priority findings, metadata-coverage indicators, explicit uncertainty/gaps, strategic context, and recommended human review actions. The dashboard renders these sections. This is deterministic synthesis of existing MD V14 assessments—not a connected generative AI model, independent research, fact verification, or autonomous policy decision. Metadata completeness is not factual confidence. Human approval is required before escalation, publication, or action. See docs/BUILD-2.9-ANALYST-REPORTING.md.
 
 ## Build 2.8 Advanced Entity Recognition & Cross-Language Knowledge Graph
 The pipeline now emits knowledge_graph with curated English/Indonesian aliases for selected countries, organizations, and companies; explicit entity/topic/country metadata; event nodes; and shared-entity/topic/country discovery links. Nodes preserve evidence basis and edges preserve supporting record IDs. This is deterministic alias matching, not general-purpose AI named-entity recognition. Ambiguous matches require human review; graph links do not prove truth, causality, influence, or source independence. See docs/BUILD-2.8-KNOWLEDGE-GRAPH.md.
