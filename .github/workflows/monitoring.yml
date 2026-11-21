@@ -111,12 +111,5 @@ jobs:
           else
             echo "Monitoring report was not generated." >> "$GITHUB_STEP_SUMMARY"
           fi
-      - name: Upload monitoring report and dashboard
-        if: always() && hashFiles('build/latest-report.json', 'build/monitoring-dashboard.html') != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: mdv14-monitoring-${{ github.run_number }}
-          path: |
-            build/latest-report.json
-            build/monitoring-dashboard.html
-          retention-days: 14
+      # Build 4.2 privacy guard: do not upload reports or dashboard artifacts
+      # from this public repository. The HTML is generated only inside the runner.
