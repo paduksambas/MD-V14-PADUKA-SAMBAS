@@ -24,7 +24,7 @@ class RegionalIntelligenceTests(unittest.TestCase):
             {"region_code": "32", "region_name": "West Java", "level": "province", "indicator_code": "PDRB", "period": "2023", "value": 5.2},
         ]}
         result = build_regional_intelligence(data)
-        self.assertEqual(result["region_profiles"][0]["change"], 0.2)
+        self.assertAlmostEqual(result["region_profiles"][0]["change"], 0.2)
         self.assertEqual(result["region_profiles"][0]["direction"], "rising")
 
     def test_invalid_and_nonfinite_rows_are_rejected(self):
