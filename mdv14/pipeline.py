@@ -8,6 +8,7 @@ from .early_warning import classify_signal
 from .fact_check import assess_evidence
 from .global_intelligence import analyze_global_trends
 from .predictive_intelligence import assess_predictive_outlook
+from .research_orchestrator import build_research_report
 from .rss_collector import collect_feeds
 from .source_intelligence import assess_source_intelligence
 from .trend_registry import TrendRegistry, signal_id
@@ -83,7 +84,8 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
     }
 
 def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[str, Any]] = (),
-                    brief_date: str | None = None, limit: int = 10) -> dict[str, Any]:
+                    brief_date: str | None = None, limit: int = 10,
+                    research_question: str | None = None) -> dict[str, Any]:
     """Validate source catalog, collect enabled feeds, and normalize all records."""
     catalog = validate_source_catalog(feeds)
     collection = collect_feeds([
@@ -104,4 +106,8 @@ def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[st
         "source_configuration_errors": catalog["configuration_errors"],
         "extra_signals_added": len(local_signals),
     })
+    if research_question and research_question.strip():
+        report["research"] = build_research_report(
+            research_question, report["signals"], report["collection"], limit=limit
+        )
     return report
