@@ -158,12 +158,26 @@ def _parse_workbook(payload: bytes, *, start_date: str | None, end_date: str | N
         grid.append(values)
 
     header_index = None
+    period_column = 0
+    known_labels = {name.casefold() for name in COMMODITIES}
     for index, row in enumerate(grid):
         normalized = [value.strip().casefold() for value in row]
-        if normalized and normalized[0] in {"period", "month", "date"} and any(
-            name.casefold() in normalized for name in COMMODITIES
-        ):
+        matched_labels = known_labels.intersection(normalized)
+        if not matched_labels:
+            continue
+        # Pink Sheet releases may label the period column differently or leave
+        # its header blank. Confirm that a later row in this candidate table
+        # actually contains YYYY M mm periods before accepting the header.
+        candidate_rows = grid[index + 2:index + 8]
+        found_period_column = None
+        for column in range(max((len(item) for item in candidate_rows), default=0)):
+            if any(column < len(item) and PERIOD_RE.fullmatch(item[column].strip().upper())
+                   for item in candidate_rows):
+                found_period_column = column
+                break
+        if found_period_column is not None:
             header_index = index
+            period_column = found_period_column
             break
     if header_index is None:
         raise ValueError("could not identify the Pink Sheet monthly price header row")
@@ -173,9 +187,9 @@ def _parse_workbook(payload: bytes, *, start_date: str | None, end_date: str | N
     end = date.fromisoformat(end_date) if end_date else None
     observations: list[dict[str, Any]] = []
     for row in grid[header_index + 2:]:
-        if not row:
+        if not row or period_column >= len(row):
             continue
-        period = row[0].strip().upper()
+        period = row[period_column].strip().upper()
         match = PERIOD_RE.fullmatch(period)
         if not match:
             continue
