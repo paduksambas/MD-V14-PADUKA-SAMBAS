@@ -133,6 +133,120 @@ def fetch_fred_market_data(
     }
 
 
+
+FRANKFURTER_HOST = "api.frankfurter.dev"
+FRANKFURTER_URL = "https://api.frankfurter.dev/v2/rates"
+FX_QUOTES = {"IDR": "Indonesian Rupiah", "EUR": "Euro", "CNY": "Chinese Yuan"}
+
+
+def _fetch_frankfurter(url: str, timeout: int = TIMEOUT_SECONDS) -> Any:
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme != "https" or parsed.hostname != FRANKFURTER_HOST or parsed.path != "/v2/rates":
+        raise ValueError("only the official Frankfurter rates endpoint is allowed")
+    request = urllib.request.Request(
+        url, headers={"User-Agent": "MDV14-MarketData/1.0", "Accept": "application/json"}
+    )
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        body = response.read(MAX_RESPONSE_BYTES + 1)
+    if len(body) > MAX_RESPONSE_BYTES:
+        raise ValueError("Frankfurter response exceeds size limit")
+    return json.loads(body.decode("utf-8"))
+
+
+def fetch_public_market_data(
+    *, start_date: str | None = None, end_date: str | None = None,
+    timeout: int = TIMEOUT_SECONDS,
+) -> dict[str, Any]:
+    """Fetch no-key daily USD reference rates for IDR, EUR and CNY."""
+    if timeout < 1:
+        raise ValueError("timeout must be positive")
+    end = end_date or date.today().isoformat()
+    start = start_date or end
+    for value in (start, end):
+        if not _DATE.fullmatch(value):
+            raise ValueError("dates must use YYYY-MM-DD")
+        date.fromisoformat(value)
+    if start > end:
+        raise ValueError("start_date must not be after end_date")
+    if (date.fromisoformat(end) - date.fromisoformat(start)).days > 366:
+        raise ValueError("public FX date range must not exceed 367 calendar days")
+    params = urllib.parse.urlencode({
+        "from": start, "to": end, "base": "USD",
+        "quotes": ",".join(FX_QUOTES),
+    })
+    url = f"{FRANKFURTER_URL}?{params}"
+    try:
+        payload = _fetch_frankfurter(url, timeout=timeout)
+        if not isinstance(payload, list):
+            raise ValueError("unexpected Frankfurter API response structure")
+        observations = []
+        for row in payload:
+            if not isinstance(row, dict):
+                continue
+            quote = str(row.get("quote", "")).upper()
+            if quote not in FX_QUOTES:
+                continue
+            try:
+                value = float(row.get("rate"))
+                observed = date.fromisoformat(str(row.get("date", "")))
+            except (TypeError, ValueError):
+                continue
+            observations.append({
+                "series_id": f"USD{quote}", "series": f"U.S. Dollar to {FX_QUOTES[quote]}",
+                "category": "foreign_exchange", "date": observed.isoformat(),
+                "value": value, "unit": f"{quote} per USD", "frequency": "daily reference",
+                "source": "Frankfurter (blended central-bank reference rates)",
+                "source_url": "https://frankfurter.dev/",
+                "retrieved_at": date.today().isoformat(),
+            })
+        observations.sort(key=lambda item: (item["series_id"], item["date"]))
+        return {
+            "build": "3.4", "provider": "Frankfurter", "provider_url": "https://frankfurter.dev/",
+            "status": "available" if observations else "no_data",
+            "date_range": {"start": start, "end": end},
+            "request_count": 1, "requests_succeeded": 1, "requests_failed": 0,
+            "observation_count": len(observations), "observations": observations,
+            "errors": [], "limitations": [
+                "No API key or account is required; availability depends on the public service.",
+                "Rates are daily reference/mid-market rates blended from central-bank and official sources, not intraday trading quotes.",
+                "The selected base is USD; quote values are IDR, EUR, and CNY per USD.",
+                "Provider coverage, publication dates, weekends, holidays, and revisions may affect the returned range.",
+                "No trading signals, investment advice, causal claims, or forecasts are produced.",
+            ],
+        }
+    except Exception as exc:
+        return {
+            "build": "3.4", "provider": "Frankfurter", "provider_url": "https://frankfurter.dev/",
+            "status": "unavailable", "date_range": {"start": start, "end": end},
+            "request_count": 1, "requests_succeeded": 0, "requests_failed": 1,
+            "observation_count": 0, "observations": [],
+            "errors": [{"provider": "Frankfurter", "error": str(exc)[:500]}],
+            "limitations": ["Public no-key FX provider did not return data in this run; missing data are not zero-filled."],
+        }
+
+
+def render_public_market_html(data: dict[str, Any]) -> str:
+    esc = lambda value: escape(str(value if value is not None else ""), quote=True)
+    observations = data.get("observations", [])
+    observations = [x for x in observations if isinstance(x, dict)] if isinstance(observations, list) else []
+    rows = "".join(
+        f'<tr><td>{esc(x.get("series"))}</td><td>{esc(x.get("date"))}</td>'
+        f'<td class="num">{esc(x.get("value"))}</td><td>{esc(x.get("unit"))}</td>'
+        f'<td>{esc(x.get("source"))}</td></tr>' for x in observations
+    ) or '<tr><td colspan="5">No public FX observations available for this run.</td></tr>'
+    errors = data.get("errors", [])
+    notes = "; ".join(esc(x.get("error")) for x in errors if isinstance(x, dict)) or "No request errors reported."
+    return (
+        '<section class="panel" id="public-market-data"><h2>Public FX Reference Data · No API Key</h2>'
+        f'<div class="grid"><article class="metric"><div class="muted">Observations</div><strong>{data.get("observation_count", 0)}</strong><small>Daily reference rates</small></article>'
+        f'<article class="metric"><div class="muted">Requests succeeded</div><strong>{data.get("requests_succeeded", 0)}</strong><small>Public provider requests</small></article>'
+        f'<article class="metric"><div class="muted">Requests failed</div><strong>{data.get("requests_failed", 0)}</strong><small>Provider availability</small></article></div>'
+        f'<div class="table-wrap"><table><thead><tr><th>Currency pair</th><th>Date</th><th>Rate</th><th>Unit</th><th>Source</th></tr></thead><tbody>{rows}</tbody></table></div>'
+        f'<p class="muted">Provider: <a href="https://frankfurter.dev/" rel="noopener noreferrer" target="_blank">Frankfurter</a>. Status: {esc(data.get("status", "unknown"))}. Notes: {notes}</p>'
+        '<p class="notice">Daily reference/mid-market rates, not live trading quotes. USD is the base currency; values are local currency units per USD. No trading advice or forecasts.</p></section>'
+    )
+
+
 def render_fred_html(data: dict[str, Any]) -> str:
     esc = lambda value: escape(str(value if value is not None else ""), quote=True)
     observations = data.get("observations", [])
