@@ -54,3 +54,10 @@ The dashboard displays the required attribution: "This product uses the FRED® A
 ```bash
 python -m unittest discover -s tests -v
 ```
+
+
+## Build 3.5 — Cross-Asset Market Analytics
+
+Implemented in `mdv14/market_analytics.py`. It consumes observations from the no-key Frankfurter adapter and, when configured, the optional FRED adapter. Each series is summarized independently with first/latest observed values, absolute and percentage change, direction, and population standard deviation of observed-step percentage changes when at least two return steps exist. The CLI adds `market_analytics` to the JSON report, and the offline dashboard renders the summaries.
+
+The calculation does not annualize volatility, interpolate missing dates, merge unlike units into a composite score, or interpret movements as causal. Irregular dates, market closures, provider coverage, and revisions affect interpretation. Results are retrospective descriptors, not trading signals, investment advice, or forecasts. Tests are in `tests/test_market_analytics.py`.
