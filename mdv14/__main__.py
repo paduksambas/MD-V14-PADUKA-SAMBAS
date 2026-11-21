@@ -89,6 +89,9 @@ def main() -> int:
         "command_center_build": report.get("command_center", {}).get("build"),
         "command_center_posture": report.get("command_center", {}).get("strategic_posture", {}).get("status"),
         "command_center_operational_state": report.get("command_center", {}).get("operational_state"),
+        "country_explorer_build": report.get("country_explorer", {}).get("build"),
+        "countries_mapped": report.get("country_explorer", {}).get("countries_mapped", 0),
+        "countries_unmapped": report.get("country_explorer", {}).get("countries_unmapped", 0),
     }, ensure_ascii=False, indent=2))
     return 0
 
