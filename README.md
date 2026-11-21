@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 3.2 — Global Economic Intelligence & Strategic Market Impact (keyword-based sector review cues)
 - Build 3.1 — Global Geopolitical Intelligence Map & Interactive Country Risk Explorer (review-priority explorer)
 - Build 3.0 — Global Strategic Intelligence Command Center
 - Build 2.9 — AI Analyst & Autonomous Strategic Reporting (deterministic analyst report composer)
@@ -43,6 +44,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/analyst_report.py — executive brief, traceable findings, uncertainty register, and human review actions
 - mdv14/command_center.py — unified operational state, strategic posture, source coverage, and priority review queue
 - mdv14/country_explorer.py — country-centroid plotting, explicit metadata aggregation, and traceable country-level review profiles
+- mdv14/economic_intelligence.py — bilingual lexical sector cues for energy, trade/supply chain, commodities, technology, financial markets, and macroeconomy
 - mdv14/dashboard.py — self-contained offline command-center dashboard with interactive country explorer, operational, strategic, analyst, and global coverage views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -58,6 +60,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 3.2 Global Economic Intelligence & Strategic Market Impact
+The pipeline emits `economic_intelligence` with traceable records grouped into energy, trade/supply chain, commodities, technology/semiconductors, financial markets, and macroeconomy. Matching uses a curated English-Indonesian phrase vocabulary across supplied titles, summaries, categories, and topics. A signal may appear in multiple sectors. These are discovery cues—not live market prices, macroeconomic statistics, measured impact, causal attribution, financial advice, or forecasts. Input scores remain supplied heuristic scores; publisher labels do not prove independence. See docs/BUILD-3.2-ECONOMIC-INTELLIGENCE.md.
 
 ## Build 3.1 Global Geopolitical Intelligence Map & Country Explorer
 The pipeline emits `country_explorer` with country-level signal counts, average supplied scores, review-priority counts, warning counts, and traceable source records. The dashboard includes an interactive longitude/latitude plot with approximate curated country-centroid references; selecting a marker or country label opens its associated signals. Countries without a supported centroid remain visible in the table but are not plotted. The explorer only groups explicitly supplied country labels; it does not infer event location or territorial boundaries. Review-priority counts are analyst triage cues, not geopolitical risk ratings, threat severity, or probabilities. See docs/BUILD-3.1-COUNTRY-EXPLORER.md.
