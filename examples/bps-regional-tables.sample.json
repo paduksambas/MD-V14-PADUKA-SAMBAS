@@ -1,0 +1,15 @@
+{
+  "tables": [
+    {
+      "domain_id": "32",
+      "region_name": "Jawa Barat",
+      "level": "province",
+      "indicator_code": "REPLACE_WITH_STABLE_INDICATOR_ID",
+      "indicator_name": "Replace with the exact BPS table indicator label",
+      "variable_id": "REPLACE_WITH_BPS_VARIABLE_ID",
+      "period_id": "REPLACE_WITH_BPS_PERIOD_ID",
+      "period": "YYYY",
+      "unit": "Replace with the BPS table unit"
+    }
+  ]
+}
