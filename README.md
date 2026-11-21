@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 2.1 — Global Intelligence Dashboard
 - Build 2.0 — Global Intelligence Engine
 - Build 1.9 — Safe RSS/Atom Article Links
 - Python 3.11+; standard library only
@@ -22,7 +23,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/sqlite_store.py — persistent SQLite trend history and ordered observations
 - mdv14/advanced_scoring.py — momentum, acceleration, anomaly and attention-potential indicators
 - mdv14/global_intelligence.py — cross-country/topic summaries, history-based momentum, and explainable related-event discovery
-- mdv14/dashboard.py — self-contained offline HTML analytics dashboard
+- mdv14/dashboard.py — self-contained offline HTML analytics dashboard with global country/topic, rising-signal, and related-event views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
 ## Run tests
@@ -37,6 +38,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 2.1 Global Intelligence Dashboard
+The offline HTML dashboard now includes global intelligence summary metrics, country and topic activity tables with average-score profiles, rising signals with history-based momentum, and related-event discovery candidates with their matching basis. All untrusted labels are HTML-escaped. The dashboard remains a static local report and does not publish or transmit data. See docs/BUILD-2.1-GLOBAL-DASHBOARD.md.
 
 ## Build 2.0 Global Intelligence Engine
 The pipeline now emits `global_intelligence` with country and topic summaries, per-signal momentum when `score_history` is supplied, rising-signal candidates, and explainable related-event links based on explicit entities/topics or shared title terms. Missing geography remains `unknown`; no geography or topics are inferred. Related-event links are discovery hints, not causal findings or verified corroboration. Momentum is unavailable without historical score observations. This build analyzes supplied records and does not itself perform live global collection.
