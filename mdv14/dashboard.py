@@ -5,6 +5,7 @@ from collections import Counter
 from html import escape
 from typing import Any
 from .country_explorer import render_country_explorer_html
+from .economic_intelligence import render_economic_intelligence_html
 
 
 def _cell(value: Any) -> str:
@@ -75,6 +76,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
 
     intelligence = report.get("global_intelligence") or {}
     country_explorer_html = render_country_explorer_html(report.get("country_explorer") or {})
+    economic_intelligence_html = render_economic_intelligence_html(report.get("economic_intelligence") or {})
 
     def group_rows(items: list[dict[str, Any]]) -> str:
         rendered = []
@@ -275,6 +277,7 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 <article class="panel"><h2>Source metadata status</h2><ul>{source_summary}</ul></article>
 </section>
 {country_explorer_html}
+{economic_intelligence_html}
 <section class="panel"><h2>Global intelligence overview</h2><div class="grid">{global_cards}</div></section>
 <section class="columns">
 <article class="panel"><h2>Country activity</h2><div class="table-wrap"><table><thead><tr><th>Country</th><th class="num">Signals</th><th class="num">Avg. score</th><th>Score profile</th></tr></thead><tbody>{country_rows}</tbody></table></div></article>
