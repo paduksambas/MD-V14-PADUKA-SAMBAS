@@ -19,7 +19,7 @@ from .market_analytics import build_market_analytics
 from .public_assets import fetch_public_asset_data
 from .commodity_data import fetch_world_bank_commodity_data
 from .indonesia_intelligence import build_indonesia_economic_intelligence
-from .regional_intelligence import build_regional_intelligence, fetch_bps_region_catalog, fetch_bps_regional_tables
+from .regional_intelligence import build_regional_intelligence, fetch_bps_region_catalog, fetch_bps_regional_tables, load_bps_public_export
 
 
 def main() -> int:
@@ -42,6 +42,8 @@ def main() -> int:
     parser.add_argument("--regional-data", default=None, help="Optional normalized JSON export of BPS provincial/regency indicator observations.")
     parser.add_argument("--bps-api-key-env", default="BPS_API_KEY", help="Environment variable holding optional BPS WebAPI key (default: BPS_API_KEY).")
     parser.add_argument("--bps-tables-config", default=None, help="Optional JSON configuration of bounded BPS domain/variable/period requests.")
+    parser.add_argument("--bps-public-export", default=None, help="Optional public BPS export file (.csv, .xlsx or .json); no API key required.")
+    parser.add_argument("--bps-public-config", default=None, help="JSON column mapping/default metadata for --bps-public-export.")
     args = parser.parse_args()
 
     if args.limit < 1:
@@ -114,10 +116,10 @@ def main() -> int:
         except (OSError, json.JSONDecodeError) as exc:
             parser.error(f"cannot read --bps-tables-config: {exc}")
         bps_table_result = fetch_bps_regional_tables(bps_key, bps_config)
-    existing_rows = regional_input.get("observations", []) if isinstance(regional_input, dict) else regional_input
+    public_export_result = {"build": "4.1", "status": "not_configured", "observation_count": 0, "observations": [], "rejected_rows": 0}\n    if args.bps_public_export:\n        if not args.bps_public_config:\n            parser.error("--bps-public-export requires --bps-public-config with explicit column mapping and indicator metadata")\n        try:\n            with open(args.bps_public_config, "r", encoding="utf-8") as handle:\n                public_config = json.load(handle)\n            public_export_result = load_bps_public_export(args.bps_public_export, public_config)\n        except (OSError, json.JSONDecodeError, ValueError) as exc:\n            parser.error(f"cannot import --bps-public-export: {exc}")\n    report["bps_public_export"] = public_export_result\n    existing_rows = regional_input.get("observations", []) if isinstance(regional_input, dict) else regional_input
     if not isinstance(existing_rows, list):
         parser.error("--regional-data must contain an observations array or JSON array")
-    combined_regional_input = {"observations": existing_rows + bps_table_result.get("observations", [])}
+    combined_regional_input = {"observations": existing_rows + bps_table_result.get("observations", []) + public_export_result.get("observations", [])}
     report["bps_regional_tables"] = bps_table_result
     report["regional_intelligence"] = build_regional_intelligence(combined_regional_input, bps_catalog)
     try:
@@ -221,6 +223,9 @@ def main() -> int:
         "bps_table_requests": report.get("bps_regional_tables", {}).get("request_count", 0),
         "bps_table_observations": len(report.get("bps_regional_tables", {}).get("observations", [])),
         "bps_table_errors": report.get("bps_regional_tables", {}).get("requests_failed", 0),
+        "bps_public_export_status": report.get("bps_public_export", {}).get("status"),
+        "bps_public_export_observations": report.get("bps_public_export", {}).get("observation_count", 0),
+        "bps_public_export_rejected_rows": report.get("bps_public_export", {}).get("rejected_rows", 0),
     }, ensure_ascii=False, indent=2))
     return 0
 
