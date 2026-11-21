@@ -6,7 +6,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-OUTPUT_DIR="${PAGES_OUTPUT_DIR:-public}"
+OUTPUT_DIR="public"  # Fixed publish path; never let environment variables redirect cleanup.
 mkdir -p "$OUTPUT_DIR"
 # Publish only the generated dashboard. Clean the output directory to prevent
 # accidental publication of leftover reports, databases, or previous build files.
