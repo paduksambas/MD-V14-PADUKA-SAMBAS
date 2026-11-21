@@ -8,6 +8,7 @@ on:
       - 'examples/feeds.sample.json'
       - 'mdv14/knowledge_graph.py'
       - 'mdv14/analyst_report.py'
+      - 'mdv14/command_center.py'
       - 'mdv14/dashboard.py'
       - 'mdv14/pipeline.py'
   workflow_dispatch:
