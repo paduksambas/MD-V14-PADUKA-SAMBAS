@@ -28,7 +28,7 @@ MAX_DATE_RANGE_MONTHS = 120
 SHEET_NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 REL_NS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
 PKG_REL_NS = "{http://schemas.openxmlformats.org/package/2006/relationships}"
-PERIOD_RE = re.compile(r"^(\\d{4})M(\\d{1,2})$", re.I)
+PERIOD_RE = re.compile(r"^(\d{4})M(\d{1,2})$", re.I)
 COMMODITIES = {
     "Crude oil, Brent": {"id": "WB:CRUDE_BRENT", "category": "energy", "unit_hint": "USD per barrel"},
     "Crude oil, WTI": {"id": "WB:CRUDE_WTI", "category": "energy", "unit_hint": "USD per barrel"},
