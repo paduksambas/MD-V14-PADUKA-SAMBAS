@@ -13,7 +13,9 @@ on:
       - 'mdv14/economic_intelligence.py'
       - 'mdv14/economic_data.py'
       - 'mdv14/market_data.py'
-      - 'mdv14/market_analytics.py'\n      - 'mdv14/public_assets.py'\n      - 'tests/test_public_assets.py'
+      - 'mdv14/market_analytics.py'
+      - 'mdv14/public_assets.py'
+      - 'tests/test_public_assets.py'
       - 'tests/test_market_analytics.py'
       - 'tests/test_market_data.py'
       - 'mdv14/__main__.py'
@@ -83,7 +85,9 @@ jobs:
               f"- Recent published items (24h): {status.get('signals_published_within_window', 0)}",
               "- This is a scheduled feed collection, not continuous surveillance or fact verification.",
           ]
-          Path(__import__("os").environ["GITHUB_STEP_SUMMARY"]).write_text("\n".join(lines) + "\n", encoding="utf-8")
+          Path(__import__("os").environ["GITHUB_STEP_SUMMARY"]).write_text("
+".join(lines) + "
+", encoding="utf-8")
           PY
           else
             echo "Monitoring report was not generated." >> "$GITHUB_STEP_SUMMARY"
