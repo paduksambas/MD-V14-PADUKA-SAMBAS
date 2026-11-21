@@ -29,6 +29,15 @@ def _score(value: Any) -> float:
     return score if isfinite(score) else 0.0
 
 
+
+def _safe_count(value: Any) -> int:
+    """Normalize malformed count values to zero for dashboard rendering."""
+    try:
+        return max(0, int(value or 0))
+    except (TypeError, ValueError, OverflowError):
+        return 0
+
+
 def build_dashboard_html(report: dict[str, Any]) -> str:
     """Render an accessible static dashboard from an existing MD V14 report."""
     signals = report.get("signals", [])
@@ -107,8 +116,8 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         rendered = []
         for item in items:
             name = _cell(item.get("name", "Unknown"))
-            count = int(item.get("signal_count", 0) or 0)
-            average = float(item.get("average_score", 0) or 0)
+            count = _safe_count(item.get("signal_count"))
+            average = _score(item.get("average_score"))
             width = max(0.0, min(100.0, average))
             rendered.append(
                 "<tr>"
