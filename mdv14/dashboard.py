@@ -72,6 +72,63 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         return (f"<article class='metric'><div class='muted'>{_cell(label)}</div>"
                 f"<strong>{_cell(value)}</strong><small>{_cell(note)}</small></article>")
 
+    intelligence = report.get("global_intelligence") or {}
+
+    def group_rows(items: list[dict[str, Any]]) -> str:
+        rendered = []
+        for item in items:
+            name = _cell(item.get("name", "Unknown"))
+            count = int(item.get("signal_count", 0) or 0)
+            average = float(item.get("average_score", 0) or 0)
+            width = max(0.0, min(100.0, average))
+            rendered.append(
+                "<tr>"
+                f"<td>{name}</td><td class='num'>{count}</td>"
+                f"<td class='num'>{average:.1f}</td>"
+                f"<td><div class='bar-track' role='img' aria-label='Average score {average:.1f} out of 100'>"
+                f"<span class='bar-fill' style='width:{width:.1f}%'></span></div></td></tr>"
+            )
+        return "".join(rendered) or "<tr><td colspan='4'>No global intelligence data available.</td></tr>"
+
+    country_rows = group_rows(intelligence.get("country_analysis", []))
+    topic_rows = group_rows(intelligence.get("topic_analysis", []))
+
+    rising_rows = []
+    for item in intelligence.get("rising_signals", []):
+        rising_rows.append(
+            "<tr>"
+            f"<td>{_cell(item.get('title'))}</td>"
+            f"<td>{_cell(item.get('country', 'unknown'))}</td>"
+            f"<td>{_cell(', '.join(item.get('topics', [])))}</td>"
+            f"<td class='num'>{_cell(item.get('score'))}</td>"
+            f"<td class='num'>{_cell(item.get('momentum'))}</td>"
+            "</tr>"
+        )
+    if not rising_rows:
+        rising_rows.append("<tr><td colspan='5'>No rising signals with sufficient history.</td></tr>")
+
+    relation_rows = []
+    for item in intelligence.get("related_events", []):
+        basis = ", ".join(item.get("relationship_basis", []))
+        relation_rows.append(
+            "<tr>"
+            f"<td>{_cell(item.get('left_title'))}</td>"
+            f"<td>{_cell(item.get('left_country', 'unknown'))}</td>"
+            f"<td>{_cell(item.get('right_title'))}</td>"
+            f"<td>{_cell(item.get('right_country', 'unknown'))}</td>"
+            f"<td>{_cell(basis)}</td>"
+            "</tr>"
+        )
+    if not relation_rows:
+        relation_rows.append("<tr><td colspan='5'>No related-event candidates identified.</td></tr>")
+
+    global_cards = "".join([
+        metric("Signals analyzed", intelligence.get("signals_analyzed", 0), "Global intelligence input"),
+        metric("Countries represented", len(intelligence.get("country_analysis", [])), "Explicit metadata only"),
+        metric("Topics represented", len(intelligence.get("topic_analysis", [])), "Supplied topics/categories"),
+        metric("Rising signals", len(intelligence.get("rising_signals", [])), "Positive historical momentum"),
+        metric("Related-event candidates", len(intelligence.get("related_events", [])), "Not causal findings"),
+    ])
     title = "MD V14 — Trend Intelligence Dashboard"
     date_label = brief.get("date", "Date unavailable")
     cards = "".join([
@@ -102,7 +159,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
 main{{max-width:1180px;margin:auto;padding:28px 20px 56px}}header{{margin-bottom:24px}}h1{{font-size:clamp(1.6rem,4vw,2.35rem);margin:0 0 6px}}h2{{font-size:1.1rem;margin:0 0 14px}}.muted,small{{color:var(--muted)}}.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin:20px 0}}
 .metric,.panel{{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:17px}}.metric strong{{display:block;font-size:1.9rem;margin:5px 0}}.metric small{{display:block}}
 .columns{{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}}@media(max-width:700px){{.columns{{grid-template-columns:1fr}}}}
-table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}}th{{color:var(--muted);font-weight:600}}.num{{font-variant-numeric:tabular-nums;text-align:right}}.table-wrap{{overflow-x:auto}}ul{{list-style:none;padding:0;margin:0}}li{{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}}.notice{{border-left:3px solid var(--accent);padding:10px 14px;background:var(--panel);border-radius:5px;color:var(--muted);margin-top:18px}}footer{{margin-top:22px;color:var(--muted);font-size:.85rem}}
+table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}}th{{color:var(--muted);font-weight:600}}.num{{font-variant-numeric:tabular-nums;text-align:right}}.table-wrap{{overflow-x:auto}}ul{{list-style:none;padding:0;margin:0}}li{{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}}.bar-track{{height:9px;min-width:100px;background:var(--line);border-radius:99px;overflow:hidden}}.bar-fill{{display:block;height:100%;background:var(--accent);border-radius:99px}}.notice{{border-left:3px solid var(--accent);padding:10px 14px;background:var(--panel);border-radius:5px;color:var(--muted);margin-top:18px}}footer{{margin-top:22px;color:var(--muted);font-size:.85rem}}
 </style></head><body><main>
 <header><div class="muted">PADUKA SAMBAS · GLOBAL TREND INTELLIGENCE</div>
 <h1>{_cell(title)}</h1><div class="muted">Report date: {_cell(date_label)}</div></header>
@@ -111,6 +168,13 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 <article class="panel"><h2>Warning distribution</h2><ul>{warnings}</ul></article>
 <article class="panel"><h2>Source metadata status</h2><ul>{source_summary}</ul></article>
 </section>
+<section class="panel"><h2>Global intelligence overview</h2><div class="grid">{global_cards}</div></section>
+<section class="columns">
+<article class="panel"><h2>Country activity</h2><div class="table-wrap"><table><thead><tr><th>Country</th><th class="num">Signals</th><th class="num">Avg. score</th><th>Score profile</th></tr></thead><tbody>{country_rows}</tbody></table></div></article>
+<article class="panel"><h2>Topic activity</h2><div class="table-wrap"><table><thead><tr><th>Topic</th><th class="num">Signals</th><th class="num">Avg. score</th><th>Score profile</th></tr></thead><tbody>{topic_rows}</tbody></table></div></article>
+</section>
+<section class="panel"><h2>Rising signals</h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Country</th><th>Topics</th><th class="num">Score</th><th class="num">Momentum</th></tr></thead><tbody>{''.join(rising_rows)}</tbody></table></div></section>
+<section class="panel"><h2>Related-event discovery</h2><div class="table-wrap"><table><thead><tr><th>Event A</th><th>Country</th><th>Event B</th><th>Country</th><th>Relationship basis</th></tr></thead><tbody>{''.join(relation_rows)}</tbody></table></div><p class="muted">These are discovery candidates based on shared metadata or wording, not evidence of causality or independent corroboration.</p></section>
 <section class="panel"><h2>Source intelligence &amp; provenance</h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Source</th><th>Domain</th><th>Metadata status</th><th class="num">Checks</th><th>Reliability verdict</th></tr></thead><tbody>{''.join(source_rows)}</tbody></table></div></section>
 <section class="panel"><h2>Category distribution</h2><div class="table-wrap"><table><thead><tr><th>Category</th><th class="num">Signals</th></tr></thead><tbody>{category_rows}</tbody></table></div></section>
 <section class="panel"><h2>Advanced trend intelligence</h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Category</th><th class="num">Score</th><th>Warning</th><th>History</th><th class="num">Momentum</th><th class="num">Acceleration</th><th>Anomaly review</th><th>Confidence</th><th>Source</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div></section>
