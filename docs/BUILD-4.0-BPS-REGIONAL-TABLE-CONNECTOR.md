@@ -15,7 +15,13 @@ Official documentation: https://webapi.bps.go.id/documentation/ . The BPS guide 
 
 ## Configure
 
-1. Register the MD V14 application through BPS and add the issued credential as GitHub Actions secret `BPS_API_KEY`. Never paste the key into the repository or chat.
+1. Register the MD V14 application through BPS and obtain its credential.
+2. In GitHub, open **Settings → Secrets and variables → Actions → New repository secret**. Name it exactly `BPS_API_KEY` and paste the credential into the secret-value field. Never paste the key into the repository, workflow YAML, report, or chat.
+3. Confirm the repository Actions workflow has access to the secret. The workflow passes it only as an environment variable; it is not printed in the workflow summary.
+4. Identify the exact BPS dynamic table, domain ID, variable ID, and period ID from current BPS metadata/API documentation. Do not guess these identifiers.
+5. Create `examples/bps-regional-tables.json` based on `examples/bps-regional-tables.sample.json`, using one object per domain/variable/period cell.
+6. Keep each run at or below 100 requests. A single indicator across hundreds of regions may need deliberate batches; do not increase the cap to bypass BPS rate limits.
+7. Workflow calls the config only when the non-secret file `examples/bps-regional-tables.json` exists. The repository sample is a template and is not automatically queried.
 2. Identify the exact BPS dynamic table, domain ID, variable ID, and period ID from current BPS metadata/API documentation. Do not guess these identifiers.
 3. Create `examples/bps-regional-tables.json` based on `examples/bps-regional-tables.sample.json`, using one object per domain/variable/period cell.
 4. Keep each run at or below 100 requests. A single indicator across hundreds of regions may need deliberate batches; do not increase the cap to bypass BPS rate limits.
