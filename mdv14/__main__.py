@@ -22,18 +22,22 @@ def main() -> int:
     parser.add_argument("--dashboard", help="Optional path for a self-contained HTML dashboard.")
     parser.add_argument("--limit", type=int, default=10, help="Maximum brief entries.")
     parser.add_argument("--date", default=None, help="Brief date in YYYY-MM-DD format.")
+    parser.add_argument("--research-question", default=None, help="Optional question for the auditable multi-source research report (requires --feeds).")
     args = parser.parse_args()
 
     if args.limit < 1:
         parser.error("--limit must be at least 1")
     local_signals = load_signals(args.input) if args.input else []
+    if args.research_question and not args.feeds:
+        parser.error("--research-question requires --feeds")
     if args.feeds:
         with open(args.feeds, "r", encoding="utf-8") as handle:
             feeds = json.load(handle)
         if not isinstance(feeds, list) or any(not isinstance(item, dict) for item in feeds):
             parser.error("--feeds must contain a JSON array of objects")
         report = collect_and_run(
-            feeds, extra_signals=local_signals, brief_date=args.date, limit=args.limit
+            feeds, extra_signals=local_signals, brief_date=args.date, limit=args.limit,
+            research_question=args.research_question
         )
     else:
         report = run_pipeline(local_signals, brief_date=args.date, limit=args.limit)
@@ -79,6 +83,7 @@ def main() -> int:
         "signals_needing_review": report["evidence_review_required"],
         "feeds_succeeded": report.get("collection", {}).get("feeds_succeeded", 0),
         "history_tracked": report.get("history", {}).get("tracked_trends", 0),
+        "research_records_reviewed": report.get("research", {}).get("records_reviewed", 0),
     }, ensure_ascii=False, indent=2))
     return 0
 
