@@ -117,7 +117,7 @@ class RegionalIntelligenceTests(unittest.TestCase):
         from mdv14.regional_intelligence import load_bps_public_export
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / "bps.csv"
-            source.write_text("Kode,Nama,Tingkat,Indikator,Tahun,Nilai\\n32,Jawa Barat,province,PDRB,2023,5.31\\n", encoding="utf-8")
+            source.write_text("Kode,Nama,Tingkat,Indikator,Tahun,Nilai\n32,Jawa Barat,province,PDRB,2023,5.31\n", encoding="utf-8")
             result = load_bps_public_export(str(source), {
                 "columns": {"region_code": "Kode", "region_name": "Nama", "level": "Tingkat",
                             "indicator_code": "Indikator", "period": "Tahun", "value": "Nilai"},
@@ -135,7 +135,7 @@ class RegionalIntelligenceTests(unittest.TestCase):
         from mdv14.regional_intelligence import load_bps_public_export
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / "bps.csv"
-            source.write_text("Kode,Nama,Tingkat,Indikator,Tahun,Nilai\\n32,Jawa Barat,province,PDRB,2023,bukan-angka\\n", encoding="utf-8")
+            source.write_text("Kode,Nama,Tingkat,Indikator,Tahun,Nilai\n32,Jawa Barat,province,PDRB,2023,bukan-angka\n", encoding="utf-8")
             result = load_bps_public_export(str(source), {
                 "columns": {"region_code": "Kode", "region_name": "Nama", "level": "Tingkat",
                             "indicator_code": "Indikator", "period": "Tahun", "value": "Nilai"}
@@ -152,7 +152,7 @@ class RegionalIntelligenceTests(unittest.TestCase):
             source = Path(directory) / "bps.json"
             source.write_text(json.dumps([{"region_code":"32","region_name":"Jawa Barat","level":"province",
                 "indicator_code":"PDRB","period":"2023","value":5.3}]), encoding="utf-8")
-            result = load_bps_public_export(str(source), {"columns": {}})
+            result = load_bps_public_export(str(source), {"columns": {"region_code":"region_code","region_name":"region_name","level":"level","indicator_code":"indicator_code","period":"period","value":"value"}})
         self.assertEqual(result["observation_count"], 1)
 
     def test_public_bps_xlsx_first_sheet_reader(self):
