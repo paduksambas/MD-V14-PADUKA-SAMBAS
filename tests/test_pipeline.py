@@ -26,6 +26,13 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(classify_signal({"score": 40})["level"], "watch")
         self.assertEqual(classify_signal({"score": 39.9})["level"], "normal")
 
+    def test_invalid_url_is_not_evidence_complete(self):
+        result = assess_evidence({
+            "title": "Claim", "source": "Example", "url": "javascript:alert(1)"
+        })
+        self.assertFalse(result["evidence_complete"])
+        self.assertFalse(result["source_url_valid"])
+
     def test_threshold_validation(self):
         with self.assertRaises(ValueError):
             WarningThresholds(watch=70, elevated=60, critical=80)
@@ -47,6 +54,10 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(result["warning_summary"]["critical"], 1)
         self.assertEqual(result["daily_brief"]["signals_included"], 1)
         self.assertFalse(result["signals"][0]["evidence"]["truth_verified"])
+        brief_signal = result["daily_brief"]["top_signals"][0]
+        self.assertIn("evidence", brief_signal)
+        self.assertIn("warning", brief_signal)
+        self.assertEqual(brief_signal["warning"]["level"], "critical")
 
 
 if __name__ == "__main__":
