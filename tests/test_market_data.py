@@ -2,7 +2,8 @@
 import unittest
 from unittest.mock import patch
 
-from mdv14.market_data import (fetch_fred_market_data, render_fred_html,\n                                fetch_public_market_data, render_public_market_html)
+from mdv14.market_data import (fetch_fred_market_data, render_fred_html,
+                                fetch_public_market_data, render_public_market_html)
 
 
 class FredMarketDataTests(unittest.TestCase):
