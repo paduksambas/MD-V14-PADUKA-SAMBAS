@@ -122,4 +122,10 @@ def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[st
         report["research"] = build_research_report(
             research_question, report["signals"], report["collection"], limit=limit
         )
+        report["strategic_decision"] = build_strategic_decision_brief(
+            report["signals"], global_intelligence=report["global_intelligence"],
+            predictive_summary=report["predictive_summary"],
+            research=report["research"], strategic_impact=report["strategic_impact"],
+            limit=limit,
+        )
     return report
