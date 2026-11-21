@@ -67,6 +67,9 @@ def main() -> int:
     report["market_data"] = fetch_public_market_data(
         start_date=market_start_date, end_date=market_end_date,
     )
+    report["public_asset_data"] = fetch_public_asset_data(
+        start_date=market_start_date, end_date=market_end_date,
+    )
     try:
         report["fred_market_data"] = fetch_fred_market_data(
             os.environ.get(args.fred_api_key_env), start_date=market_start_date,
@@ -139,11 +142,6 @@ def main() -> int:
         "market_data_requests_failed": report.get("market_data", {}).get("requests_failed", 0),
         "fred_market_data_status": report.get("fred_market_data", {}).get("status"),
         "fred_market_data_observations": report.get("fred_market_data", {}).get("observation_count", 0),
-        "public_asset_data_build": report.get("public_asset_data", {}).get("build"),
-        "public_asset_data_status": report.get("public_asset_data", {}).get("status"),
-        "public_asset_data_observations": report.get("public_asset_data", {}).get("observation_count", 0),
-        "public_asset_data_requests_succeeded": report.get("public_asset_data", {}).get("requests_succeeded", 0),
-        "public_asset_data_requests_failed": report.get("public_asset_data", {}).get("requests_failed", 0),
         "public_asset_data_build": report.get("public_asset_data", {}).get("build"),
         "public_asset_data_status": report.get("public_asset_data", {}).get("status"),
         "public_asset_data_observations": report.get("public_asset_data", {}).get("observation_count", 0),
