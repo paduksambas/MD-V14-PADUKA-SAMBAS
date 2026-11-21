@@ -43,7 +43,7 @@ class LanguageIntelligenceTests(unittest.TestCase):
         report = build_research_report("climate", [
             {"title": "Cambio climático", "language": "es"}
         ])
-        self.assertEqual(report["language_coverage"]["language_counts"], {"es": 1})
+        self.assertEqual(report["language_coverage"]["language_counts"], {"Spanish": 1})
         self.assertEqual(report["records_with_keyword_match"], 0)
 
 
