@@ -17,6 +17,7 @@ from .knowledge_graph import build_knowledge_graph
 from .analyst_report import build_analyst_report
 from .command_center import build_command_center
 from .country_explorer import build_country_explorer
+from .economic_intelligence import analyze_economic_intelligence
 from .rss_collector import collect_feeds
 from .source_intelligence import assess_source_intelligence
 from .trend_registry import TrendRegistry, signal_id
@@ -109,6 +110,7 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
     report["analyst_report"] = build_analyst_report(report, limit=limit)
     report["command_center"] = build_command_center(report, limit=limit)
     report["country_explorer"] = build_country_explorer(report, limit=limit)
+    report["economic_intelligence"] = analyze_economic_intelligence(report["signals"], limit=limit)
     return report
 
 def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[str, Any]] = (),
@@ -151,4 +153,5 @@ def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[st
         report["analyst_report"] = build_analyst_report(report, limit=limit)
         report["command_center"] = build_command_center(report, limit=limit)
         report["country_explorer"] = build_country_explorer(report, limit=limit)
+        report["economic_intelligence"] = analyze_economic_intelligence(report["signals"], limit=limit)
     return report
