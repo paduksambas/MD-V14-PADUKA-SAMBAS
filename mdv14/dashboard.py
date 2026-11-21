@@ -8,6 +8,7 @@ from .country_explorer import render_country_explorer_html
 from .economic_intelligence import render_economic_intelligence_html
 from .economic_data import render_world_bank_html
 from .market_data import render_fred_html, render_public_market_html
+from .market_analytics import render_market_analytics_html
 
 
 def _cell(value: Any) -> str:
@@ -82,6 +83,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     world_bank_html = render_world_bank_html(report.get("economic_data") or {})
     public_market_html = render_public_market_html(report.get("market_data") or {})
     fred_market_html = render_fred_html(report.get("fred_market_data") or {})
+    market_analytics_html = render_market_analytics_html(report.get("market_analytics") or {})
 
     def group_rows(items: list[dict[str, Any]]) -> str:
         rendered = []
@@ -286,6 +288,7 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 {world_bank_html}
 {public_market_html}
 {fred_market_html}
+{market_analytics_html}
 <section class="panel"><h2>Global intelligence overview</h2><div class="grid">{global_cards}</div></section>
 <section class="columns">
 <article class="panel"><h2>Country activity</h2><div class="table-wrap"><table><thead><tr><th>Country</th><th class="num">Signals</th><th class="num">Avg. score</th><th>Score profile</th></tr></thead><tbody>{country_rows}</tbody></table></div></article>
