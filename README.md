@@ -3,7 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
-- Build 3.5 — Cross-Asset Market Analytics (descriptive change and observed-step volatility)
+- Build 3.6 — Public Equity & Commodity Market Data (no-key Stooq daily observations)\n- Build 3.5 — Cross-Asset Market Analytics (descriptive change and observed-step volatility)
 - Build 3.4 — Global Financial Markets Intelligence (no-key Frankfurter FX + optional FRED API)
 - Build 3.3 — Dedicated Economic Data Sources & Market Intelligence Integration (World Bank Indicators API)
 - Build 3.2 — Global Economic Intelligence & Strategic Market Impact (keyword-based sector review cues)
@@ -50,7 +50,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/economic_intelligence.py — curated English/Indonesian sector cues for energy, commodities/mining, trade/supply chains, finance/macroeconomy, technology/semiconductors, agriculture/food, and transport/logistics
 - mdv14/economic_data.py — bounded World Bank Indicators API client with country/year validation, allowlisted indicators, provenance, and missing-data preservation
 - mdv14/market_data.py — no-key Frankfurter daily FX reference-rate adapter plus optional FRED market observations adapter with fixed allowlists, key redaction, request bounds, and explicit missing-data status
-- mdv14/market_analytics.py — per-series retrospective change and observed-step volatility summaries without interpolation, cross-asset scoring, or forecasts
+- mdv14/market_analytics.py — per-series retrospective change and observed-step volatility summaries without interpolation, cross-asset scoring, or forecasts\n- mdv14/public_assets.py — bounded no-key Stooq daily close adapter for selected equity indices and commodity futures
 - mdv14/dashboard.py — self-contained offline command-center dashboard with interactive country explorer, operational, strategic, analyst, and global coverage views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -66,6 +66,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 3.6 Public Equity & Commodity Market Data
+The report now includes `public_asset_data`, retrieved without an API key from Stooq's daily CSV endpoint. The fixed symbol allowlist covers the S&P 500, NASDAQ Composite, DAX, Nikkei 225, WTI crude-oil futures, and gold futures. Each instrument is fetched independently; failed symbols are reported without suppressing successful instruments, and missing observations are not zero-filled. These are provider-supplied daily closes, not real-time or executable quotes. Futures values may depend on contract-roll conventions. This adapter does not include government-bond yields; optional FRED remains available only when configured. Build 3.5 analytics now includes these observations while keeping every series independent. See docs/BUILD-3.6-PUBLIC-ASSET-DATA.md.
 
 ## Build 3.5 Cross-Asset Market Analytics
 The report now includes `market_analytics`, which combines returned no-key Frankfurter observations and any available optional FRED observations, then analyzes each series independently. It reports first-to-latest absolute and percentage changes, direction, and population standard deviation of observed-step percentage changes when enough observations exist. It does not annualize volatility, combine unlike units, interpolate missing dates, or produce trading signals or forecasts. The dashboard displays the same traceable summaries. The CLI defaults to a 30-day market-data window so that changes can be compared across observations; custom dates remain available. This is descriptive analysis of observations returned in the current run; irregular observation intervals and provider coverage remain limitations. See docs/BUILD-3.5-MARKET-ANALYTICS.md.
