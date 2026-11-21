@@ -1,32 +1,33 @@
-# Build 4.6 — Private Online Deployment Foundation
+# Build 4.6 — Private Online Deployment (Access policy verification)
 
-## Current architecture
-The source repository remains public. It is used for code, automated tests, and builds. Private dashboard output must never be committed or uploaded as a normal GitHub Actions artifact.
+## Deployment architecture
+- Public GitHub repository stores source and workflows only.
+- Manual GitHub Actions build creates a transient report/dashboard in runner storage.
+- Cloudflare Pages hosts the dashboard.
+- Cloudflare Access must restrict the hostname to the owner's exact email.
+- Deployment is blocked unless the workflow reads and verifies the Access application policy before deploying.
 
-## Intended deployment
-- GitHub Actions: manual deployment workflow only (`.github/workflows/paduka-private-deploy.yml`).
-- Cloudflare Pages: serves the generated static dashboard.
-- Cloudflare Access: authentication gate in front of the Pages hostname; policy must allow only the owner's email identity.
-- No dashboard deployment is considered secure until Access is enabled and verified with both a denied anonymous request and an allowed owner login.
+## GitHub repository secrets
+Configure only after Cloudflare Pages and Access have been set up:
 
-## Required repository secrets
-Set these only after creating the Pages project and configuring the Access policy:
-- `CLOUDFLARE_API_TOKEN`: token scoped to Pages deployment permissions.
-- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare account identifier.
-- `CLOUDFLARE_PAGES_PROJECT`: existing Pages project name.
-- `PADUKA_ACCESS_PROTECTION_CONFIRMED`: exact value `YES`; deployment gate only, not proof of Access configuration.
-- `FRED_API_KEY`, `BPS_API_KEY`: optional provider credentials; never placed in dashboard HTML.
+- `CLOUDFLARE_API_TOKEN`: scoped token with Cloudflare Pages deployment permissions and Access Apps/Policies read permissions.
+- `CLOUDFLARE_ACCOUNT_ID`
+- `CLOUDFLARE_PAGES_PROJECT`
+- `CLOUDFLARE_ACCESS_APP_ID`: UUID of the Access application protecting PADUKA.
+- `PADUKA_ACCESS_URL`: the owner-protected HTTPS URL.
+- `PADUKA_OWNER_EMAIL`: the exact owner identity allowed to access.
+- `PADUKA_ACCESS_PROTECTION_CONFIRMED`: exact value `YES`; manual operator confirmation.
+- `FRED_API_KEY` and `BPS_API_KEY`: optional private data credentials.
 
-## Deployment safety gate
-The manual workflow refuses to run unless the Access confirmation gate and Cloudflare credentials/project are present. The confirmation secret is a human-controlled guard and **does not configure or verify Cloudflare Access**.
+## Automated fail-closed checks
+The workflow validates required secrets and then runs `scripts/verify_cloudflare_access.py` before deployment. The verifier checks:
+1. Access application ID exists in the Cloudflare account.
+2. Application is a self-hosted Access app.
+3. The Access application's hostname matches the deployment URL hostname.
+4. Exactly one Allow policy exists, and its sole Include rule is the exact owner email.
+5. Bypass/non-identity policies, broad Allow rules, extra Include rules, and Exclude rules cause a failure.
 
-## Required operator steps before first deployment
-1. Create a Cloudflare Pages project for PADUKA.
-2. Configure Cloudflare Access to require identity authentication and allow only the owner's email. Use a deny-by-default policy.
-3. Test Access on the Pages hostname: logged-out/incognito must be denied; the owner account must be allowed.
-4. Add the deployment secrets listed above to GitHub repository settings.
-5. Only then set `PADUKA_ACCESS_PROTECTION_CONFIRMED=YES` and run the workflow manually.
-6. Re-test Access after deployment. Do not share the hostname as proof of privacy.
+This is a policy-shape check, not an end-to-end login test. Before declaring the dashboard private and operational, test an anonymous/incognito request is blocked and the owner's authenticated login succeeds. Cloudflare API verification depends on a token with Access Apps and Policies read permission.
 
-## Status and limitations
-This build adds deployment preparation only. It does not create a Cloudflare account/project, configure an Access policy, add secrets, or publish the site. No private dashboard is online yet. Dashboard HTML is a snapshot of data at build time; it is not a live-updating backend.
+## Deployment status
+No Cloudflare account/project/policies or repository secrets are configured by this change. The dashboard remains offline until setup and deployment succeed. Reports are not committed or uploaded as Actions artifacts.
