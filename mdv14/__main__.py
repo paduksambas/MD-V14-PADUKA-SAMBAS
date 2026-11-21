@@ -16,6 +16,7 @@ from .advanced_scoring import assess_advanced_trend
 from .economic_data import fetch_world_bank_indicators
 from .market_data import fetch_fred_market_data, fetch_public_market_data
 from .market_analytics import build_market_analytics
+from .public_assets import fetch_public_asset_data
 
 
 def main() -> int:
@@ -33,7 +34,7 @@ def main() -> int:
     parser.add_argument("--economic-end-year", type=int, default=None, help="Last World Bank observation year (default: current year).")
     parser.add_argument("--fred-api-key-env", default="FRED_API_KEY", help="Environment variable holding an optional FRED API key (default: FRED_API_KEY).")
     parser.add_argument("--market-start-date", default=None, help="First public FX/FRED observation date (YYYY-MM-DD; default: 30 days before today).")
-    parser.add_argument("--market-end-date", default=None, help="Last FRED observation date (default: today).")
+    parser.add_argument("--market-end-date", default=None, help="Last public-market observation date (default: today).")
     args = parser.parse_args()
 
     if args.limit < 1:
@@ -73,7 +74,7 @@ def main() -> int:
         )
     except ValueError as exc:
         parser.error(str(exc))
-    report['market_analytics'] = build_market_analytics(report.get('market_data', {}), report.get('fred_market_data', {}))
+    report['market_analytics'] = build_market_analytics(report.get('market_data', {}), report.get('fred_market_data', {}), report.get('public_asset_data', {}))
     store = SQLiteTrendStore(args.database) if args.database else None
     if store:
         store.record_signals(report["signals"])
@@ -137,7 +138,7 @@ def main() -> int:
         "market_data_requests_succeeded": report.get("market_data", {}).get("requests_succeeded", 0),
         "market_data_requests_failed": report.get("market_data", {}).get("requests_failed", 0),
         "fred_market_data_status": report.get("fred_market_data", {}).get("status"),
-        "fred_market_data_observations": report.get("fred_market_data", {}).get("observation_count", 0),
+        "fred_market_data_observations": report.get("fred_market_data", {}).get("observation_count", 0),\n        "public_asset_data_build": report.get("public_asset_data", {}).get("build"),\n        "public_asset_data_status": report.get("public_asset_data", {}).get("status"),\n        "public_asset_data_observations": report.get("public_asset_data", {}).get("observation_count", 0),\n        "public_asset_data_requests_succeeded": report.get("public_asset_data", {}).get("requests_succeeded", 0),\n        "public_asset_data_requests_failed": report.get("public_asset_data", {}).get("requests_failed", 0),
         "market_analytics_build": report.get("market_analytics", {}).get("build"),
         "market_analytics_status": report.get("market_analytics", {}).get("status"),
         "market_analytics_series": report.get("market_analytics", {}).get("series_analyzed", 0),
