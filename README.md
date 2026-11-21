@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 2.0 — Global Intelligence Engine
 - Build 1.9 — Safe RSS/Atom Article Links
 - Python 3.11+; standard library only
 - Tests: unittest; GitHub Actions workflow included
@@ -20,6 +21,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/storage.py — atomic JSON storage
 - mdv14/sqlite_store.py — persistent SQLite trend history and ordered observations
 - mdv14/advanced_scoring.py — momentum, acceleration, anomaly and attention-potential indicators
+- mdv14/global_intelligence.py — cross-country/topic summaries, history-based momentum, and explainable related-event discovery
 - mdv14/dashboard.py — self-contained offline HTML analytics dashboard
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -35,6 +37,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 2.0 Global Intelligence Engine
+The pipeline now emits `global_intelligence` with country and topic summaries, per-signal momentum when `score_history` is supplied, rising-signal candidates, and explainable related-event links based on explicit entities/topics or shared title terms. Missing geography remains `unknown`; no geography or topics are inferred. Related-event links are discovery hints, not causal findings or verified corroboration. Momentum is unavailable without historical score observations. This build analyzes supplied records and does not itself perform live global collection.
 
 ## Build 1.9 safe article links
 RSS/Atom entries are retained only when their article URL uses HTTP or HTTPS, has a hostname, and contains no embedded credentials. Unsafe schemes and malformed links are skipped. This is URL hygiene, not publisher authentication or fact-checking. See docs/BUILD-1.9-SAFE-ARTICLE-LINKS.md.
