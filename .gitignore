@@ -1,0 +1,12 @@
+# Local/private MD V14 outputs — never commit
+/data/private/
+/build/private/
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+mdv14-history.sqlite3
+mdv14-history.sqlite3-*
+.env
+.env.*
+!.env.example
