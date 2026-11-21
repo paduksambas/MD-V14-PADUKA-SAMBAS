@@ -155,7 +155,7 @@ def analyze_global_trends(
                     "shared_topics": shared_topics,
                     "shared_title_terms": shared_terms,
                     "relationship_basis": basis,
-                    "cross_country": (_text(left.get("country")) or "unknown") != (_text(right.get("country")) or "unknown"),
+                    "cross_country": (bool(_text(left.get("country")) and _text(right.get("country"))\n                                      and _text(left.get("country")) != _text(right.get("country")))),
                     "causality_verified": False,
                     "notice": "Discovery relationship only; shared metadata or wording does not establish causality or factual corroboration.",
                 })
