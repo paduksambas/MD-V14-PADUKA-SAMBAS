@@ -6,7 +6,7 @@ from typing import Any, Iterable
 from .daily_brief import build_daily_brief
 from .early_warning import classify_signal
 from .fact_check import assess_evidence
-from .trend_registry import TrendRegistry
+from .trend_registry import TrendRegistry, signal_id
 
 
 def run_pipeline(
@@ -25,7 +25,7 @@ def run_pipeline(
     # Attach assessment metadata to the selected brief entries without changing ranking.
     assessments = {item["id"]: item for item in enriched}
     for item in brief["top_signals"]:
-        match = assessments.get(item.get("id"))
+        match = assessments.get(signal_id(item))
         if match:
             item["evidence"] = match["evidence"]
             item["warning"] = match["warning"]
