@@ -15,6 +15,7 @@ from .dashboard import build_dashboard_html
 from .advanced_scoring import assess_advanced_trend
 from .economic_data import fetch_world_bank_indicators
 from .market_data import fetch_fred_market_data, fetch_public_market_data
+from .market_analytics import build_market_analytics
 
 
 def main() -> int:
@@ -70,6 +71,7 @@ def main() -> int:
         )
     except ValueError as exc:
         parser.error(str(exc))
+    report['market_analytics'] = build_market_analytics(report.get('market_data', {}), report.get('fred_market_data', {}))
     store = SQLiteTrendStore(args.database) if args.database else None
     if store:
         store.record_signals(report["signals"])
@@ -134,6 +136,9 @@ def main() -> int:
         "market_data_requests_failed": report.get("market_data", {}).get("requests_failed", 0),
         "fred_market_data_status": report.get("fred_market_data", {}).get("status"),
         "fred_market_data_observations": report.get("fred_market_data", {}).get("observation_count", 0),
+        "market_analytics_build": report.get("market_analytics", {}).get("build"),
+        "market_analytics_status": report.get("market_analytics", {}).get("status"),
+        "market_analytics_series": report.get("market_analytics", {}).get("series_analyzed", 0),
     }, ensure_ascii=False, indent=2))
     return 0
 
