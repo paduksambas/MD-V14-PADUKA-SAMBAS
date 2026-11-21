@@ -3,12 +3,12 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
-- Build 1.8 — Global Intelligence Data Integration
+- Build 1.9 — Safe RSS/Atom Article Links
 - Python 3.11+; standard library only
 - Tests: unittest; GitHub Actions workflow included
 
 ## Modules
-- mdv14/rss_collector.py — configurable RSS/Atom collection with provenance extraction
+- mdv14/rss_collector.py — configurable RSS/Atom collection with provenance extraction and safe article-link validation
 - mdv14/data_integration.py — versioned global record schema, source catalog validation, metadata coverage
 - mdv14/cross_source.py — exact-title grouping across source domains
 - mdv14/trend_registry.py — signal normalization, stable IDs, provenance preservation
@@ -35,6 +35,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 1.9 safe article links
+RSS/Atom entries are retained only when their article URL uses HTTP or HTTPS, has a hostname, and contains no embedded credentials. Unsafe schemes and malformed links are skipped. This is URL hygiene, not publisher authentication or fact-checking. See docs/BUILD-1.9-SAFE-ARTICLE-LINKS.md.
 
 ## Build 1.8 global data integration
 Source catalogs define stable IDs, publisher, source type, country, region, language, topics, and enabled state. Records use schema version 1.0 and preserve publication/collection timestamps and collection method. Reports include metadata coverage, including unknown fields. RSS/Atom records preserve author and category fields where available. See docs/BUILD-1.8-GLOBAL-DATA-INTEGRATION.md.
