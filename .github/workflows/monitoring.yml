@@ -65,7 +65,7 @@ jobs:
           BPS_API_KEY: ${{ secrets.BPS_API_KEY }}
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
-          import json, os, re, urllib.request
+          import json, os, urllib.parse, urllib.request
           key=os.environ.get("BPS_API_KEY","").strip()
           print("\\n## BPS Sambas metadata discovery")
           if not key:
