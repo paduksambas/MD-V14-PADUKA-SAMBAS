@@ -33,7 +33,7 @@ def main() -> int:
     parser.add_argument("--economic-start-year", type=int, default=2020, help="First World Bank observation year (default: 2020).")
     parser.add_argument("--economic-end-year", type=int, default=None, help="Last World Bank observation year (default: current year).")
     parser.add_argument("--fred-api-key-env", default="FRED_API_KEY", help="Environment variable holding an optional FRED API key (default: FRED_API_KEY).")
-    parser.add_argument("--market-start-date", default=None, help="First public FX/FRED observation date (YYYY-MM-DD; default: 30 days before today).")
+    parser.add_argument("--market-start-date", default=None, help="First public FX/asset/FRED observation date (YYYY-MM-DD; default: 30 days before today).")
     parser.add_argument("--market-end-date", default=None, help="Last public-market observation date (default: today).")
     args = parser.parse_args()
 
