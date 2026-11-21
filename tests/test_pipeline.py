@@ -78,6 +78,8 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(result["analyst_report"]["records_analyzed"], 1)
         self.assertEqual(result["command_center"]["build"], "3.0")
         self.assertEqual(result["command_center"]["coverage"]["signals_analyzed"], 1)
+        self.assertEqual(result["country_explorer"]["build"], "3.1")
+        self.assertEqual(result["country_explorer"]["countries_unmapped"], 0)
         self.assertEqual(result["signals"][0]["data_schema_version"], "1.0")
         self.assertEqual(result["warning_summary"]["critical"], 1)
         self.assertEqual(result["daily_brief"]["signals_included"], 1)
