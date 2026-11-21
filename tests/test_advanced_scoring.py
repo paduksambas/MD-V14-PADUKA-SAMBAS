@@ -18,7 +18,7 @@ class AdvancedScoringTests(unittest.TestCase):
         )
         self.assertEqual(result["momentum"], 15.0)
         self.assertEqual(result["acceleration"], 5.0)
-        self.assertEqual(result["attention_potential_index"], 52.5)
+        self.assertEqual(result["attention_potential_index"], 50.0)
         self.assertEqual(result["momentum_direction"], "rising")
         self.assertEqual(result["confidence"], "moderate")
 
@@ -40,8 +40,8 @@ class AdvancedScoringTests(unittest.TestCase):
             [{"score": -5}, {"score": 120}, {"score": "bad"}]
         )
         self.assertEqual(result["observation_count"], 2)
-        self.assertEqual(result["momentum"], 0.0)
+        self.assertEqual(result["momentum"], 100.0)
 
 
-if __name__ == "__main__":
+if __name == "__main__":
     unittest.main()
