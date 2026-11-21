@@ -1,0 +1,17 @@
+{
+  "source_url": "https://www.bps.go.id/id/statistics-table",
+  "columns": {
+    "region_code": "Kode Wilayah",
+    "region_name": "Nama Wilayah",
+    "level": "Tingkat",
+    "indicator_code": "Kode Indikator",
+    "indicator_name": "Nama Indikator",
+    "period": "Tahun",
+    "value": "Nilai",
+    "unit": "Satuan",
+    "province_code": "Kode Provinsi"
+  },
+  "defaults": {
+    "source": "BPS public table export"
+  }
+}
