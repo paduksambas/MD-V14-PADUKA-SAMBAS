@@ -1,0 +1,88 @@
+"""Generate a self-contained, offline HTML analytics dashboard."""
+from __future__ import annotations
+
+from collections import Counter
+from html import escape
+from typing import Any
+
+
+def _cell(value: Any) -> str:
+    return escape(str(value if value is not None else ""), quote=True)
+
+
+def build_dashboard_html(report: dict[str, Any]) -> str:
+    """Render an accessible static dashboard from an existing MD V14 report."""
+    signals = report.get("signals", [])
+    brief = report.get("daily_brief", {})
+    warning_counts = report.get("warning_summary", {})
+    categories = Counter(str(item.get("category") or "Unclassified") for item in signals)
+    history = [item.get("history") for item in signals if item.get("history")]
+    reviewed = sum(1 for item in signals if not item.get("evidence", {}).get("evidence_complete", False))
+    avg_score = (sum(float(item.get("score", 0) or 0) for item in signals) / len(signals)) if signals else 0.0
+
+    rows = []
+    for item in sorted(signals, key=lambda x: float(x.get("score", 0) or 0), reverse=True):
+        hist = item.get("history") or {}
+        warning = item.get("warning") or {}
+        rows.append(
+            "<tr>"
+            f"<td>{_cell(item.get('title'))}</td>"
+            f"<td>{_cell(item.get('category'))}</td>"
+            f"<td class='num'>{_cell(item.get('score', 0))}</td>"
+            f"<td>{_cell(warning.get('level', 'unknown'))}</td>"
+            f"<td>{_cell(hist.get('direction', 'no history'))}</td>"
+            f"<td class='num'>{_cell(hist.get('score_delta', '—'))}</td>"
+            f"<td>{_cell(item.get('source') or 'Source review needed')}</td>"
+            "</tr>"
+        )
+    if not rows:
+        rows.append("<tr><td colspan='7'>No trend signals in this report.</td></tr>")
+
+    category_rows = "".join(
+        f"<tr><td>{_cell(name)}</td><td class='num'>{count}</td></tr>"
+        for name, count in sorted(categories.items(), key=lambda pair: (-pair[1], pair[0].casefold()))
+    ) or "<tr><td colspan='2'>No category data.</td></tr>"
+
+    def metric(label: str, value: Any, note: str = "") -> str:
+        return (f"<article class='metric'><div class='muted'>{_cell(label)}</div>"
+                f"<strong>{_cell(value)}</strong><small>{_cell(note)}</small></article>")
+
+    title = "MD V14 — Trend Intelligence Dashboard"
+    date_label = brief.get("date", "Date unavailable")
+    cards = "".join([
+        metric("Signals", len(signals), "In this report"),
+        metric("Average score", f"{avg_score:.1f}/100", "Supplied heuristic scores"),
+        metric("Needs source review", reviewed, "Metadata completeness only"),
+        metric("With history", len(history), "Persisted observations"),
+    ])
+    warnings = "".join(
+        f"<li><span>{_cell(level.title())}</span><b>{_cell(count)}</b></li>"
+        for level, count in (("critical", warning_counts.get("critical", 0)),
+                             ("elevated", warning_counts.get("elevated", 0)),
+                             ("watch", warning_counts.get("watch", 0)),
+                             ("normal", warning_counts.get("normal", 0)))
+    )
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{_cell(title)}</title>
+<style>
+:root{{color-scheme:light dark;--bg:#101827;--panel:#182438;--line:#314158;--muted:#a9b8cc;--text:#f2f6fc;--accent:#83b7ff}}
+*{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,sans-serif}}
+main{{max-width:1180px;margin:auto;padding:28px 20px 56px}}header{{margin-bottom:24px}}h1{{font-size:clamp(1.6rem,4vw,2.35rem);margin:0 0 6px}}h2{{font-size:1.1rem;margin:0 0 14px}}.muted,small{{color:var(--muted)}}.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin:20px 0}}
+.metric,.panel{{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:17px}}.metric strong{{display:block;font-size:1.9rem;margin:5px 0}}.metric small{{display:block}}
+.columns{{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}}@media(max-width:700px){{.columns{{grid-template-columns:1fr}}}}
+table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}}th{{color:var(--muted);font-weight:600}}.num{{font-variant-numeric:tabular-nums;text-align:right}}.table-wrap{{overflow-x:auto}}ul{{list-style:none;padding:0;margin:0}}li{{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}}.notice{{border-left:3px solid var(--accent);padding:10px 14px;background:var(--panel);border-radius:5px;color:var(--muted);margin-top:18px}}footer{{margin-top:22px;color:var(--muted);font-size:.85rem}}
+</style></head><body><main>
+<header><div class="muted">PADUKA SAMBAS · GLOBAL TREND INTELLIGENCE</div>
+<h1>{_cell(title)}</h1><div class="muted">Report date: {_cell(date_label)}</div></header>
+<section class="grid">{cards}</section>
+<section class="columns">
+<article class="panel"><h2>Warning distribution</h2><ul>{warnings}</ul></article>
+<article class="panel"><h2>Category distribution</h2><div class="table-wrap"><table><thead><tr><th>Category</th><th class="num">Signals</th></tr></thead><tbody>{category_rows}</tbody></table></div></article>
+</section>
+<section class="panel"><h2>Trend signals</h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Category</th><th class="num">Score</th><th>Warning</th><th>History</th><th class="num">Δ score</th><th>Source</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div></section>
+<p class="notice">Interpretation limits: scores and warning levels are heuristic inputs, not verified predictions. Historical score change is descriptive and is not a probability or forecast. Source metadata checks do not establish factual truth. Review original sources and context before acting.</p>
+<footer>Generated locally by MD V14. This dashboard is a static report; it does not transmit data or publish content.</footer>
+</main></body></html>
+""" 
