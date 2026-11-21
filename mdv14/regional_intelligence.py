@@ -383,3 +383,165 @@ def fetch_bps_regional_tables(
             "BPS table definitions, units, periods and revisions must be checked against source metadata.",
         ],
     }
+
+
+# Public BPS exports (CSV/XLSX/JSON) do not require a WebAPI key.
+import csv
+import hashlib
+import io
+import posixpath
+import zipfile
+import xml.etree.ElementTree as ET
+
+MAX_PUBLIC_EXPORT_BYTES = 10_000_000
+MAX_PUBLIC_EXPORT_ROWS = 100_000
+
+
+def _xlsx_first_sheet(content: bytes) -> list[dict[str, str]]:
+    """Read the first worksheet using the standard library; reject oversized/unsafe archives."""
+    with zipfile.ZipFile(io.BytesIO(content)) as archive:
+        names = set(archive.namelist())
+        if len(names) > 500 or any(name.startswith("/") or ".." in name.split("/") for name in names):
+            raise ValueError("invalid XLSX archive paths or excessive file count")
+        workbook = ET.fromstring(archive.read("xl/workbook.xml"))
+        rels = ET.fromstring(archive.read("xl/_rels/workbook.xml.rels"))
+        rel_ns = "{http://schemas.openxmlformats.org/package/2006/relationships}"
+        rel_map = {item.attrib["Id"]: item.attrib["Target"] for item in rels.findall(f"{rel_ns}Relationship")}
+        sheet = workbook.find(".//{http://schemas.openxmlformats.org/spreadsheetml/2006/main}sheet")
+        if sheet is None:
+            raise ValueError("XLSX contains no worksheet")
+        target = rel_map.get(sheet.attrib.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"))
+        if not target:
+            raise ValueError("XLSX first worksheet relationship is missing")
+        sheet_path = posixpath.normpath(posixpath.join("xl", target))
+        if not sheet_path.startswith("xl/") or sheet_path not in names:
+            raise ValueError("XLSX worksheet path is invalid")
+        shared = []
+        if "xl/sharedStrings.xml" in names:
+            root = ET.fromstring(archive.read("xl/sharedStrings.xml"))
+            for item in root.findall(".//{http://schemas.openxmlformats.org/spreadsheetml/2006/main}si"):
+                shared.append("".join(node.text or "" for node in item.iter("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}t")))
+        root = ET.fromstring(archive.read(sheet_path))
+        ns = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+        matrix = []
+        for row in root.findall(".//" + ns + "sheetData/" + ns + "row"):
+            values = {}
+            for cell in row.findall(ns + "c"):
+                ref = cell.attrib.get("r", "")
+                col = "".join(ch for ch in ref if ch.isalpha())
+                if not col:
+                    continue
+                value_node = cell.find(ns + "v")
+                value = value_node.text if value_node is not None else ""
+                if cell.attrib.get("t") == "s" and value:
+                    value = shared[int(value)]
+                elif cell.attrib.get("t") == "inlineStr":
+                    value = "".join(node.text or "" for node in cell.iter(ns + "t"))
+                values[col] = value
+            matrix.append(values)
+            if len(matrix) > MAX_PUBLIC_EXPORT_ROWS + 1:
+                raise ValueError("XLSX row limit exceeded")
+    if not matrix:
+        return []
+    def col_number(label: str) -> int:
+        number = 0
+        for char in label:
+            number = number * 26 + ord(char.upper()) - 64
+        return number
+    max_col = max((col_number(k) for row in matrix for k in row), default=0)
+    headers = [matrix[0].get(_column_label(i), "").strip() for i in range(1, max_col + 1)]
+    result = []
+    for row in matrix[1:]:
+        result.append({headers[i-1]: row.get(_column_label(i), "") for i in range(1, len(headers)+1) if headers[i-1]})
+    return result
+
+
+def _column_label(number: int) -> str:
+    label = ""
+    while number:
+        number, remainder = divmod(number - 1, 26)
+        label = chr(65 + remainder) + label
+    return label
+
+
+def load_bps_public_export(path: str, config: Any) -> dict[str, Any]:
+    """Normalize a downloaded BPS CSV, XLSX or JSON export using explicit column mapping.
+
+    Config format: {"columns": {"region_code":"Kode Wilayah", ...},
+    "defaults": {"level":"province", ...}, "source_url":"official table URL"}.
+    """
+    if not isinstance(config, dict) or not isinstance(config.get("columns"), dict):
+        raise ValueError("BPS public export config must contain a columns mapping")
+    file_path = str(path)
+    with open(file_path, "rb") as handle:
+        content = handle.read(MAX_PUBLIC_EXPORT_BYTES + 1)
+    if len(content) > MAX_PUBLIC_EXPORT_BYTES:
+        raise ValueError("BPS public export exceeds 10 MB limit")
+    suffix = file_path.lower().rsplit(".", 1)[-1]
+    if suffix == "csv":
+        decoded = None
+        for encoding in ("utf-8-sig", "utf-8", "cp1252"):
+            try:
+                decoded = content.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+        if decoded is None:
+            raise ValueError("CSV encoding is unsupported; save as UTF-8")
+        sample = decoded[:8192]
+        try:
+            dialect = csv.Sniffer().sniff(sample, delimiters=",;\\t")
+        except csv.Error:
+            dialect = csv.excel
+        source_rows = list(csv.DictReader(io.StringIO(decoded), dialect=dialect))
+    elif suffix == "xlsx":
+        source_rows = _xlsx_first_sheet(content)
+    elif suffix == "json":
+        payload = json.loads(content.decode("utf-8-sig"))
+        source_rows = payload.get("observations", payload) if isinstance(payload, dict) else payload
+        if not isinstance(source_rows, list):
+            raise ValueError("JSON export must be an array or contain observations array")
+    else:
+        raise ValueError("supported BPS public export formats are CSV, XLSX and JSON")
+    if len(source_rows) > MAX_PUBLIC_EXPORT_ROWS:
+        raise ValueError("BPS public export row limit exceeded")
+    columns = config["columns"]
+    defaults = config.get("defaults", {})
+    if not isinstance(defaults, dict):
+        raise ValueError("config defaults must be an object")
+    required = ("region_code", "region_name", "level", "indicator_code", "period", "value")
+    if any(key not in columns and key not in defaults for key in required):
+        raise ValueError("mapping/defaults must define region_code, region_name, level, indicator_code, period and value")
+    normalized, rejected = [], []
+    for index, raw in enumerate(source_rows, start=2):
+        if not isinstance(raw, dict):
+            rejected.append(f"row {index}: not an object")
+            continue
+        item = dict(defaults)
+        for field, header in columns.items():
+            if not isinstance(header, str):
+                raise ValueError(f"column mapping for {field} must be a header string")
+            item[field] = raw.get(header, "")
+        item.setdefault("source", "BPS public table export")
+        item.setdefault("source_url", str(config.get("source_url") or ""))
+        rows, row_rejections = _normalize_observations([item])
+        if rows:
+            normalized.extend(rows)
+        else:
+            rejected.append(f"row {index}: " + "; ".join(row_rejections))
+    return {
+        "build": "4.1", "status": "available" if normalized and not rejected else
+                  "partial" if normalized else "no_data",
+        "file_name": file_path.rsplit("/", 1)[-1],
+        "file_sha256": hashlib.sha256(content).hexdigest(),
+        "format": suffix, "source_url": str(config.get("source_url") or ""),
+        "rows_read": len(source_rows), "observation_count": len(normalized),
+        "rejected_rows": len(rejected), "rejection_reasons": rejected[:30],
+        "observations": normalized,
+        "limitations": [
+            "No BPS WebAPI key is used; the source file must be downloaded from a public BPS table/export page.",
+            "Column mapping and indicator metadata are explicit user configuration, not guessed from column names.",
+            "Only the first worksheet is read from XLSX files; formulas are not recalculated.",
+            "Check source table definitions, units, period, regional coverage and revision date before comparing values.",
+        ],
+    }
