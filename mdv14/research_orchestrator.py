@@ -28,11 +28,17 @@ def build_research_report(
     query_terms = _terms(prompt)
     ranked = []
     for signal in signals:
+        if not isinstance(signal, dict):
+            continue
         title = str(signal.get("title") or signal.get("topic") or "").strip()
         summary = str(signal.get("summary") or "").strip()
         content_terms = _terms(title + " " + summary)
         overlap = sorted(query_terms & content_terms)
         relevance = round(100 * len(overlap) / len(query_terms), 2) if query_terms else None
+        evidence = signal.get("evidence")
+        evidence = evidence if isinstance(evidence, dict) else {}
+        warning = signal.get("warning")
+        warning = warning if isinstance(warning, dict) else {}
         ranked.append({
             "title": title,
             "source": str(signal.get("source") or "unknown"),
@@ -41,17 +47,17 @@ def build_research_report(
             "published_at": signal.get("published_at"),
             "matched_terms": overlap,
             "relevance_score": relevance,
-            "evidence_complete": bool(signal.get("evidence", {}).get("evidence_complete")),
-            "warning_level": signal.get("warning", {}).get("level", "not_assessed"),
+            "evidence_complete": bool(evidence.get("evidence_complete")),
+            "warning_level": warning.get("level", "not_assessed"),
         })
     if query_terms:
         ranked.sort(key=lambda item: (-(item["relevance_score"] or 0), not item["evidence_complete"], item["title"].casefold()))
     else:
         ranked.sort(key=lambda item: (not item["evidence_complete"], item["title"].casefold()))
 
-    collection = collection or {}
+    collection = collection if isinstance(collection, dict) else {}
     feed_results = collection.get("feed_results", [])
-    feed_results = feed_results if isinstance(feed_results, list) else []
+    feed_results = [item for item in feed_results if isinstance(item, dict)] if isinstance(feed_results, list) else []
     successful = sum(1 for item in feed_results if item.get("ok"))
     failed = sum(1 for item in feed_results if not item.get("ok"))
     countries = Counter(item["country"] for item in ranked)
