@@ -35,6 +35,7 @@ class CollectionPipelineTests(unittest.TestCase):
         self.assertEqual(report["daily_brief"]["signals_included"], 1)
         self.assertEqual(report["monitoring"]["cycle_status"], "healthy")
         self.assertEqual(report["monitoring"]["signals_collected"], 1)
+        self.assertEqual(report["analyst_report"]["build"], "2.9")
 
     @patch("mdv14.pipeline.collect_feeds")
     def test_research_question_is_integrated_with_collected_records(self, collector):
@@ -61,6 +62,7 @@ class CollectionPipelineTests(unittest.TestCase):
         self.assertIn("research", report)
         self.assertEqual(report["research"]["records_reviewed"], 1)
         self.assertEqual(report["research"]["records_with_keyword_match"], 1)
+        self.assertEqual(report["analyst_report"]["strategic_context"]["research_candidates"], 1)
         self.assertEqual(report["strategic_decision"]["evidence_and_coverage_gaps"]["research_gaps"], report["research"]["research_gaps"])
 
     @patch("mdv14.pipeline.collect_feeds")
