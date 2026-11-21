@@ -26,12 +26,16 @@ class CLIDashboardTests(unittest.TestCase):
             payload = json.loads(report.read_text(encoding="utf-8"))
             self.assertTrue(payload["signals"])
             self.assertIn("advanced_intelligence", payload["signals"][0])
+            self.assertIn("source_intelligence", payload["signals"][0])
+            self.assertEqual(payload["source_intelligence_summary"]["reputation_verdicts_issued"], 0)
             self.assertEqual(
                 payload["signals"][0]["advanced_intelligence"]["confidence"],
                 "insufficient",
             )
             html = dashboard.read_text(encoding="utf-8")
             self.assertIn("Advanced trend intelligence", html)
+            self.assertIn("Source intelligence &amp; provenance", html)
+            self.assertIn("Reliability verdict", html)
             self.assertIn("Momentum", html)
             self.assertNotIn("https://fonts.googleapis.com", html)
 
