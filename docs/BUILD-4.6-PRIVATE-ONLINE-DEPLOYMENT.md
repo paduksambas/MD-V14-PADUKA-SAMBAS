@@ -24,10 +24,12 @@ The workflow validates required secrets and then runs `scripts/verify_cloudflare
 1. Access application ID exists in the Cloudflare account.
 2. Application is a self-hosted Access app.
 3. The Access application's hostname matches the deployment URL hostname.
-4. Exactly one Allow policy exists, and its sole Include rule is the exact owner email.
-5. Bypass/non-identity policies, broad Allow rules, extra Include rules, and Exclude rules cause a failure.
+4. The deployment URL path is covered by the configured Access application path.
+5. Exactly one Allow policy exists, and its sole Include rule is the exact owner email.
+6. Any non-Allow decision (including Bypass/Deny), broad Allow rules, extra Include rules, extra email-rule conditions, and Exclude rules cause a failure.
+7. URL credentials, query strings, and fragments are rejected so the configured target is unambiguous.
 
-This is a policy-shape check, not an end-to-end login test. Before declaring the dashboard private and operational, test an anonymous/incognito request is blocked and the owner's authenticated login succeeds. Cloudflare API verification depends on a token with Access Apps and Policies read permission.
+Regression tests cover owner-only success, broad/extra identities, non-Allow decisions, hostname/path mismatches, query strings, and extra email-rule conditions. The GitHub Actions Python test workflow passed after these changes (181 tests). This is a policy-shape check, not an end-to-end login test. Before declaring the dashboard private and operational, test an anonymous/incognito request is blocked and the owner's authenticated login succeeds. Cloudflare API verification depends on a token with Access Apps and Policies read permission.
 
 ## Deployment status
 No Cloudflare account/project/policies or repository secrets are configured by this change. The dashboard remains offline until setup and deployment succeed. Reports are not committed or uploaded as Actions artifacts.
