@@ -1,0 +1,24 @@
+{
+  "observations": [
+    {
+      "region_code": "32",
+      "region_name": "Jawa Barat",
+      "level": "province",
+      "indicator_code": "PDRB_GROWTH",
+      "indicator_name": "Pertumbuhan PDRB",
+      "period": "2023",
+      "value": 5.0,
+      "unit": "%"
+    },
+    {
+      "region_code": "33",
+      "region_name": "Jawa Tengah",
+      "level": "province",
+      "indicator_code": "PDRB_GROWTH",
+      "indicator_name": "Pertumbuhan PDRB",
+      "period": "2023",
+      "value": 4.8,
+      "unit": "%"
+    }
+  ]
+}
