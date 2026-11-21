@@ -5,29 +5,21 @@
 2. **Evidence Hygiene** checks required metadata and HTTP(S) URL shape. It does not verify factual truth.
 3. **Early Warning** classifies supplied 0–100 scores as normal, watch, elevated, or critical.
 4. **Daily Intelligence Brief** ranks evidence-complete signals first, then score and title.
-5. **Human review** remains mandatory for material claims and elevated/critical warnings.
+5. **JSON storage and CLI** load signal arrays and atomically save generated reports.
+6. **Human review** remains mandatory for material claims and elevated/critical warnings.
 
 ## Input contract
-Each signal may provide `title` (or `topic`), `source`, `url`, `summary`, `category`, and `score`. Missing titles are rejected by the registry. Missing source metadata is preserved and flagged.
+Each signal may provide `title` (or `topic`), `source`, `url`, `summary`, `category`, and `score`. Missing titles are rejected by the registry. Missing source metadata or malformed URLs are preserved and flagged.
 
-## Use
-```python
-from mdv14 import run_pipeline
+## Run
+From the repository root:
 
-report = run_pipeline(
-    [
-        {
-            "title": "Example trend",
-            "source": "Example newsroom",
-            "url": "https://example.com/report",
-            "summary": "Source-provided summary",
-            "category": "Technology",
-            "score": 72,
-        }
-    ],
-    brief_date="2026-11-21",
-)
+```bash
+python -m unittest discover -s tests -v
+python -m mdv14 examples/signals.sample.json --output build/report.json
 ```
+
+Replace the example placeholders with source-derived information before treating a report as intelligence output. The second sample item is deliberately incomplete to demonstrate the evidence-review path.
 
 ## Default warning bands
 - Normal: below 40
@@ -41,8 +33,5 @@ Thresholds are configurable. They are heuristics, not probabilities or verified 
 - This package does not collect live trends or scrape sources.
 - URL validation checks syntax only; it does not fetch or authenticate the source.
 - Scores are supplied by upstream systems and are not independently validated.
-- The registry is in-memory; production deployments must connect durable storage.
+- The registry is in-memory for each run; JSON input/output provides file-based handoff, not concurrent multi-user storage.
 - No external notifications or publication are triggered.
-
-## Tests
-Run: `python -m unittest discover -s tests -v`.
