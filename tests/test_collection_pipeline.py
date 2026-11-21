@@ -41,7 +41,7 @@ class CollectionPipelineTests(unittest.TestCase):
             "feeds_succeeded": 0, "feeds_failed": 1, "items_collected": 0,
             "feed_results": [], "signals": [],
         }
-        report = collect_and_run([{"name": "Broken", "url": "https://broken.example/rss"}])
+        report = collect_and_run([{"id": "broken", "name": "Broken", "url": "https://broken.example/rss"}])
         self.assertEqual(report["registry_size"], 0)
         self.assertEqual(report["collection"]["feeds_failed"], 1)
 
