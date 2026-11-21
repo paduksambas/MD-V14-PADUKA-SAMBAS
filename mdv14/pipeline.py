@@ -15,6 +15,7 @@ from .monitoring import build_monitoring_status
 from .language_intelligence import analyze_language_coverage
 from .knowledge_graph import build_knowledge_graph
 from .analyst_report import build_analyst_report
+from .command_center import build_command_center
 from .rss_collector import collect_feeds
 from .source_intelligence import assess_source_intelligence
 from .trend_registry import TrendRegistry, signal_id
@@ -63,7 +64,7 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
         status = item["source_intelligence"]["status"]
         statuses[status] = statuses.get(status, 0) + 1
     report = {
-        "pipeline": "MD V14", "stage": "Build 2.9 analyst reporting and strategic synthesis",
+        "pipeline": "MD V14", "stage": "Build 3.0 global strategic intelligence command center",
         "data_schema_version": "1.0", "registry_size": len(registry),
         "data_coverage": build_data_coverage(enriched),
         "language_intelligence": analyze_language_coverage(enriched),
@@ -105,6 +106,7 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
         ],
     }
     report["analyst_report"] = build_analyst_report(report, limit=limit)
+    report["command_center"] = build_command_center(report, limit=limit)
     return report
 
 def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[str, Any]] = (),
@@ -132,6 +134,7 @@ def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[st
     })
     report["monitoring"] = build_monitoring_status(report["collection"], report["signals"])
     report["analyst_report"] = build_analyst_report(report, limit=limit)
+    report["command_center"] = build_command_center(report, limit=limit)
     if research_question and research_question.strip():
         report["research"] = build_research_report(
             research_question, report["signals"], report["collection"], limit=limit
@@ -143,4 +146,5 @@ def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[st
             limit=limit,
         )
         report["analyst_report"] = build_analyst_report(report, limit=limit)
+        report["command_center"] = build_command_center(report, limit=limit)
     return report
