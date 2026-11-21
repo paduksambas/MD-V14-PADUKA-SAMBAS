@@ -8,6 +8,7 @@ class DashboardTests(unittest.TestCase):
     def test_dashboard_contains_report_metrics_history_and_advanced_indicators(self):
         report = {
             "daily_brief": {"date": "2026-11-21"},
+            "language_intelligence": {"records_with_declared_language": 2, "records_with_unknown_language": 1, "language_counts": {"English": 1, "Indonesian": 1}},
             "monitoring": {"cycle_status": "healthy", "generated_at": "2026-11-21T10:00:00Z", "feeds_succeeded": 2, "feeds_attempted": 2, "signals_collected": 3, "signals_published_within_window": 2, "signals_with_unknown_published_at": 1},
             "strategic_decision": {"review_queue": [{"priority_band": "high", "title": "Priority event", "priority_score": 82.5, "warning_level": "elevated", "source": "Desk", "url": "https://example.com/event"}]},
             "warning_summary": {"normal": 0, "watch": 0, "elevated": 1, "critical": 0},
