@@ -1,3 +1,19 @@
+## Build 4.2 Private Local Dashboard & Live WIB Clock
+
+The dashboard HTML now includes a live WIB clock (Asia/Jakarta), the report-generation timestamp, collection-cycle health, and the status reported by each configured data source. The clock updates every second in the browser; the underlying intelligence report is refreshed only when a new collection cycle completes.
+
+**Private delivery:** this repository is currently public. Therefore the scheduled workflow deliberately does not upload the report or dashboard as GitHub Actions artifacts and does not deploy GitHub Pages. The dashboard is generated as a standalone local HTML file. Generate it on a trusted machine using the normal CLI, then open the HTML file locally:
+
+```bash
+python -m mdv14 --feeds examples/feeds.sample.json \
+  --output build/latest-report.json \
+  --dashboard build/monitoring-dashboard.html \
+  --economic-countries ID,US,CN
+```
+
+The HTML is self-contained and can be opened on a computer, tablet, or phone after transferring the file securely. Do not place private reports in a public repository or public hosting service. A remotely accessible password-protected dashboard requires a private repository/hosting arrangement and explicit access-control configuration; it is not enabled by this build.
+
+The scheduled GitHub Actions collection remains every six hours. A live clock does not mean the underlying sources are real-time. Source statuses are displayed as reported by their adapters; missing or unconfigured providers are not presented as current data.
 ## Build 4.1 BPS Public Export Import (No API Key)
 Regional intelligence can now ingest official BPS public table exports in CSV, XLSX or normalized JSON without a WebAPI key. Use `--bps-public-export` with `--bps-public-config` to supply an explicit column mapping and metadata; the report records file SHA-256, source URL, accepted rows and rejected rows. XLSX reads the first worksheet only. This is a file-import workflow, not an automatic crawler or a direct Query Builder download. See docs/BUILD-4.1-BPS-PUBLIC-EXPORT-IMPORT.md and examples/bps-public-export.sample.json.
 
