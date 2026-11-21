@@ -9,6 +9,7 @@ from .fact_check import assess_evidence
 from .global_intelligence import analyze_global_trends
 from .predictive_intelligence import assess_predictive_outlook
 from .research_orchestrator import build_research_report
+from .strategic_impact import analyze_strategic_impact
 from .rss_collector import collect_feeds
 from .source_intelligence import assess_source_intelligence
 from .trend_registry import TrendRegistry, signal_id
@@ -54,6 +55,7 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
         "data_schema_version": "1.0", "registry_size": len(registry),
         "data_coverage": build_data_coverage(enriched), "daily_brief": brief,
         "global_intelligence": global_intelligence,
+        "strategic_impact": analyze_strategic_impact(enriched, limit=limit),
         "warning_summary": {level: sum(1 for item in enriched if item["warning"]["level"] == level)
                             for level in ("normal", "watch", "elevated", "critical")},
         "predictive_summary": {
@@ -80,6 +82,7 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
             "Registry state is in-memory for each run; persist reports with the JSON storage helpers.",
             "Global intelligence uses supplied geography, topics, entities, and score history only; related-event links are not causal findings.",
             "Predictive outlooks are linear scenarios in observation units based on supplied history; they are not dated forecasts or probabilities.",
+            "Strategic impact dimensions are keyword-based review cues; geopolitical cross-border candidates require explicit shared metadata and do not establish causality.",
         ],
     }
 
