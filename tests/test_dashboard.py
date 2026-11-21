@@ -28,6 +28,10 @@ class DashboardTests(unittest.TestCase):
         }
         html = build_dashboard_html(report)
         self.assertIn("Trend Intelligence Dashboard", html)
+        self.assertIn("quick-nav", html)
+        self.assertIn("href=\"#economy\"", html)
+        self.assertIn("id=\"regional\"", html)
+        self.assertIn("id=\"overview\"", html)
         self.assertIn("Trend A", html)
         self.assertIn("Technology", html)
         self.assertIn("rising", html)
