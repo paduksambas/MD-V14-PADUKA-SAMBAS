@@ -1,0 +1,51 @@
+name: PADUKA private dashboard deploy (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: paduka-private-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate private-access gate
+        env:
+          ACCESS_GATE_CONFIRMED: ${{ secrets.PADUKA_ACCESS_PROTECTION_CONFIRMED }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_PROJECT_NAME: ${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
+        run: |
+          test "$ACCESS_GATE_CONFIRMED" = "YES" || { echo "Deployment blocked: Cloudflare Access protection must be confirmed as enabled." >&2; exit 1; }
+          test -n "$CF_API_TOKEN" || { echo "Missing Cloudflare API token." >&2; exit 1; }
+          test -n "$CF_ACCOUNT_ID" || { echo "Missing Cloudflare account ID." >&2; exit 1; }
+          test -n "$CF_PROJECT_NAME" || { echo "Missing Cloudflare Pages project name." >&2; exit 1; }
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build dashboard into transient directory
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          BPS_API_KEY: ${{ secrets.BPS_API_KEY }}
+        run: |
+          mkdir -p build
+          python -m mdv14 --feeds examples/feeds.sample.json \
+            --output build/latest-report.json \
+            --dashboard build/index.html \
+            --economic-countries ID,US,CN
+          test -s build/index.html
+      - name: Deploy behind Cloudflare Access
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy build --project-name=${{ secrets.CLOUDFLARE_PAGES_PROJECT }}
