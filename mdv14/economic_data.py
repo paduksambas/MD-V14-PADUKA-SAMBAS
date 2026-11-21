@@ -24,6 +24,13 @@ INDICATORS = {
     "EG.IMP.CONS.ZS": {"name": "Energy imports, net (% of energy use)", "sector": "energy", "unit": "%"},
     "TX.VAL.MRCH.CD.WT": {"name": "Merchandise exports (current US$)", "sector": "trade_supply_chain", "unit": "current US$"},
     "TM.VAL.MRCH.CD.WT": {"name": "Merchandise imports (current US$)", "sector": "trade_supply_chain", "unit": "current US$"},
+    "NV.AGR.TOTL.ZS": {"name": "Agriculture, forestry, and fishing, value added (% of GDP)", "sector": "real_economy", "unit": "% of GDP"},
+    "NV.IND.TOTL.ZS": {"name": "Industry (including construction), value added (% of GDP)", "sector": "real_economy", "unit": "% of GDP"},
+    "NV.SRV.TOTL.ZS": {"name": "Services, value added (% of GDP)", "sector": "real_economy", "unit": "% of GDP"},
+    "SL.UEM.TOTL.ZS": {"name": "Unemployment, total (% of labor force)", "sector": "labor", "unit": "% of labor force"},
+    "BX.KLT.DINV.WD.GD.ZS": {"name": "Foreign direct investment, net inflows (% of GDP)", "sector": "external", "unit": "% of GDP"},
+    "FI.RES.TOTL.CD": {"name": "Total reserves (includes gold, current US$)", "sector": "external", "unit": "current US$"},
+    "BN.CAB.XOKA.GD.ZS": {"name": "Current account balance (% of GDP)", "sector": "external", "unit": "% of GDP"},
 }
 _COUNTRY = re.compile(r"^[A-Z]{2}$")
 _YEAR = re.compile(r"^\d{4}$")
