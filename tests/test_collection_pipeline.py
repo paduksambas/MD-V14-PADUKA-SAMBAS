@@ -20,11 +20,17 @@ class CollectionPipelineTests(unittest.TestCase):
                 "source": "Example News",
                 "url": "https://example.com/story",
                 "summary": "Source summary",
+                "feed_url": "https://example.com/rss",
+                "collection_method": "rss_atom",
                 "score": 0,
             }],
         }
-        report = collect_and_run([{"name": "Example", "url": "https://example.com/rss"}])
+        report = collect_and_run([{"id": "example", "name": "Example", "url": "https://example.com/rss", "country": "Indonesia", "language": "id", "topics": ["Technology"]}])
         self.assertEqual(report["registry_size"], 1)
+        self.assertEqual(report["signals"][0]["source_id"], "example")
+        self.assertEqual(report["signals"][0]["country"], "Indonesia")
+        self.assertEqual(report["signals"][0]["language"], "id")
+        self.assertEqual(report["signals"][0]["topics"], ["Technology"])
         self.assertEqual(report["collection"]["feeds_succeeded"], 1)
         self.assertEqual(report["daily_brief"]["signals_included"], 1)
 
