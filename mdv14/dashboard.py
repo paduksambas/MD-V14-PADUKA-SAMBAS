@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections import Counter
 from html import escape
+from math import isfinite
 from typing import Any
 from .country_explorer import render_country_explorer_html
 from .economic_intelligence import render_economic_intelligence_html
@@ -22,9 +23,10 @@ def _cell(value: Any) -> str:
 def _score(value: Any) -> float:
     """Return a safe numeric score for dashboard sorting and averages."""
     try:
-        return float(value or 0)
-    except (TypeError, ValueError):
+        score = float(value or 0)
+    except (TypeError, ValueError, OverflowError):
         return 0.0
+    return score if isfinite(score) else 0.0
 
 
 def build_dashboard_html(report: dict[str, Any]) -> str:
