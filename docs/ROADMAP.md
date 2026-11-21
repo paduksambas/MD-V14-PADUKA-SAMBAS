@@ -10,7 +10,7 @@
 - [x] Definisi taxonomy domain & tag tren — docs/TREND_TAXONOMY.md
 - [x] Rubrik scoring NIVCP dengan definisi operasional — docs/SIGNAL_SCORING.md
 - [x] Spesifikasi Trend Registry untuk menyimpan tren, bukti, skor, indikator, dan riwayat perubahan — docs/TREND_REGISTRY.md
-- [ ] Sistem Early Warning: trigger, tingkat keparahan, validasi, dan format alert
+- [x] Kerangka operasional Early Warning: trigger, severity, validasi, dan format alert — docs/EARLY_WARNING_SYSTEM.md
 - [ ] Template Daily Brief
 - [ ] Template Weekly Global Intelligence Report / outlook
 - [ ] Template Early Warning Memo
