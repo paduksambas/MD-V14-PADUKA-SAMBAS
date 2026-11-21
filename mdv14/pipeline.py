@@ -13,6 +13,7 @@ from .strategic_impact import analyze_strategic_impact
 from .strategic_decision import build_strategic_decision_brief
 from .monitoring import build_monitoring_status
 from .language_intelligence import analyze_language_coverage
+from .knowledge_graph import build_knowledge_graph
 from .rss_collector import collect_feeds
 from .source_intelligence import assess_source_intelligence
 from .trend_registry import TrendRegistry, signal_id
@@ -61,10 +62,12 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
         status = item["source_intelligence"]["status"]
         statuses[status] = statuses.get(status, 0) + 1
     return {
-        "pipeline": "MD V14", "stage": "Build 2.7 global source expansion and multilingual intelligence",
+        "pipeline": "MD V14", "stage": "Build 2.8 entity recognition and cross-language knowledge graph",
         "data_schema_version": "1.0", "registry_size": len(registry),
         "data_coverage": build_data_coverage(enriched),
-        "language_intelligence": analyze_language_coverage(enriched), "daily_brief": brief,
+        "language_intelligence": analyze_language_coverage(enriched),
+        "knowledge_graph": build_knowledge_graph(enriched, limit=max(limit, len(enriched) * 3)),
+        "daily_brief": brief,
         "global_intelligence": global_intelligence,
         "strategic_impact": strategic_impact,
         "strategic_decision": build_strategic_decision_brief(
@@ -87,6 +90,7 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
             "Source catalog geography, language, and publisher fields are supplied metadata, not independently verified.",
             "Unknown country, region, language, and publisher values are not inferred from domains.",
             "Multilingual research relevance uses a small deterministic English-Indonesian vocabulary; it is not translation, semantic search, or language detection.",
+            "Knowledge graph entity matching uses a curated alias catalog and explicit metadata only; matches and graph edges require human review and do not establish causality or truth.",
             "Coverage counts describe metadata completeness, not global representativeness.",
             "Cross-source grouping matches normalized titles only; distinct domains do not establish editorial independence or truth.",
             "Source intelligence checks metadata only; it does not rate reputation or verify claims.",
