@@ -8,7 +8,9 @@ cd "$ROOT"
 
 OUTPUT_DIR="${PAGES_OUTPUT_DIR:-public}"
 mkdir -p "$OUTPUT_DIR"
-rm -f "$OUTPUT_DIR/index.html"
+# Publish only the generated dashboard. Clean the output directory to prevent
+# accidental publication of leftover reports, databases, or previous build files.
+find "$OUTPUT_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 REPORT="$(mktemp -t mdv14-public-report-XXXXXX.json)"
 trap 'rm -f "$REPORT"' EXIT
 
