@@ -176,6 +176,29 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("&lt;script&gt;bad&lt;/script&gt;", html)
         self.assertIn("review-order cues", html)
 
+    def test_dashboard_renders_build_3_5_market_analytics(self):
+        report = {
+            "signals": [],
+            "market_analytics": {
+                "build": "3.5", "status": "available",
+                "series_analyzed": 1, "observations_analyzed": 3,
+                "summaries": [{
+                    "series_id": "USDIDR", "series": "U.S. Dollar to Indonesian Rupiah",
+                    "category": "foreign_exchange", "first_date": "2026-11-18",
+                    "latest_date": "2026-11-20", "first_value": 16000,
+                    "latest_value": 16100, "absolute_change": 100,
+                    "percentage_change": 0.625, "direction": "rising",
+                    "unit": "IDR per USD", "observed_step_volatility_pct": 0.2,
+                }],
+                "limitations": ["Descriptive only."],
+            },
+        }
+        html = build_dashboard_html(report)
+        self.assertIn("Cross-Asset Market Analytics", html)
+        self.assertIn("USDIDR", html)
+        self.assertIn("0.625%", html)
+        self.assertIn("observed-step volatility", html)
+
     def test_empty_report_renders(self):
         html = build_dashboard_html({"signals": [], "daily_brief": {}})
         self.assertIn("No trend signals", html)
