@@ -1,6 +1,10 @@
 name: Scheduled global intelligence monitoring
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/monitoring.yml'
   workflow_dispatch:
   schedule:
     - cron: "17 */6 * * *"
