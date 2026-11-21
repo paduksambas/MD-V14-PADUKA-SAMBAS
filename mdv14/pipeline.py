@@ -75,10 +75,11 @@ def collect_and_run(
 ) -> dict[str, Any]:
     """Fetch configured feeds, combine optional local signals, then build the brief."""
     collection = collect_feeds(feeds)
-    combined = [*collection["signals"], *list(extra_signals)]
+    local_signals = list(extra_signals)
+    combined = [*collection["signals"], *local_signals]
     report = run_pipeline(combined, brief_date=brief_date, limit=limit)
     report["collection"] = {
         key: value for key, value in collection.items() if key != "signals"
     }
-    report["collection"]["extra_signals_added"] = len(list(extra_signals)) if not isinstance(extra_signals, list) else len(extra_signals)
+    report["collection"]["extra_signals_added"] = len(local_signals)
     return report
