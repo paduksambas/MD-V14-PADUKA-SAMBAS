@@ -90,6 +90,10 @@ jobs:
               print("- BPS catalog: {} | domains: {}".format(bps.get("status", "unknown"), bps.get("region_count", 0)))
               print("- BPS tables: {} | requests: {} | observations: {} | failed: {}".format(tables.get("status", "unknown"), tables.get("request_count", 0), len(tables.get("observations", [])), tables.get("requests_failed", 0)))
               print("- FRED: {} | requests: {} | succeeded: {} | failed: {} | observations: {}".format(fred.get("status", "unknown"), fred.get("request_count", 0), fred.get("requests_succeeded", 0), fred.get("requests_failed", 0), fred.get("observation_count", 0)))
+              print("\n## Build 1.9 live-data readiness")
+              print("- FRED live observations: {}".format("PASS" if fred.get("observation_count", 0) > 0 and fred.get("requests_succeeded", 0) > 0 else "PENDING"))
+              print("- BPS live table observations: {}".format("PASS" if len(tables.get("observations", [])) > 0 else "PENDING"))
+              print("- Next stage readiness: {}".format("READY" if fred.get("observation_count", 0) > 0 and len(tables.get("observations", [])) > 0 else "BLOCKED"))
               print("- No API keys, raw data, reports, dashboards, or databases are published.")
           PY
       - name: Add privacy-safe workflow summary
