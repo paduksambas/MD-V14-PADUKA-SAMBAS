@@ -83,7 +83,8 @@ def fetch_bps_region_catalog(api_key: str | None, *, timeout: int = TIMEOUT_SECO
                 })
             succeeded += 1
         except (OSError, ValueError, urllib.error.URLError, json.JSONDecodeError) as exc:
-            errors.append({"region_type": kind, "error": str(exc)[:300]})
+            safe_error = str(exc).replace(str(api_key), "[REDACTED]")
+            errors.append({"region_type": kind, "error": safe_error[:300]})
     # Do not emit credential-bearing request URLs in the returned data.
     unique = {(r["level"], r["region_code"]): r for r in regions}
     return {
