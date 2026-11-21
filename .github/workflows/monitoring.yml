@@ -72,6 +72,26 @@ jobs:
             --economic-start-year 2020 \
             $(if [ -f examples/bps-regional-tables.json ]; then printf '%s' '--bps-tables-config examples/bps-regional-tables.json'; fi) \
             >/dev/null
+      - name: Publish privacy-safe provider status
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          from pathlib import Path
+          path = Path("build/latest-report.json")
+          print("\n## Data-provider health (safe aggregate)")
+          if not path.exists():
+              print("- Report: not generated")
+          else:
+              report = json.loads(path.read_text(encoding="utf-8"))
+              bps = report.get("regional_intelligence", {}).get("bps_region_catalog", {})
+              tables = report.get("bps_regional_tables", {})
+              fred = report.get("fred_market_data", {})
+              print("- BPS catalog: {} | domains: {}".format(bps.get("status", "unknown"), bps.get("region_count", 0)))
+              print("- BPS tables: {} | requests: {} | observations: {} | failed: {}".format(tables.get("status", "unknown"), tables.get("request_count", 0), len(tables.get("observations", [])), tables.get("requests_failed", 0)))
+              print("- FRED: {} | requests: {} | succeeded: {} | failed: {} | observations: {}".format(fred.get("status", "unknown"), fred.get("request_count", 0), fred.get("requests_succeeded", 0), fred.get("requests_failed", 0), fred.get("observation_count", 0)))
+              print("- No API keys, raw data, reports, dashboards, or databases are published.")
+          PY
       - name: Add privacy-safe workflow summary
         if: always()
         run: |
