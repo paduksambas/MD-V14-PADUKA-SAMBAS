@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 2.7 — Global Source Expansion & Multilingual Intelligence
 - Build 2.6 — Live Global Intelligence Monitoring & Automated Intelligence Dashboard
 - Build 2.5 — Global Intelligence Fusion & Strategic Decision Support
 - Build 2.4 — Strategic Impact Analysis & Geopolitical Intelligence
@@ -33,6 +34,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/strategic_impact.py — keyword-based impact dimensions, explicit-metadata cross-border review candidates, attention bands, and human review prompts
 - mdv14/strategic_decision.py — unified explainable review queue combining supplied scores, observed momentum, impact cues, evidence gaps, and source traceability
 - mdv14/monitoring.py — collection-cycle health, feed status, and publisher-timestamp freshness indicators
+- mdv14/language_intelligence.py — explicit language metadata coverage and supported-language declarations
 - mdv14/dashboard.py — self-contained offline HTML analytics dashboard with global country/topic, rising-signal, and related-event views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -48,6 +50,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 2.7 Global Source Expansion & Multilingual Intelligence
+The pipeline now reports language coverage from explicitly declared source/record metadata, including unknown values. Research relevance supports a small deterministic English–Indonesian lexical map for selected terms, while preserving each candidate's declared language and provenance. This is not article translation, automatic language detection, semantic search, or arbitrary source discovery. Existing feed catalogs remain owner-configured; new endpoints are not guessed. See docs/BUILD-2.7-MULTILINGUAL-INTELLIGENCE.md.
 
 ## Build 2.6 Live Global Intelligence Monitoring & Automated Intelligence Dashboard
 The scheduled GitHub Actions workflow `.github/workflows/monitoring.yml` runs RSS/Atom collection every six hours and can also be started manually from the Actions tab. It uses the explicitly configured `examples/feeds.sample.json`, persists SQLite trend history between successful runs through GitHub Actions cache, and uploads a JSON report plus offline HTML dashboard as a 14-day artifact. The report includes feed health and publisher-timestamp freshness indicators, while the dashboard exposes the latest collection cycle and strategic review queue. This is periodic collection—not continuous surveillance. Workflow execution depends on GitHub Actions availability and repository settings; publisher timestamps and feed responses may be incomplete. Feed health does not verify article truth. See docs/BUILD-2.6-LIVE-MONITORING.md.
