@@ -31,7 +31,7 @@ class EconomicIntelligenceTests(unittest.TestCase):
         result = analyze_economic_intelligence([{"title": "A general political update"}])
         self.assertEqual(result["signals_assessed"], 0)
         self.assertEqual(result["coverage"]["records_without_sector_match"], 1)
-        self.assertIn("not automatically irrelevant", render_economic_intelligence_html(result))
+        self.assertIn("Not automatically irrelevant", render_economic_intelligence_html(result))
 
     def test_escapes_untrusted_content_and_keeps_safe_source_link(self):
         result = analyze_economic_intelligence([{
