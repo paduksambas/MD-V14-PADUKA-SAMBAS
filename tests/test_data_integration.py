@@ -36,6 +36,10 @@ class DataIntegrationTests(unittest.TestCase):
         self.assertIsNone(item["region"])
         self.assertEqual(item["collection_method"], "rss_atom")
 
+    def test_rfc822_publication_timestamp_is_standardized(self):
+        item = normalize_global_signal({"published_at": "Sat, 21 Nov 2026 08:00:00 GMT"})
+        self.assertEqual(item["published_at"], "2026-11-21T08:00:00Z")
+
     def test_coverage_counts_unknown_without_inference(self):
         result = build_data_coverage([
             {"country":"Indonesia","language":"id","source_type":"news"},
