@@ -49,6 +49,33 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Priority event", html)
         self.assertIn("https://example.com/event", html)
 
+
+    def test_dashboard_renders_regional_intelligence_panel(self):
+        report = {
+            "signals": [],
+            "regional_intelligence": {
+                "build": "3.9", "status": "available", "observation_count": 2,
+                "regions_with_indicator_data": {"province": 2, "regency_city": 0},
+                "bps_region_catalog": {"status": "not_configured", "region_count": 0},
+                "rankings": [{
+                    "level": "province", "indicator_name": "PDRB growth", "period": "2023",
+                    "rank": 1, "regions_compared": 2, "region_name": "West Java",
+                    "value": 5.0, "unit": "%",
+                }],
+                "disparities": [{
+                    "level": "province", "indicator_name": "PDRB growth", "period": "2023",
+                    "minimum_region": "Central Java", "minimum": 4.8,
+                    "maximum_region": "West Java", "maximum": 5.0,
+                    "range": 0.2, "unit": "%",
+                }],
+            },
+        }
+        html = build_dashboard_html(report)
+        self.assertIn("Indonesia Regional Intelligence", html)
+        self.assertIn("West Java", html)
+        self.assertIn("PDRB growth", html)
+        self.assertIn("Central Java", html)
+
     def test_dashboard_escapes_untrusted_titles_and_source_text(self):
         report = {"signals": [{
             "title": "<script>alert(1)</script>", "source": '" onclick="bad',
