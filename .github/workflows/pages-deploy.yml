@@ -1,0 +1,55 @@
+name: Deploy PADUKA public dashboard to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/build_public_dashboard.sh'
+      - 'mdv14/**'
+      - 'examples/feeds.sample.json'
+      - '.github/workflows/pages-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build public dashboard
+        run: bash scripts/build_public_dashboard.sh
+      - name: Verify public artifact
+        run: |
+          test -s public/index.html
+          test "$(find public -type f | wc -l)" -eq 1
+          test "$(find public -type f -name '*.json' | wc -l)" -eq 0
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
