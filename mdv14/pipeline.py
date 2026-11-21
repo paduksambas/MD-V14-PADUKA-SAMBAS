@@ -11,6 +11,7 @@ from .predictive_intelligence import assess_predictive_outlook
 from .research_orchestrator import build_research_report
 from .strategic_impact import analyze_strategic_impact
 from .strategic_decision import build_strategic_decision_brief
+from .monitoring import build_monitoring_status
 from .rss_collector import collect_feeds
 from .source_intelligence import assess_source_intelligence
 from .trend_registry import TrendRegistry, signal_id
@@ -118,6 +119,7 @@ def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[st
         "source_configuration_errors": catalog["configuration_errors"],
         "extra_signals_added": len(local_signals),
     })
+    report["monitoring"] = build_monitoring_status(report["collection"], report["signals"])
     if research_question and research_question.strip():
         report["research"] = build_research_report(
             research_question, report["signals"], report["collection"], limit=limit
