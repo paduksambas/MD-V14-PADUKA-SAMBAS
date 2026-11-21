@@ -7,6 +7,7 @@ from .data_integration import build_data_coverage, normalize_global_signal, vali
 from .early_warning import classify_signal
 from .fact_check import assess_evidence
 from .global_intelligence import analyze_global_trends
+from .predictive_intelligence import assess_predictive_outlook
 from .rss_collector import collect_feeds
 from .source_intelligence import assess_source_intelligence
 from .trend_registry import TrendRegistry, signal_id
@@ -21,6 +22,7 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
             **signal, "evidence": assess_evidence(signal),
             "source_intelligence": assess_source_intelligence(signal),
             "warning": classify_signal(signal),
+            "predictive_outlook": assess_predictive_outlook(signal),
         })
     corroboration = corroborate_sources(enriched)
     by_title = {item["normalized_title"]: item for item in corroboration}
@@ -40,19 +42,25 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
     for item in brief["top_signals"]:
         match = assessments.get(signal_id(item))
         if match:
-            for field in ("evidence", "warning", "corroboration", "source_intelligence"):
+            for field in ("evidence", "warning", "predictive_outlook", "corroboration", "source_intelligence"):
                 item[field] = match[field]
     statuses = {}
     for item in enriched:
         status = item["source_intelligence"]["status"]
         statuses[status] = statuses.get(status, 0) + 1
     return {
-        "pipeline": "MD V14", "stage": "Build 2.0 global intelligence engine",
+        "pipeline": "MD V14", "stage": "Build 2.2 predictive intelligence and early warning",
         "data_schema_version": "1.0", "registry_size": len(registry),
         "data_coverage": build_data_coverage(enriched), "daily_brief": brief,
         "global_intelligence": global_intelligence,
         "warning_summary": {level: sum(1 for item in enriched if item["warning"]["level"] == level)
                             for level in ("normal", "watch", "elevated", "critical")},
+        "predictive_summary": {
+            "signals_evaluated": sum(1 for item in enriched if item["predictive_outlook"]["status"] == "evaluated"),
+            "insufficient_history": sum(1 for item in enriched if item["predictive_outlook"]["status"] == "insufficient_history"),
+            "early_warning_candidates": sum(1 for item in enriched if item["predictive_outlook"]["early_warning_triggered"]),
+            "notice": "Scenario indicators only; not probabilities or dated forecasts. Human review is required.",
+        },
         "evidence_review_required": sum(1 for item in enriched if not item["evidence"]["evidence_complete"]),
         "source_intelligence_summary": {
             "signals_assessed": len(enriched), "status_counts": dict(sorted(statuses.items())),
@@ -70,6 +78,7 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
             "Warning levels and trend scores are heuristics based on supplied inputs and require human review.",
             "Registry state is in-memory for each run; persist reports with the JSON storage helpers.",
             "Global intelligence uses supplied geography, topics, entities, and score history only; related-event links are not causal findings.",
+            "Predictive outlooks are linear scenarios in observation units based on supplied history; they are not dated forecasts or probabilities.",
         ],
     }
 
