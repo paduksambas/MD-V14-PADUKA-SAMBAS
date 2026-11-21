@@ -128,11 +128,15 @@ class DashboardTests(unittest.TestCase):
     def test_dashboard_renders_interactive_country_explorer_and_escapes_labels(self):
         report = {
             "signals": [],
-            "economic_intelligence": {"build": "3.2", "signals_assessed": 1, "signals_with_sector_matches": 1,
-                "signals_without_sector_match": 0, "sector_profiles": [{"sector": "energy", "signal_count": 1,
-                "average_input_score": 80, "countries_explicitly_labelled": ["Indonesia"], "publisher_label_count": 1,
-                "records": [{"title": "Oil supply update", "country": "Indonesia", "source": "Desk", "score": 80,
-                             "url": "https://example.org/oil"}]}]},
+            "economic_intelligence": {"build": "3.2", "signals_assessed": 1, "sector_count": 1,
+                "coverage": {"input_records": 1, "records_classified": 1, "records_without_sector_match": 0},
+                "sector_summaries": [{"sector": "energy", "label": "Energy", "signal_count": 1,
+                "average_signal_score": 80, "high_attention_count": 1, "countries_named": ["Indonesia"],
+                "potential_review_channels": ["Energy supply and infrastructure"], "signals": []}],
+                "country_mentions": [{"country": "Indonesia", "signal_mentions": 1}],
+                "priority_review_queue": [{"title": "Oil supply update", "sectors": ["energy"],
+                    "countries_explicitly_named": ["Indonesia"], "source": "Desk", "score": 80,
+                    "warning_level": "elevated", "signal_id": "e1", "url": "https://example.org/oil"}]},
             "country_explorer": {
                 "countries_total": 2, "countries_mapped": 1, "countries_unmapped": 1,
                 "signals_with_country": 3,
@@ -152,8 +156,9 @@ class DashboardTests(unittest.TestCase):
         }
         html = build_dashboard_html(report)
         self.assertIn("Global Economic Intelligence &amp; Strategic Market Impact", html)
-        self.assertIn("Oil supply update", html)
-        self.assertIn("not market data", html)
+        self.assertIn("Traceable economic signal review queue", html)
+        self.assertIn("Energy supply and infrastructure", html)
+        self.assertIn("no asset prices", html)
         self.assertIn("Global Geopolitical Intelligence Map", html)
         self.assertIn('data-country-key="indonesia"', html)
         self.assertIn("country-marker", html)
