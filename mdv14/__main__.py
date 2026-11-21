@@ -4,7 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 from .pipeline import collect_and_run, run_pipeline
@@ -32,7 +32,7 @@ def main() -> int:
     parser.add_argument("--economic-start-year", type=int, default=2020, help="First World Bank observation year (default: 2020).")
     parser.add_argument("--economic-end-year", type=int, default=None, help="Last World Bank observation year (default: current year).")
     parser.add_argument("--fred-api-key-env", default="FRED_API_KEY", help="Environment variable holding an optional FRED API key (default: FRED_API_KEY).")
-    parser.add_argument("--market-start-date", default=None, help="First public FX/FRED observation date (YYYY-MM-DD; default: today).")
+    parser.add_argument("--market-start-date", default=None, help="First public FX/FRED observation date (YYYY-MM-DD; default: 30 days before today).")
     parser.add_argument("--market-end-date", default=None, help="Last FRED observation date (default: today).")
     args = parser.parse_args()
 
@@ -61,13 +61,15 @@ def main() -> int:
             )
         except ValueError as exc:
             parser.error(str(exc))
+    market_start_date = args.market_start_date or (date.today() - timedelta(days=30)).isoformat()
+    market_end_date = args.market_end_date or date.today().isoformat()
     report["market_data"] = fetch_public_market_data(
-        start_date=args.market_start_date, end_date=args.market_end_date,
+        start_date=market_start_date, end_date=market_end_date,
     )
     try:
         report["fred_market_data"] = fetch_fred_market_data(
-            os.environ.get(args.fred_api_key_env), start_date=args.market_start_date or date.today().isoformat(),
-            end_date=args.market_end_date,
+            os.environ.get(args.fred_api_key_env), start_date=market_start_date,
+            end_date=market_end_date,
         )
     except ValueError as exc:
         parser.error(str(exc))
