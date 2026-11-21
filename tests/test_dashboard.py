@@ -217,6 +217,35 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("S&amp;P 500 Index", html)
         self.assertIn("not live executable prices", html)
 
+
+    def test_dashboard_renders_indonesia_strategic_economic_intelligence(self):
+        report = {
+            "signals": [],
+            "indonesia_economic_intelligence": {
+                "build": "3.8", "status": "available", "indicator_count": 1,
+                "commodity_channel_count": 1,
+                "coverage": {"recognized_indicator_observations": 2},
+                "indicators": [{
+                    "indicator": "GDP growth", "domain": "macroeconomy",
+                    "first_year": 2022, "latest_year": 2023, "first_value": 5.0,
+                    "latest_value": 5.1, "change": 0.1, "unit": "%",
+                    "direction": "rising",
+                }],
+                "commodity_channels": [{
+                    "label": "Energi dan biaya produksi",
+                    "channels": ["Biaya impor energi dan subsidi"],
+                    "benchmark_series": [{"series": "Brent", "value": 80,
+                        "unit": "USD per barrel", "date": "2026-09-01"}],
+                    "interpretation": "Qualitative monitoring channel only.",
+                }],
+            },
+        }
+        html = build_dashboard_html(report)
+        self.assertIn("Indonesia Strategic Economic Intelligence", html)
+        self.assertIn("GDP growth", html)
+        self.assertIn("Energi dan biaya produksi", html)
+        self.assertIn("Qualitative monitoring channel", html)
+
     def test_empty_report_renders(self):
         html = build_dashboard_html({"signals": [], "daily_brief": {}})
         self.assertIn("No trend signals", html)
