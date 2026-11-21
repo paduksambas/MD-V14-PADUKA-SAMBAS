@@ -34,6 +34,22 @@ class ResearchOrchestratorTests(unittest.TestCase):
         report = build_research_report("", [{"title": "Story", "source": "Desk"}])
         self.assertIsNone(report["research_candidates"][0]["relevance_score"])
 
+    def test_incomplete_nested_metadata_and_malformed_feed_rows_are_safe(self):
+        report = build_research_report(
+            "climate risk",
+            [{"title": "Climate risk", "evidence": None, "warning": None}, None],
+            {"feed_results": [None, {"ok": False}]},
+        )
+        self.assertEqual(report["records_reviewed"], 1)
+        self.assertFalse(report["research_candidates"][0]["evidence_complete"])
+        self.assertEqual(report["research_candidates"][0]["warning_level"], "not_assessed")
+        self.assertEqual(report["collection_health"]["feeds_failed"], 1)
+
+    def test_non_mapping_collection_is_treated_as_missing_metadata(self):
+        report = build_research_report("topic", [], collection=[])
+        self.assertEqual(report["collection_health"]["feeds_attempted"], 0)
+        self.assertTrue(report["research_gaps"])
+
     def test_invalid_limit_rejected(self):
         with self.assertRaises(ValueError):
             build_research_report("topic", [], limit=0)
