@@ -18,6 +18,7 @@ from .market_data import fetch_fred_market_data, fetch_public_market_data
 from .market_analytics import build_market_analytics
 from .public_assets import fetch_public_asset_data
 from .commodity_data import fetch_world_bank_commodity_data
+from .indonesia_intelligence import build_indonesia_economic_intelligence
 
 
 def main() -> int:
@@ -87,6 +88,9 @@ def main() -> int:
     report["commodity_data"] = fetch_world_bank_commodity_data(
         start_date=(date.today().replace(year=date.today().year - 2)).isoformat(),
         end_date=market_end_date,
+    )
+    report["indonesia_economic_intelligence"] = build_indonesia_economic_intelligence(
+        report.get("economic_data", {}), report.get("commodity_data", {})
     )
     try:
         report["fred_market_data"] = fetch_fred_market_data(
@@ -174,6 +178,10 @@ def main() -> int:
         "commodity_data_observations": report.get("commodity_data", {}).get("observation_count", 0),
         "commodity_data_requests_failed": report.get("commodity_data", {}).get("requests_failed", 0),
         "commodity_data_errors": report.get("commodity_data", {}).get("errors", []),
+        "indonesia_economic_build": report.get("indonesia_economic_intelligence", {}).get("build"),
+        "indonesia_economic_status": report.get("indonesia_economic_intelligence", {}).get("status"),
+        "indonesia_indicator_count": report.get("indonesia_economic_intelligence", {}).get("indicator_count", 0),
+        "indonesia_commodity_channels": report.get("indonesia_economic_intelligence", {}).get("commodity_channel_count", 0),
     }, ensure_ascii=False, indent=2))
     return 0
 
