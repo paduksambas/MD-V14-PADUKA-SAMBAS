@@ -10,14 +10,14 @@ from .language_intelligence import analyze_language_coverage, normalize_language
 
 _STOP = {"about", "from", "into", "that", "with", "yang", "dan", "untuk", "dari", "dengan", "pada", "dalam"}
 _CONCEPTS = (
-    {"economy", "economic", "ekonomi", "perekonomian"}, {"energy", "energi"},
-    {"climate", "iklim"}, {"technology", "technological", "teknologi"},
-    {"investment", "invest", "investasi", "penanaman"}, {"security", "keamanan"},
-    {"diplomacy", "diplomatic", "diplomasi"}, {"election", "elections", "pemilu", "pemilihan"},
-    {"health", "kesehatan"}, {"trade", "trading", "perdagangan"},
-    {"war", "conflict", "perang", "konflik"}, {"supply", "pasokan"}, {"chain", "rantai"},
+    ("economy", "economic", "ekonomi", "perekonomian"), ("energy", "energi"),
+    ("climate", "iklim"), ("technology", "technological", "teknologi"),
+    ("investment", "invest", "investasi", "penanaman"), ("security", "keamanan"),
+    ("diplomacy", "diplomatic", "diplomasi"), ("election", "elections", "pemilu", "pemilihan"),
+    ("health", "kesehatan"), ("trade", "trading", "perdagangan"),
+    ("war", "conflict", "perang", "konflik"), ("supply", "pasokan"), ("chain", "rantai"),
 )
-_CANONICAL = {term: min(group) for group in _CONCEPTS for term in group}
+_CANONICAL = {term: group[0] for group in _CONCEPTS for term in group}
 
 
 def _terms(value: Any) -> set[str]:
