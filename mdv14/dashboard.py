@@ -177,6 +177,27 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         metric("Evidence gaps", (analyst.get("metadata_coverage") or {}).get("records_with_incomplete_evidence_metadata", 0), "Metadata only"),
         metric("Uncertainties", len(analyst.get("uncertainties_and_gaps", [])), "Explicit caveats"),
     ])
+    command = report.get("command_center") or {}
+    command_cycle = command.get("collection_cycle") or {}
+    command_posture = command.get("strategic_posture") or {}
+    command_coverage = command.get("coverage") or {}
+    command_metrics = "".join([
+        metric("Operational state", command.get("operational_state", "not assessed"), "Configured feed cycle only"),
+        metric("Strategic posture", command_posture.get("status", "not assessed"), "Heuristic human-review cue"),
+        metric("Signals analyzed", command_coverage.get("signals_analyzed", len(signals)), "Current report"),
+        metric("Feeds succeeded", str(command_cycle.get("feeds_succeeded", 0)) + "/" + str(command_cycle.get("feeds_attempted", 0)), "Latest collection cycle"),
+        metric("High review priority", command_posture.get("high_review_priority", 0), "Not threat severity"),
+        metric("Evidence gaps", command_posture.get("evidence_review_required", reviewed), "Metadata completeness only"),
+    ])
+    command_queue_rows = "".join(
+        "<tr><td>" + _cell(item.get("priority_band")) + "</td><td>" + _cell(item.get("title")) +
+        "</td><td>" + _cell(item.get("country")) + "</td><td>" + _cell(item.get("source")) +
+        "</td><td>" + _cell(item.get("signal_id")) + "</td></tr>"
+        for item in command.get("priority_review_queue", [])
+    ) or "<tr><td colspan=\"5\">No priority review items.</td></tr>"
+    decision_gate_rows = "".join("<li>" + _cell(item) + "</li>" for item in command.get("decision_gates", []))
+    if not decision_gate_rows:
+        decision_gate_rows = "<li>Human review required before action.</li>"
     monitor_cards = "".join([
         metric("Monitoring cycle", monitoring.get("cycle_status", "not configured"), "Latest collection cycle"),
         metric("Feeds healthy", f"{monitoring.get('feeds_succeeded', 0)}/{monitoring.get('feeds_attempted', 0)}", "RSS/Atom endpoints"),
@@ -216,6 +237,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{_cell(title)}</title>
+<meta name="description" content="MD V14 Global Strategic Intelligence Command Center">
 <style>
 :root{{color-scheme:light dark;--bg:#101827;--panel:#182438;--line:#314158;--muted:#a9b8cc;--text:#f2f6fc;--accent:#83b7ff}}
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,sans-serif}}
@@ -226,6 +248,12 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 </style></head><body><main>
 <header><div class="muted">PADUKA SAMBAS · GLOBAL TREND INTELLIGENCE</div>
 <h1>{_cell(title)}</h1><div class="muted">Report date: {_cell(date_label)}</div></header>
+<section class="panel" id="command-center"><h2>Global Strategic Intelligence Command Center · Build 3.0</h2>
+<div class="grid">{command_metrics}</div>
+<p><strong>{_cell(command_posture.get("status", "not assessed"))}</strong> — {_cell(command_posture.get("note", "No command-center assessment available."))}</p>
+<p class="muted">Collection: {_cell(command_cycle.get("status", "not configured"))}; generated: {_cell(command.get("generated_at", "not available"))}. This is a consolidated report view, not continuous monitoring or an autonomous risk rating.</p>
+<h3>Priority review queue</h3><div class="table-wrap"><table><thead><tr><th>Priority</th><th>Signal</th><th>Country</th><th>Source</th><th>Signal ID</th></tr></thead><tbody>{command_queue_rows}</tbody></table></div>
+<h3>Decision gates</h3><ul>{decision_gate_rows}</ul></section>
 <section class="grid">{cards}</section>
 <section class="panel"><h2>Live monitoring · latest collection cycle</h2><div class="grid">{monitor_cards}</div><p class="muted">Cycle timestamp: {_cell(monitoring.get("generated_at", "Not available"))}. Feed health is collection status, not content verification. Scheduled runs execute only when the repository workflow runs.</p></section>
 <section class="panel"><h2>Multilingual source coverage</h2><div class="grid">{language_cards}</div><div class="table-wrap"><table><thead><tr><th>Declared language</th><th class="num">Records</th></tr></thead><tbody>{language_rows}</tbody></table></div><p class="muted">Language labels are supplied metadata. The bilingual research matcher is a limited lexical aid, not translation or automatic language detection.</p></section>
