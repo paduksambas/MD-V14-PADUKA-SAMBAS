@@ -156,6 +156,27 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         review_rows.append("<tr>" + f"<td>{_cell(item.get('priority_band'))}</td><td>{_cell(item.get('title'))}</td><td class='num'>{_cell(item.get('priority_score'))}</td><td>{_cell(item.get('warning_level'))}</td><td>{_cell(item.get('source'))}</td><td>{_cell(item.get('url') or 'Unavailable')}</td>" + "</tr>")
     if not review_rows:
         review_rows.append("<tr><td colspan='6'>No records in the strategic review queue.</td></tr>")
+    analyst = report.get("analyst_report") or {}
+    analyst_findings = []
+    for item in analyst.get("key_findings", []):
+        analyst_findings.append(
+            "<tr><td>" + _cell(item.get("review_priority")) + "</td><td>" +
+            _cell(item.get("title")) + "</td><td>" + _cell(item.get("source")) +
+            "</td><td>" + _cell(item.get("country")) + "</td><td>" +
+            _cell(item.get("signal_id")) + "</td></tr>"
+        )
+    if not analyst_findings:
+        analyst_findings.append("<tr><td colspan=\"5\">No analyst findings available.</td></tr>")
+    analyst_actions = "".join(
+        "<li><span>" + _cell(item.get("priority")) + " — " + _cell(item.get("action")) + "</span></li>"
+        for item in analyst.get("recommended_human_actions", [])
+    ) or "<li>No review actions available.</li>"
+    analyst_uncertainties = "".join("<li>" + _cell(item) + "</li>" for item in analyst.get("uncertainties_and_gaps", []))
+    analyst_cards = "".join([
+        metric("Analyst findings", len(analyst.get("key_findings", [])), "Traceable priority candidates"),
+        metric("Evidence gaps", (analyst.get("metadata_coverage") or {}).get("records_with_incomplete_evidence_metadata", 0), "Metadata only"),
+        metric("Uncertainties", len(analyst.get("uncertainties_and_gaps", [])), "Explicit caveats"),
+    ])
     monitor_cards = "".join([
         metric("Monitoring cycle", monitoring.get("cycle_status", "not configured"), "Latest collection cycle"),
         metric("Feeds healthy", f"{monitoring.get('feeds_succeeded', 0)}/{monitoring.get('feeds_attempted', 0)}", "RSS/Atom endpoints"),
@@ -212,6 +233,12 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 <h3>Recognized nodes</h3><div class="table-wrap"><table><thead><tr><th>Node</th><th>Type</th><th>Evidence basis</th></tr></thead><tbody>{graph_node_rows}</tbody></table></div>
 <h3>Relationships for analyst review</h3><div class="table-wrap"><table><thead><tr><th>Relationship</th><th>Source node</th><th>Target node</th><th>Supporting records</th></tr></thead><tbody>{graph_edge_rows}</tbody></table></div>
 <p class="muted">Curated alias matches and shared metadata are discovery cues only. They do not establish factual truth, causality, influence, or source independence.</p></section>
+<section class="panel"><h2>Analyst strategic report</h2><div class="grid">{analyst_cards}</div>
+<p>{_cell(analyst.get("executive_summary") or "No analyst report available.")}</p>
+<h3>Key findings for review</h3><div class="table-wrap"><table><thead><tr><th>Priority</th><th>Finding</th><th>Source</th><th>Country</th><th>Signal ID</th></tr></thead><tbody>{''.join(analyst_findings)}</tbody></table></div>
+<h3>Uncertainties and evidence gaps</h3><ul>{analyst_uncertainties}</ul>
+<h3>Recommended human review actions</h3><ul>{analyst_actions}</ul>
+<p class="muted">Deterministic synthesis of supplied assessments, not generative AI or independent fact verification. Human approval is required.</p></section>
 <section class="panel"><h2>Strategic decision review queue</h2><div class="table-wrap"><table><thead><tr><th>Priority</th><th>Signal</th><th class="num">Score</th><th>Warning</th><th>Source</th><th>Article URL</th></tr></thead><tbody>{''.join(review_rows)}</tbody></table></div><p class="muted">Priority is a human-review ordering cue, not event severity or probability.</p></section>
 <section class="columns">
 <article class="panel"><h2>Warning distribution</h2><ul>{warnings}</ul></article>
