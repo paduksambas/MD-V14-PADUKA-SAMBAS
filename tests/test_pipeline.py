@@ -62,6 +62,9 @@ class PipelineTests(unittest.TestCase):
             "published_at": "2026-11-21T09:00:00Z",
         }], brief_date="2026-11-21")
         self.assertEqual(result["registry_size"], 1)
+        self.assertEqual(result["data_schema_version"], "1.0")
+        self.assertEqual(result["data_coverage"]["records_total"], 1)
+        self.assertEqual(result["signals"][0]["data_schema_version"], "1.0")
         self.assertEqual(result["warning_summary"]["critical"], 1)
         self.assertEqual(result["daily_brief"]["signals_included"], 1)
         self.assertFalse(result["signals"][0]["evidence"]["truth_verified"])
