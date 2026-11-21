@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 3.0 — Global Strategic Intelligence Command Center
 - Build 2.9 — AI Analyst & Autonomous Strategic Reporting (deterministic analyst report composer)
 - Build 2.8 — Advanced Entity Recognition & Cross-Language Knowledge Graph
 - Build 2.7 — Global Source Expansion & Multilingual Intelligence
@@ -39,7 +40,8 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/language_intelligence.py — explicit language metadata coverage and supported-language declarations
 - mdv14/knowledge_graph.py — curated multilingual entity aliases and traceable event/entity/topic/country graph
 - mdv14/analyst_report.py — executive brief, traceable findings, uncertainty register, and human review actions
-- mdv14/dashboard.py — self-contained offline HTML analytics dashboard with global country/topic, rising-signal, and related-event views
+- mdv14/command_center.py — unified operational state, strategic posture, source coverage, and priority review queue
+- mdv14/dashboard.py — self-contained offline command-center dashboard with operational, strategic, analyst, and global coverage views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
 ## Run tests
@@ -54,6 +56,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 3.0 Global Strategic Intelligence Command Center
+The pipeline now emits `command_center`, consolidating the latest configured collection-cycle status, strategic review posture, warning indicators, evidence-review workload, country/topic coverage leaders, priority review queue, analyst-report counts, and decision gates. The dashboard places this command-center summary at the top and retains detailed global, source, knowledge-graph, and analyst sections. The command center is a deterministic view of existing report fields; it does not create new intelligence, assign an independent geopolitical risk rating, verify claims, or make decisions. A healthy feed cycle means endpoints responded, not that content is accurate. Scheduled collection is periodic, not continuous. See docs/BUILD-3.0-COMMAND-CENTER.md.
 
 ## Build 2.9 Analyst & Strategic Reporting
 The pipeline emits `analyst_report` with an executive summary, traceable priority findings, metadata-coverage indicators, explicit uncertainty/gaps, strategic context, and recommended human review actions. The dashboard renders these sections. This is deterministic synthesis of existing MD V14 assessments—not a connected generative AI model, independent research, fact verification, or autonomous policy decision. Metadata completeness is not factual confidence. Human approval is required before escalation, publication, or action. See docs/BUILD-2.9-ANALYST-REPORTING.md.
