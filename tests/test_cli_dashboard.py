@@ -13,6 +13,8 @@ class CLIDashboardTests(unittest.TestCase):
         self.assertEqual(_score("12.5"), 12.5)
         self.assertEqual(_score("invalid"), 0.0)
         self.assertEqual(_score(None), 0.0)
+        self.assertEqual(_score(float("nan")), 0.0)
+        self.assertEqual(_score(float("inf")), 0.0)
 
     def test_cli_generates_json_and_offline_dashboard(self):
         root = Path(__file__).resolve().parents[1]
