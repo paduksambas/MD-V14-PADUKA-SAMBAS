@@ -147,6 +147,7 @@ def main() -> int:
         "public_asset_data_observations": report.get("public_asset_data", {}).get("observation_count", 0),
         "public_asset_data_requests_succeeded": report.get("public_asset_data", {}).get("requests_succeeded", 0),
         "public_asset_data_requests_failed": report.get("public_asset_data", {}).get("requests_failed", 0),
+        "public_asset_data_errors": report.get("public_asset_data", {}).get("errors", [])[:6],
         "market_analytics_build": report.get("market_analytics", {}).get("build"),
         "market_analytics_status": report.get("market_analytics", {}).get("status"),
         "market_analytics_series": report.get("market_analytics", {}).get("series_analyzed", 0),
