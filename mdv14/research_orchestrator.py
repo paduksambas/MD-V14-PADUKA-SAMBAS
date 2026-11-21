@@ -5,13 +5,25 @@ import re
 from collections import Counter
 from typing import Any
 
+from .language_intelligence import analyze_language_coverage, normalize_language
+
 
 _STOP = {"about", "from", "into", "that", "with", "yang", "dan", "untuk", "dari", "dengan", "pada", "dalam"}
+_CONCEPTS = (
+    {"economy", "economic", "ekonomi", "perekonomian"}, {"energy", "energi"},
+    {"climate", "iklim"}, {"technology", "technological", "teknologi"},
+    {"investment", "invest", "investasi", "penanaman"}, {"security", "keamanan"},
+    {"diplomacy", "diplomatic", "diplomasi"}, {"election", "elections", "pemilu", "pemilihan"},
+    {"health", "kesehatan"}, {"trade", "trading", "perdagangan"},
+    {"war", "conflict", "perang", "konflik"}, {"supply", "pasokan"}, {"chain", "rantai"},
+)
+_CANONICAL = {term: min(group) for group in _CONCEPTS for term in group}
 
 
 def _terms(value: Any) -> set[str]:
-    return {word for word in re.findall(r"[\w-]{3,}", str(value or "").casefold())
-            if word not in _STOP and not word.isdigit()}
+    words = {word for word in re.findall(r"[\w-]{3,}", str(value or "").casefold())
+             if word not in _STOP and not word.isdigit()}
+    return {_CANONICAL.get(word, word) for word in words}
 
 
 def build_research_report(
@@ -45,6 +57,7 @@ def build_research_report(
             "url": str(signal.get("url") or ""),
             "country": str(signal.get("country") or "unknown"),
             "published_at": signal.get("published_at"),
+            "language": normalize_language(signal.get("language")) or "unknown",
             "matched_terms": overlap,
             "relevance_score": relevance,
             "evidence_complete": bool(evidence.get("evidence_complete")),
@@ -63,6 +76,7 @@ def build_research_report(
     countries = Counter(item["country"] for item in ranked)
     complete = sum(1 for item in ranked if item["evidence_complete"])
     matched = sum(1 for item in ranked if item["relevance_score"] and item["relevance_score"] > 0)
+    language_coverage = analyze_language_coverage(signals)
     gaps = []
     if not prompt:
         gaps.append("No research question supplied; records are listed without query relevance ranking.")
@@ -75,15 +89,18 @@ def build_research_report(
     if len(countries) <= 1:
         gaps.append("Geographic diversity is limited or unknown in the supplied metadata.")
     if prompt and matched == 0 and ranked:
-        gaps.append("No record matched the question's literal keywords; broaden terms or add relevant sources.")
+        gaps.append("No record matched the bilingual literal vocabulary; broaden terms or add relevant sources.")
+    if language_coverage["records_with_unknown_language"]:
+        gaps.append("Some records have no declared language; language coverage is incomplete.")
 
     return {
         "engine": "MD V14 Research Orchestrator",
-        "build": "2.3",
+        "build": "2.7",
         "research_question": prompt or None,
         "records_reviewed": len(ranked),
         "records_with_keyword_match": matched,
         "records_with_complete_evidence": complete,
+        "language_coverage": language_coverage,
         "source_diversity": {
             "distinct_publishers": len({item["source"] for item in ranked if item["source"] != "unknown"}),
             "country_counts": dict(sorted(countries.items())),
@@ -103,7 +120,7 @@ def build_research_report(
             "Add or enable relevant feeds when source or geographic coverage is insufficient.",
         ],
         "methodology": {
-            "relevance": "Literal token overlap between the supplied question and collected title/summary; not semantic search.",
+            "relevance": "Literal token overlap with a small deterministic English-Indonesian synonym map; not semantic search, translation, or language detection.",
             "evidence": "Uses the pipeline's evidence-completeness metadata; completeness does not verify truth.",
             "source_diversity": "Counts distinct supplied source labels and country metadata; does not verify ownership or editorial independence.",
         },
