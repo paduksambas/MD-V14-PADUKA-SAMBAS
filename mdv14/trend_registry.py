@@ -28,7 +28,9 @@ class TrendRegistry:
             raise ValueError("signal must include a title or topic")
         key = signal_id(normalized)
         current = self._signals.get(key, {})
-        merged = {**current, **normalized, "id": key}
+        # Preserve supplied provenance fields (author, publication time, citations,
+        # and source_profile) for later assessments; normalized core fields win.
+        merged = {**current, **signal, **normalized, "id": key}
         self._signals[key] = merged
         return dict(merged)
 
