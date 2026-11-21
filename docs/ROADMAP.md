@@ -11,7 +11,7 @@
 - [x] Rubrik scoring NIVCP dengan definisi operasional — docs/SIGNAL_SCORING.md
 - [x] Spesifikasi Trend Registry untuk menyimpan tren, bukti, skor, indikator, dan riwayat perubahan — docs/TREND_REGISTRY.md
 - [x] Kerangka operasional Early Warning: trigger, severity, validasi, dan format alert — docs/EARLY_WARNING_SYSTEM.md
-- [ ] Template Daily Brief
+- [x] Template Daily Intelligence Brief — docs/DAILY_BRIEF.md
 - [ ] Template Weekly Global Intelligence Report / outlook
 - [ ] Template Early Warning Memo
 - [ ] Register indikator dan trigger yang dapat ditinjau berkala
