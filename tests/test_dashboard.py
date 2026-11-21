@@ -34,6 +34,8 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Needs source review", html)
         self.assertIn("Live monitoring", html)
         self.assertIn("healthy", html)
+        self.assertIn("Multilingual source coverage", html)
+        self.assertIn("Indonesian", html)
         self.assertIn("Strategic decision review queue", html)
         self.assertIn("Priority event", html)
         self.assertIn("https://example.com/event", html)
