@@ -39,8 +39,8 @@ def main() -> None:
     if not all((token, account_id, app_id, access_url, owner_email)):
         fail("Required verification inputs are missing.")
     parsed = urllib.parse.urlparse(access_url)
-    if parsed.scheme != "https" or not parsed.hostname:
-        fail("PADUKA_ACCESS_URL must be a valid HTTPS URL.")
+    if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
+        fail("PADUKA_ACCESS_URL must be a clean HTTPS URL without credentials, query, or fragment.")
     target_host = parsed.hostname.lower()
     api_base = f"https://api.cloudflare.com/client/v4/accounts/{urllib.parse.quote(account_id, safe='')}/access/apps"
     apps = api_get(api_base + "?per_page=1000", token).get("result", [])
@@ -51,6 +51,10 @@ def main() -> None:
     domain_url = urllib.parse.urlparse("https://" + app_domain.lstrip("/"))
     if domain_url.hostname is None or domain_url.hostname.lower() != target_host:
         fail("Access application hostname does not match the deployment target URL.")
+    protected_path = domain_url.path.rstrip("/")
+    target_path = parsed.path.rstrip("/")
+    if protected_path and not (target_path == protected_path or target_path.startswith(protected_path + "/")):
+        fail("Deployment URL path is outside the Access application protected path.")
     if app.get("type") != "self_hosted":
         fail("Target Access application is not a self-hosted application.")
     policies = app.get("policies")
@@ -59,10 +63,8 @@ def main() -> None:
     allowed_owner_policies = 0
     for policy in policies:
         decision = str(policy.get("decision", "")).lower()
-        if decision in ("bypass", "non_identity"):
-            fail("A bypass/non-identity policy exists on the target application.")
         if decision != "allow":
-            continue
+            fail("A non-Allow policy exists on the target application; manual review required.")
         includes = policy.get("include") or []
         if not isinstance(includes, list) or len(includes) != 1:
             fail("An allow policy is not restricted to a single owner identity.")
@@ -70,7 +72,7 @@ def main() -> None:
         if not isinstance(rule, dict) or set(rule.keys()) != {"email"}:
             fail("An allow policy contains a broad or non-email identity rule.")
         email_rule = rule.get("email")
-        if not isinstance(email_rule, dict) or str(email_rule.get("email", "")).strip().lower() != owner_email:
+        if not isinstance(email_rule, dict) or set(email_rule.keys()) != {"email"} or str(email_rule.get("email", "")).strip().lower() != owner_email:
             fail("An allow policy does not match the configured owner email.")
         if policy.get("exclude"):
             fail("Owner-only allow policy has exclusions; manual review required.")
