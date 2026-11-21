@@ -71,6 +71,7 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(result["global_intelligence"]["signals_analyzed"], 1)
         self.assertEqual(result["data_schema_version"], "1.0")
         self.assertEqual(result["data_coverage"]["records_total"], 1)
+        self.assertEqual(result["language_intelligence"]["records_with_unknown_language"], 1)
         self.assertEqual(result["signals"][0]["data_schema_version"], "1.0")
         self.assertEqual(result["warning_summary"]["critical"], 1)
         self.assertEqual(result["daily_brief"]["signals_included"], 1)
