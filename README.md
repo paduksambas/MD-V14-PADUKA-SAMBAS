@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 2.8 — Advanced Entity Recognition & Cross-Language Knowledge Graph
 - Build 2.7 — Global Source Expansion & Multilingual Intelligence
 - Build 2.6 — Live Global Intelligence Monitoring & Automated Intelligence Dashboard
 - Build 2.5 — Global Intelligence Fusion & Strategic Decision Support
@@ -35,6 +36,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/strategic_decision.py — unified explainable review queue combining supplied scores, observed momentum, impact cues, evidence gaps, and source traceability
 - mdv14/monitoring.py — collection-cycle health, feed status, and publisher-timestamp freshness indicators
 - mdv14/language_intelligence.py — explicit language metadata coverage and supported-language declarations
+- mdv14/knowledge_graph.py — curated multilingual entity aliases and traceable event/entity/topic/country graph
 - mdv14/dashboard.py — self-contained offline HTML analytics dashboard with global country/topic, rising-signal, and related-event views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -50,6 +52,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 2.8 Advanced Entity Recognition & Cross-Language Knowledge Graph
+The pipeline now emits knowledge_graph with curated English/Indonesian aliases for selected countries, organizations, and companies; explicit entity/topic/country metadata; event nodes; and shared-entity/topic/country discovery links. Nodes preserve evidence basis and edges preserve supporting record IDs. This is deterministic alias matching, not general-purpose AI named-entity recognition. Ambiguous matches require human review; graph links do not prove truth, causality, influence, or source independence. See docs/BUILD-2.8-KNOWLEDGE-GRAPH.md.
 
 ## Build 2.7 Global Source Expansion & Multilingual Intelligence
 The pipeline now reports language coverage from explicitly declared source/record metadata, including unknown values. Research relevance supports a small deterministic English–Indonesian lexical map for selected terms, while preserving each candidate's declared language and provenance. This is not article translation, automatic language detection, semantic search, or arbitrary source discovery. The active sample catalog now includes BBC World and NPR World (English), plus ANTARA News Terkini and CNA Indonesia (Indonesian); each source remains explicitly configured with language and country metadata. The monitoring workflow reruns when this feed catalog changes. See docs/BUILD-2.7-MULTILINGUAL-INTELLIGENCE.md.
