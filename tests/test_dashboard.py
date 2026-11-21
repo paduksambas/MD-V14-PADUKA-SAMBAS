@@ -128,6 +128,11 @@ class DashboardTests(unittest.TestCase):
     def test_dashboard_renders_interactive_country_explorer_and_escapes_labels(self):
         report = {
             "signals": [],
+            "economic_data": {"build": "3.3", "provider": "World Bank Indicators API",
+                "countries_requested": ["ID"], "year_range": {"start": 2023, "end": 2024},
+                "observation_count": 1, "requests_succeeded": 1, "requests_failed": 0,
+                "observations": [{"country": "Indonesia", "country_code": "ID", "indicator": "GDP growth",
+                    "year": "2023", "value": 5.05, "unit": "%", "source": "World Bank"}], "errors": []},
             "economic_intelligence": {"build": "3.2", "signals_assessed": 1, "sector_count": 1,
                 "coverage": {"input_records": 1, "records_classified": 1, "records_without_sector_match": 0},
                 "sector_summaries": [{"sector": "energy", "label": "Energy", "signal_count": 1,
@@ -156,6 +161,9 @@ class DashboardTests(unittest.TestCase):
         }
         html = build_dashboard_html(report)
         self.assertIn("Global Economic Intelligence &amp; Strategic Market Impact", html)
+        self.assertIn("Official Economic Indicators", html)
+        self.assertIn("World Bank Indicators API", html)
+        self.assertIn("Indonesia", html)
         self.assertIn("Traceable economic signal review queue", html)
         self.assertIn("Energy supply and infrastructure", html)
         self.assertIn("No asset prices", html)
