@@ -8,6 +8,8 @@ class DashboardTests(unittest.TestCase):
     def test_dashboard_contains_report_metrics_history_and_advanced_indicators(self):
         report = {
             "daily_brief": {"date": "2026-11-21"},
+            "monitoring": {"cycle_status": "healthy", "generated_at": "2026-11-21T10:00:00Z", "feeds_succeeded": 2, "feeds_attempted": 2, "signals_collected": 3, "signals_published_within_window": 2, "signals_with_unknown_published_at": 1},
+            "strategic_decision": {"review_queue": [{"priority_band": "high", "title": "Priority event", "priority_score": 82.5, "warning_level": "elevated", "source": "Desk", "url": "https://example.com/event"}]},
             "warning_summary": {"normal": 0, "watch": 0, "elevated": 1, "critical": 0},
             "signals": [{
                 "title": "Trend A", "category": "Technology", "score": 74,
@@ -30,6 +32,11 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Acceleration", html)
         self.assertIn("moderate", html)
         self.assertIn("Needs source review", html)
+        self.assertIn("Live monitoring", html)
+        self.assertIn("healthy", html)
+        self.assertIn("Strategic decision review queue", html)
+        self.assertIn("Priority event", html)
+        self.assertIn("https://example.com/event", html)
 
     def test_dashboard_escapes_untrusted_titles_and_source_text(self):
         report = {"signals": [{
