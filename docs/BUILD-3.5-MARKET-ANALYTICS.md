@@ -25,7 +25,7 @@ Percentage change is unavailable if the first observed value is zero. Volatility
 
 ## Output
 
-The CLI writes `market_analytics` into the JSON report. The offline dashboard includes a Build 3.5 section with the series summaries. The monitoring workflow runs the same analysis as part of its normal collection cycle.
+The CLI defaults to a 30-day market-data window (overridable with `--market-start-date` and `--market-end-date`) and writes `market_analytics` into the JSON report. The offline dashboard includes a Build 3.5 section with the series summaries. The monitoring workflow runs the same analysis as part of its normal collection cycle.
 
 ## Interpretation and safeguards
 
