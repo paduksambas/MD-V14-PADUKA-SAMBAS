@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 3.5 — Cross-Asset Market Analytics (descriptive change and observed-step volatility)
 - Build 3.4 — Global Financial Markets Intelligence (no-key Frankfurter FX + optional FRED API)
 - Build 3.3 — Dedicated Economic Data Sources & Market Intelligence Integration (World Bank Indicators API)
 - Build 3.2 — Global Economic Intelligence & Strategic Market Impact (keyword-based sector review cues)
@@ -49,6 +50,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/economic_intelligence.py — curated English/Indonesian sector cues for energy, commodities/mining, trade/supply chains, finance/macroeconomy, technology/semiconductors, agriculture/food, and transport/logistics
 - mdv14/economic_data.py — bounded World Bank Indicators API client with country/year validation, allowlisted indicators, provenance, and missing-data preservation
 - mdv14/market_data.py — no-key Frankfurter daily FX reference-rate adapter plus optional FRED market observations adapter with fixed allowlists, key redaction, request bounds, and explicit missing-data status
+- mdv14/market_analytics.py — per-series retrospective change and observed-step volatility summaries without interpolation, cross-asset scoring, or forecasts
 - mdv14/dashboard.py — self-contained offline command-center dashboard with interactive country explorer, operational, strategic, analyst, and global coverage views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -64,6 +66,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 3.5 Cross-Asset Market Analytics
+The report now includes `market_analytics`, which combines returned no-key Frankfurter observations and any available optional FRED observations, then analyzes each series independently. It reports first-to-latest absolute and percentage changes, direction, and population standard deviation of observed-step percentage changes when enough observations exist. It does not annualize volatility, combine unlike units, interpolate missing dates, or produce trading signals or forecasts. The dashboard displays the same traceable summaries. This is descriptive analysis of observations returned in the current run; irregular observation intervals and provider coverage remain limitations.
 
 ## Build 3.4 Global Financial Markets Intelligence
 The default no-key market adapter retrieves daily USD reference rates for IDR, EUR, and CNY from the public Frankfurter API; it requires no account or API key. It reports reference/mid-market rates, not intraday trading quotes. World Bank macroeconomic observations remain available independently. An additional optional FRED adapter can retrieve selected FX series, equity indices, U.S. Treasury yields, WTI crude, and gold only when `FRED_API_KEY` is configured; FRED absence does not block market-data collection. CLI date bounds are `--market-start-date` and `--market-end-date` (public FX range is bounded to 367 days). Values are historical/reference observations—not guaranteed executable quotes, trading signals, forecasts, or investment advice. See docs/BUILD-3.4-FINANCIAL-MARKETS.md.
