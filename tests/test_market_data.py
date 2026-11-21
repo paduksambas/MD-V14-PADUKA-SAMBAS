@@ -55,8 +55,9 @@ class FredMarketDataTests(unittest.TestCase):
         result = fetch_public_market_data(start_date="2026-11-20", end_date="2026-11-21")
         self.assertEqual(result["status"], "available")
         self.assertEqual(result["observation_count"], 2)
-        self.assertEqual(result["observations"][0]["unit"], "IDR per USD")
-        self.assertEqual(result["observations"][0]["value"], 16500.0)
+        idr = next(item for item in result["observations"] if item["series_id"] == "USDIDR")
+        self.assertEqual(idr["unit"], "IDR per USD")
+        self.assertEqual(idr["value"], 16500.0)
         fetch.assert_called_once()
 
     def test_public_fx_validates_dates_and_range(self):
