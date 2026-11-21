@@ -31,6 +31,8 @@ python -m mdv14 --market-start-date 2025-01-01 --market-end-date 2025-12-31 \
   --output build/report.json --dashboard build/dashboard.html
 ```
 
+For scheduled GitHub Actions, add the key as a repository secret named `FRED_API_KEY` via **Settings → Secrets and variables → Actions → New repository secret**. Do not store it in the code, commit it, or paste it into chat. The workflow exposes the secret only as an environment variable to the collection step.
+
 Without the key, the no-key Frankfurter adapter still populates `market_data` with public FX reference rates. The optional FRED adapter is reported separately as `fred_market_data.status=not_configured`; it does not block collection.
 
 GitHub Actions attempts the public Frankfurter request on each monitoring cycle without credentials. If `FRED_API_KEY` is absent, only the optional FRED supplement is skipped; no manual key setup is needed for daily USD/IDR, USD/EUR, and USD/CNY reference rates.
