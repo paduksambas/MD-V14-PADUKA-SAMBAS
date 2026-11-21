@@ -128,6 +128,11 @@ class DashboardTests(unittest.TestCase):
     def test_dashboard_renders_interactive_country_explorer_and_escapes_labels(self):
         report = {
             "signals": [],
+            "economic_intelligence": {"build": "3.2", "signals_assessed": 1, "signals_with_sector_matches": 1,
+                "signals_without_sector_match": 0, "sector_profiles": [{"sector": "energy", "signal_count": 1,
+                "average_input_score": 80, "countries_explicitly_labelled": ["Indonesia"], "publisher_label_count": 1,
+                "records": [{"title": "Oil supply update", "country": "Indonesia", "source": "Desk", "score": 80,
+                             "url": "https://example.org/oil"}]}]},
             "country_explorer": {
                 "countries_total": 2, "countries_mapped": 1, "countries_unmapped": 1,
                 "signals_with_country": 3,
@@ -146,6 +151,9 @@ class DashboardTests(unittest.TestCase):
             },
         }
         html = build_dashboard_html(report)
+        self.assertIn("Global Economic Intelligence &amp; Strategic Market Impact", html)
+        self.assertIn("Oil supply update", html)
+        self.assertIn("not market data", html)
         self.assertIn("Global Geopolitical Intelligence Map", html)
         self.assertIn('data-country-key="indonesia"', html)
         self.assertIn("country-marker", html)
