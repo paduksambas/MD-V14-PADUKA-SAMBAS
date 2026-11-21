@@ -19,7 +19,7 @@ from .market_analytics import build_market_analytics
 from .public_assets import fetch_public_asset_data
 from .commodity_data import fetch_world_bank_commodity_data
 from .indonesia_intelligence import build_indonesia_economic_intelligence
-from .regional_intelligence import build_regional_intelligence, fetch_bps_region_catalog
+from .regional_intelligence import build_regional_intelligence, fetch_bps_region_catalog, fetch_bps_regional_tables
 
 
 def main() -> int:
@@ -41,6 +41,7 @@ def main() -> int:
     parser.add_argument("--enable-public-assets", action="store_true", help="Opt in to Stooq daily equity/commodity history; disabled by default because the free endpoint may rate-limit automated runners.")
     parser.add_argument("--regional-data", default=None, help="Optional normalized JSON export of BPS provincial/regency indicator observations.")
     parser.add_argument("--bps-api-key-env", default="BPS_API_KEY", help="Environment variable holding optional BPS WebAPI key (default: BPS_API_KEY).")
+    parser.add_argument("--bps-tables-config", default=None, help="Optional JSON configuration of bounded BPS domain/variable/period requests.")
     args = parser.parse_args()
 
     if args.limit < 1:
@@ -200,7 +201,7 @@ def main() -> int:
         "regional_provinces": report.get("regional_intelligence", {}).get("regions_with_indicator_data", {}).get("province", 0),
         "regional_regencies_cities": report.get("regional_intelligence", {}).get("regions_with_indicator_data", {}).get("regency_city", 0),
         "bps_region_catalog_status": report.get("regional_intelligence", {}).get("bps_region_catalog", {}).get("status"),
-        "bps_region_catalog_count": report.get("regional_intelligence", {}).get("bps_region_catalog", {}).get("region_count", 0),
+        "bps_region_catalog_count": report.get("regional_intelligence", {}).get("bps_region_catalog", {}).get("region_count", 0),\n        "bps_table_status": report.get("bps_regional_tables", {}).get("status"),\n        "bps_table_requests": report.get("bps_regional_tables", {}).get("request_count", 0),\n        "bps_table_observations": len(report.get("bps_regional_tables", {}).get("observations", [])),\n        "bps_table_errors": report.get("bps_regional_tables", {}).get("requests_failed", 0),
     }, ensure_ascii=False, indent=2))
     return 0
 
