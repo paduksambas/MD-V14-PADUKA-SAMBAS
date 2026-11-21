@@ -1,3 +1,6 @@
+## Build 4.5 Dashboard Quick Navigation
+The offline dashboard now provides responsive quick-navigation links to WIB/status, Command Center, report overview, monitoring, trend review, economy/markets, and Indonesia/regional panels. This is a navigation/layout improvement; it adds no data feeds and does not change report freshness or hosting/privacy configuration. See docs/BUILD-4.5-DASHBOARD-QUICK-NAVIGATION.md.
+
 ## Build 4.3 Public Workflow Privacy Hardening
 
 The public repository remains usable for collaborative code development, while scheduled-run exposure is reduced further: generated reports and dashboards stay transient on the runner, routine CLI metrics are suppressed from public logs, the workflow summary contains no collection details, and persistent Actions cache storage is disabled. The workflow does not upload artifacts or deploy Pages. This protects generated report contents from the normal workflow outputs; it does **not** make the source repository private, and GitHub-hosted runner execution is not a private remote dashboard. Keep confidential source inputs and reports off this public repository and its workflow configuration.
