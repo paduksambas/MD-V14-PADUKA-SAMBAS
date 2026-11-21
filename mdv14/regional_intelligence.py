@@ -369,8 +369,8 @@ def fetch_bps_regional_tables(
             })
             succeeded += 1
         except (OSError, ValueError, urllib.error.URLError, json.JSONDecodeError) as exc:
-            safe_error = str(exc).replace(str(api_key), "[REDACTED]")
-            errors.append({"item": str(index), "error": safe_error[:250]})
+            # Never echo exception text: HTTP errors can contain the credential-bearing URL.
+            errors.append({"item": str(index), "error": f"BPS request failed ({type(exc).__name__})"})
     return {
         "build": "4.0", "status": "available" if observations and not errors else
                   "partial" if observations else "unavailable" if errors else "no_data",
