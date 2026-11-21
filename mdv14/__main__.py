@@ -173,6 +173,7 @@ def main() -> int:
         "commodity_data_status": report.get("commodity_data", {}).get("status"),
         "commodity_data_observations": report.get("commodity_data", {}).get("observation_count", 0),
         "commodity_data_requests_failed": report.get("commodity_data", {}).get("requests_failed", 0),
+        "commodity_data_errors": report.get("commodity_data", {}).get("errors", []),
     }, ensure_ascii=False, indent=2))
     return 0
 
