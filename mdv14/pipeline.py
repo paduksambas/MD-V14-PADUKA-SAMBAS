@@ -47,7 +47,7 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
         if match:
             for field in ("evidence", "warning", "predictive_outlook", "corroboration", "source_intelligence"):
                 item[field] = match[field]
-    strategic_impact = analyze_strategic_impact(enriched, limit=limit)
+    strategic_impact = analyze_strategic_impact(enriched, limit=max(limit, len(enriched)))
     predictive_summary = {
         "signals_evaluated": sum(1 for item in enriched if item["predictive_outlook"]["status"] == "evaluated"),
         "insufficient_history": sum(1 for item in enriched if item["predictive_outlook"]["status"] == "insufficient_history"),
