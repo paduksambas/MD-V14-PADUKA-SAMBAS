@@ -169,6 +169,24 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         metric("Records with entities", graph.get("records_with_recognized_entities", 0), "Curated aliases or explicit metadata"),
     ])
     monitoring = report.get("monitoring") or {}
+    generated_at = monitoring.get("generated_at") or (report.get("command_center") or {}).get("generated_at") or ""
+    source_status = []
+    for key, label in (
+        ("market_data", "Kurs valas"),
+        ("commodity_data", "Komoditas"),
+        ("economic_data", "World Bank"),
+        ("regional_intelligence", "Data regional BPS"),
+        ("bps_regional_tables", "Konektor tabel BPS"),
+        ("bps_public_export", "Impor ekspor BPS"),
+        ("fred_market_data", "FRED"),
+    ):
+        payload = report.get(key)
+        if isinstance(payload, dict):
+            source_status.append((label, str(payload.get("status") or "not_reported")))
+    source_status_html = "".join(
+        f"<li><span>{_cell(label)}</span><b class='status-value'>{_cell(status.replace('_', ' '))}</b></li>"
+        for label, status in source_status
+    ) or "<li>No source status supplied in this report.</li>"
     decision = report.get("strategic_decision") or {}
     review_rows = []
     for item in decision.get("review_queue", []):
@@ -263,10 +281,21 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
 main{{max-width:1180px;margin:auto;padding:28px 20px 56px}}header{{margin-bottom:24px}}h1{{font-size:clamp(1.6rem,4vw,2.35rem);margin:0 0 6px}}h2{{font-size:1.1rem;margin:0 0 14px}}.muted,small{{color:var(--muted)}}.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin:20px 0}}
 .metric,.panel{{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:17px}}.metric strong{{display:block;font-size:1.9rem;margin:5px 0}}.metric small{{display:block}}
 .columns{{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}}@media(max-width:700px){{.columns{{grid-template-columns:1fr}}}}
-table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}}th{{color:var(--muted);font-weight:600}}.num{{font-variant-numeric:tabular-nums;text-align:right}}.table-wrap{{overflow-x:auto}}ul{{list-style:none;padding:0;margin:0}}li{{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}}.bar-track{{height:9px;min-width:100px;background:var(--line);border-radius:99px;overflow:hidden}}.bar-fill{{display:block;height:100%;background:var(--accent);border-radius:99px}}.map-wrap{{background:#0b1422;border:1px solid var(--line);border-radius:12px;overflow:hidden}}.world-plot{{display:block;width:100%;height:auto;max-height:480px}}.map-bg{{fill:#0b1422}}.map-gridline{{stroke:#34445b;stroke-width:1;stroke-dasharray:3 5}}.country-marker{{cursor:pointer;outline:none}}.country-marker circle,.legend-dot{{stroke:#f2f6fc;stroke-width:1.5;fill:#83b7ff}}.country-marker.priority-high circle,.legend-dot.priority-high{{fill:#f07878}}.country-marker.priority-medium circle,.legend-dot.priority-medium{{fill:#e7b75d}}.country-marker.priority-routine circle,.legend-dot.priority-routine{{fill:#83b7ff}}.country-marker:focus circle,.country-marker:hover circle{{stroke:#fff;stroke-width:3}}.map-legend,.country-picker{{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}}.map-legend span{{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.85rem}}.legend-dot{{display:inline-block;width:11px;height:11px;border-radius:50%}}.country-select{{background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:7px 10px;cursor:pointer}}.country-select[aria-pressed=true]{{border-color:var(--accent);outline:1px solid var(--accent)}}.country-detail{{padding:14px;border:1px solid var(--line);border-radius:10px}}.country-detail[hidden]{{display:none}}.notice{{border-left:3px solid var(--accent);padding:10px 14px;background:var(--panel);border-radius:5px;color:var(--muted);margin-top:18px}}footer{{margin-top:22px;color:var(--muted);font-size:.85rem}}
+table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}}th{{color:var(--muted);font-weight:600}}.num{{font-variant-numeric:tabular-nums;text-align:right}}.table-wrap{{overflow-x:auto}}ul{{list-style:none;padding:0;margin:0}}li{{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}}.bar-track{{height:9px;min-width:100px;background:var(--line);border-radius:99px;overflow:hidden}}.bar-fill{{display:block;height:100%;background:var(--accent);border-radius:99px}}.map-wrap{{background:#0b1422;border:1px solid var(--line);border-radius:12px;overflow:hidden}}.world-plot{{display:block;width:100%;height:auto;max-height:480px}}.map-bg{{fill:#0b1422}}.map-gridline{{stroke:#34445b;stroke-width:1;stroke-dasharray:3 5}}.country-marker{{cursor:pointer;outline:none}}.country-marker circle,.legend-dot{{stroke:#f2f6fc;stroke-width:1.5;fill:#83b7ff}}.country-marker.priority-high circle,.legend-dot.priority-high{{fill:#f07878}}.country-marker.priority-medium circle,.legend-dot.priority-medium{{fill:#e7b75d}}.country-marker.priority-routine circle,.legend-dot.priority-routine{{fill:#83b7ff}}.country-marker:focus circle,.country-marker:hover circle{{stroke:#fff;stroke-width:3}}.map-legend,.country-picker{{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}}.map-legend span{{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.85rem}}.legend-dot{{display:inline-block;width:11px;height:11px;border-radius:50%}}.country-select{{background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:7px 10px;cursor:pointer}}.country-select[aria-pressed=true]{{border-color:var(--accent);outline:1px solid var(--accent)}}.country-detail{{padding:14px;border:1px solid var(--line);border-radius:10px}}.country-detail[hidden]{{display:none}}.notice{{border-left:3px solid var(--accent);padding:10px 14px;background:var(--panel);border-radius:5px;color:var(--muted);margin-top:18px}}footer{{margin-top:22px;color:var(--muted);font-size:.85rem}}.live-clock{{font-size:clamp(2rem,6vw,3.2rem);font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:.03em}}.status-value{{text-transform:capitalize;color:var(--accent)}}
 </style></head><body><main>
-<header><div class="muted">PADUKA SAMBAS · GLOBAL TREND INTELLIGENCE</div>
+<header><div class="muted">PADUKA SAMBAS · PRIVATE LOCAL DASHBOARD · BUILD 4.2</div>
 <h1>{_cell(title)}</h1><div class="muted">Report date: {_cell(date_label)}</div></header>
+<section class="panel" id="live-status">
+<div class="columns">
+<article><div class="muted">JAM INDONESIA BARAT (WIB)</div><div id="wib-clock" class="live-clock" aria-live="off">Memuat waktu…</div><div id="wib-date" class="muted"></div></article>
+<article><div class="muted">PEMBARUAN DATA TERAKHIR</div><strong id="report-updated">{_cell(generated_at or "Belum tersedia")}</strong><div class="muted">Waktu pembuatan laporan dari siklus pengumpulan terakhir</div></article>
+</div>
+<div class="columns">
+<article><h2>Status siklus pengumpulan</h2><p><strong>{_cell(monitoring.get("cycle_status", "not reported"))}</strong></p><p class="muted">Feed berhasil: {_cell(monitoring.get("feeds_succeeded", 0))}/{_cell(monitoring.get("feeds_attempted", 0))}. Siklus terjadwal, bukan streaming kontinu.</p></article>
+<article><h2>Status sumber data</h2><ul>{source_status_html}</ul></article>
+</div>
+<p class="notice">Privasi: halaman ini adalah file HTML mandiri untuk dibuka secara lokal. Jangan unggah atau bagikan file laporan/HTML ke layanan publik jika isinya bersifat pribadi. Jam WIB berjalan langsung; isi laporan berubah hanya setelah laporan baru dihasilkan dan file dashboard diganti.</p>
+</section>
 <section class="panel" id="command-center"><h2>Global Strategic Intelligence Command Center · Build 3.0</h2>
 <div class="grid">{command_metrics}</div>
 <p><strong>{_cell(command_posture.get("status", "not assessed"))}</strong> — {_cell(command_posture.get("note", "No command-center assessment available."))}</p>
@@ -313,5 +342,25 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 <section class="panel"><h2>Advanced trend intelligence</h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Category</th><th class="num">Score</th><th>Warning</th><th>History</th><th class="num">Momentum</th><th class="num">Acceleration</th><th>Anomaly review</th><th>Confidence</th><th>Source</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div></section>
 <p class="notice">Source checks describe supplied metadata and provenance fields only. They do not rate source reputation or verify claims. Reliability and editorial independence are not assessed automatically. Momentum and acceleration are descriptive; anomaly flags require human review. No indicator is a probability or guaranteed forecast.</p>
 <footer>Generated locally by MD V14. This dashboard is a static report; it does not transmit data or publish content.</footer>
-</main></body></html>
+</main><script>
+(function () {
+  const clock = document.getElementById("wib-clock");
+  const date = document.getElementById("wib-date");
+  const timeOptions = { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
+  const dateOptions = { timeZone: "Asia/Jakarta", weekday: "long", year: "numeric", month: "long", day: "numeric" };
+  function updateWibClock() {
+    const now = new Date();
+    clock.textContent = new Intl.DateTimeFormat("id-ID", timeOptions).format(now) + " WIB";
+    date.textContent = new Intl.DateTimeFormat("id-ID", dateOptions).format(now);
+  }
+  updateWibClock();
+  window.setInterval(updateWibClock, 1000);
+  const raw = document.getElementById("report-updated").textContent.trim();
+  const parsed = Date.parse(raw);
+  if (Number.isFinite(parsed)) {
+    document.getElementById("report-updated").textContent =
+      new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "medium", timeZone: "Asia/Jakarta" }).format(new Date(parsed)) + " WIB";
+  }
+})();
+</script></body></html>
 """
