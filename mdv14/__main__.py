@@ -11,6 +11,7 @@ from .sqlite_store import SQLiteTrendStore
 from .trend_registry import signal_id
 from .dashboard import build_dashboard_html
 from .advanced_scoring import assess_advanced_trend
+from .economic_data import fetch_world_bank_indicators
 
 
 def main() -> int:
@@ -23,6 +24,9 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=10, help="Maximum brief entries.")
     parser.add_argument("--date", default=None, help="Brief date in YYYY-MM-DD format.")
     parser.add_argument("--research-question", default=None, help="Optional question for the auditable multi-source research report (requires --feeds).")
+    parser.add_argument("--economic-countries", default="", help="Optional comma-separated ISO alpha-2 country codes for World Bank indicators, e.g. ID,US,CN.")
+    parser.add_argument("--economic-start-year", type=int, default=2020, help="First World Bank observation year (default: 2020).")
+    parser.add_argument("--economic-end-year", type=int, default=None, help="Last World Bank observation year (default: current year).")
     args = parser.parse_args()
 
     if args.limit < 1:
@@ -42,6 +46,14 @@ def main() -> int:
     else:
         report = run_pipeline(local_signals, brief_date=args.date, limit=args.limit)
 
+    if args.economic_countries.strip():
+        try:
+            report["economic_data"] = fetch_world_bank_indicators(
+                args.economic_countries, start_year=args.economic_start_year,
+                end_year=args.economic_end_year,
+            )
+        except ValueError as exc:
+            parser.error(str(exc))
     store = SQLiteTrendStore(args.database) if args.database else None
     if store:
         store.record_signals(report["signals"])
@@ -95,6 +107,10 @@ def main() -> int:
         "economic_intelligence_build": report.get("economic_intelligence", {}).get("build"),
         "economic_signals_classified": report.get("economic_intelligence", {}).get("signals_assessed", 0),
         "economic_sectors_represented": report.get("economic_intelligence", {}).get("sector_count", 0),
+        "economic_data_build": report.get("economic_data", {}).get("build"),
+        "economic_data_observations": report.get("economic_data", {}).get("observation_count", 0),
+        "economic_data_requests_succeeded": report.get("economic_data", {}).get("requests_succeeded", 0),
+        "economic_data_requests_failed": report.get("economic_data", {}).get("requests_failed", 0),
     }, ensure_ascii=False, indent=2))
     return 0
 
