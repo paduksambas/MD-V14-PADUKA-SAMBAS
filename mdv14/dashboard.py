@@ -122,6 +122,17 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     if not relation_rows:
         relation_rows.append("<tr><td colspan='5'>No related-event candidates identified.</td></tr>")
 
+    language_data = report.get("language_intelligence") or {}
+    language_counts = language_data.get("language_counts", {})
+    language_rows = "".join(
+        f"<tr><td>{_cell(language)}</td><td class='num'>{_cell(count)}</td></tr>"
+        for language, count in sorted(language_counts.items())
+    ) or "<tr><td colspan='2'>No declared language metadata.</td></tr>"
+    language_cards = "".join([
+        metric("Declared language", language_data.get("records_with_declared_language", 0), "Explicit metadata only"),
+        metric("Unknown language", language_data.get("records_with_unknown_language", 0), "Not inferred"),
+        metric("Languages represented", len(language_counts), "Declared labels"),
+    ])
     monitoring = report.get("monitoring") or {}
     decision = report.get("strategic_decision") or {}
     review_rows = []
@@ -180,6 +191,7 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 <h1>{_cell(title)}</h1><div class="muted">Report date: {_cell(date_label)}</div></header>
 <section class="grid">{cards}</section>
 <section class="panel"><h2>Live monitoring · latest collection cycle</h2><div class="grid">{monitor_cards}</div><p class="muted">Cycle timestamp: {_cell(monitoring.get("generated_at", "Not available"))}. Feed health is collection status, not content verification. Scheduled runs execute only when the repository workflow runs.</p></section>
+<section class="panel"><h2>Multilingual source coverage</h2><div class="grid">{language_cards}</div><div class="table-wrap"><table><thead><tr><th>Declared language</th><th class="num">Records</th></tr></thead><tbody>{language_rows}</tbody></table></div><p class="muted">Language labels are supplied metadata. The bilingual research matcher is a limited lexical aid, not translation or automatic language detection.</p></section>
 <section class="panel"><h2>Strategic decision review queue</h2><div class="table-wrap"><table><thead><tr><th>Priority</th><th>Signal</th><th class="num">Score</th><th>Warning</th><th>Source</th><th>Article URL</th></tr></thead><tbody>{''.join(review_rows)}</tbody></table></div><p class="muted">Priority is a human-review ordering cue, not event severity or probability.</p></section>
 <section class="columns">
 <article class="panel"><h2>Warning distribution</h2><ul>{warnings}</ul></article>
