@@ -15,7 +15,7 @@ Build 3.6 expands no-key market coverage beyond the USD reference FX rates provi
 | `cl.f` | WTI crude oil futures | Commodity | USD per barrel |
 | `gc.f` | Gold futures | Commodity | USD per troy ounce |
 
-The adapter uses a fixed symbol allowlist, HTTPS and an exact provider host/path check, a 15-second per-request timeout, a 2 MB response limit, and a maximum 367-calendar-day date range. Each symbol request is isolated so one unavailable symbol does not discard successful results. Collection is opt-in via `--enable-public-assets`; it is disabled in the six-hour scheduled workflow because the free Stooq endpoint returned non-CSV quota/challenge responses from the GitHub Actions runner during live validation.
+The adapter uses a fixed symbol allowlist, HTTPS and an exact provider host/path check, a 15-second per-request timeout, a 2 MB response limit, and a maximum 367-calendar-day date range. Each symbol request is isolated so one unavailable symbol does not discard successful results. Collection is opt-in via `--enable-public-assets`; it is disabled in the six-hour scheduled workflow because the free Stooq endpoint returned non-CSV responses from the GitHub Actions runner during live validation (potentially quota, anti-bot, or authentication responses).
 
 ## Output and dashboard
 
@@ -23,7 +23,7 @@ When `--enable-public-assets` is supplied, the CLI adds `public_asset_data` to t
 
 ## Limitations and safeguards
 
-- No API key or account is required for the Stooq adapter; service and symbol availability can change. The live scheduled runner returned non-CSV responses for all six configured symbols, so this source is not treated as reliable scheduled coverage.
+- No API key or account is required for the Stooq adapter; service and symbol availability can change. The live scheduled runner returned non-CSV responses for all six configured symbols, so this source is not treated as reliable scheduled coverage. Check provider terms before storing or redistributing downloaded data.
 - Values are daily provider-supplied closes, not guaranteed real-time, executable, or exchange-certified quotes.
 - Futures prices can be affected by contract-roll and provider symbol conventions.
 - The current no-key allowlist covers equity indices and two commodity futures; it does not provide government-bond yields.
