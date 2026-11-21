@@ -50,8 +50,8 @@ jobs:
           python -m mdv14 --feeds examples/feeds.sample.json \
             --database build/mdv14-history.sqlite3 \
             --output build/latest-report.json \
-            --dashboard build/monitoring-dashboard.html \\
-            --economic-countries ID,US,CN \\
+            --dashboard build/monitoring-dashboard.html \
+            --economic-countries ID,US,CN \
             --economic-start-year 2020
       - name: Save trend history
         if: success()
