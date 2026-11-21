@@ -4,7 +4,11 @@
 
 Adds a default no-key foreign-exchange reference data adapter using the public Frankfurter API, plus an optional adapter for the Federal Reserve Bank of St. Louis FRED API. FRED still requires a key, but it is no longer required for MD V14 market-data collection. The public FX adapter retrieves USD reference rates against IDR, EUR, and CNY. The existing World Bank Indicators integration independently supplies macroeconomic data.
 
-## No-key public FX data\n\nThe default adapter calls `https://api.frankfurter.dev/v2/rates` over HTTPS, with USD as base and IDR, EUR, and CNY as quotes. The public service does not require an API key or account. Date windows are bounded to 367 calendar days; responses are size-limited, timeouts are bounded, missing observations remain missing, and provider failures are reported without stopping the intelligence pipeline. These are daily reference/mid-market rates blended from central-bank and official sources, not intraday executable quotes. See the [Frankfurter documentation](https://frankfurter.dev/).\n\n## Optional FRED series allowlist
+## No-key public FX data
+
+The default adapter calls `https://api.frankfurter.dev/v2/rates` over HTTPS, with USD as base and IDR, EUR, and CNY as quotes. The public service does not require an API key or account. Date windows are bounded to 367 calendar days; responses are size-limited, timeouts are bounded, missing observations remain missing, and provider failures are reported without stopping the intelligence pipeline. These are daily reference/mid-market rates blended from central-bank and official sources, not intraday executable quotes. See the [Frankfurter documentation](https://frankfurter.dev/).
+
+## Optional FRED series allowlist
 
 | Series | Description | Unit |
 |---|---|---|
