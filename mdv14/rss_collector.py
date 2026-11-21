@@ -87,12 +87,21 @@ def parse_feed(xml_bytes: bytes, feed_url: str, source_name: str = "") -> list[d
             continue
         summary = _child_text(entry, ("description", "summary", "content", "encoded"))
         published = _child_text(entry, ("pubdate", "published", "updated", "date"))
+        author = _child_text(entry, ("author", "creator", "name"))
+        topics = []
+        for child in list(entry):
+            if child.tag.rsplit("}", 1)[-1].lower() == "category":
+                term = child.attrib.get("term", "").strip() or _text(child)
+                if term and term not in topics:
+                    topics.append(term)
         results.append({
             "title": title,
             "source": source_name.strip() or urlparse(feed_url).hostname or "RSS feed",
             "url": link,
             "summary": summary,
             "published_at": published,
+            "author": author,
+            "topics": topics,
             "feed_url": feed_url,
             "category": "Unclassified",
             "score": 0,
