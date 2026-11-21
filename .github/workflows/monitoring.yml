@@ -12,6 +12,8 @@ on:
       - 'mdv14/country_explorer.py'
       - 'mdv14/economic_intelligence.py'
       - 'mdv14/economic_data.py'
+      - 'mdv14/__main__.py'
+      - 'tests/test_economic_data.py'
       - 'mdv14/dashboard.py'
       - 'mdv14/pipeline.py'
   workflow_dispatch:
