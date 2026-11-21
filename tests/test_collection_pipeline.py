@@ -14,7 +14,7 @@ class CollectionPipelineTests(unittest.TestCase):
             "feeds_succeeded": 1,
             "feeds_failed": 0,
             "items_collected": 1,
-            "feed_results": [],
+            "feed_results": [{"feed_url": "https://example.com/rss", "ok": True, "item_count": 1}],
             "signals": [{
                 "title": "A current story",
                 "source": "Example News",
@@ -33,6 +33,8 @@ class CollectionPipelineTests(unittest.TestCase):
         self.assertEqual(report["signals"][0]["topics"], ["Technology"])
         self.assertEqual(report["collection"]["feeds_succeeded"], 1)
         self.assertEqual(report["daily_brief"]["signals_included"], 1)
+        self.assertEqual(report["monitoring"]["cycle_status"], "healthy")
+        self.assertEqual(report["monitoring"]["signals_collected"], 1)
 
     @patch("mdv14.pipeline.collect_feeds")
     def test_research_question_is_integrated_with_collected_records(self, collector):
