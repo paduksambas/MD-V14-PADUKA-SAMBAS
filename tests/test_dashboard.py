@@ -102,6 +102,29 @@ class DashboardTests(unittest.TestCase):
         self.assertNotIn("<img src=x onerror=alert(1)>", html)
         self.assertIn("&lt;img", html)
 
+    def test_dashboard_renders_build_3_command_center(self):
+        report = {
+            "signals": [{"title": "Signal A", "score": 80}],
+            "command_center": {
+                "build": "3.0", "generated_at": "2026-11-21T10:00:00Z",
+                "operational_state": "degraded",
+                "collection_cycle": {"status": "degraded", "feeds_attempted": 4, "feeds_succeeded": 3},
+                "strategic_posture": {"status": "priority_review_required",
+                    "note": "Review required", "high_review_priority": 1, "evidence_review_required": 1},
+                "coverage": {"signals_analyzed": 1},
+                "priority_review_queue": [{"priority_band": "high", "title": "Signal A",
+                    "country": "Indonesia", "source": "Desk", "signal_id": "s1"}],
+                "decision_gates": ["Verify primary sources", "<script>must escape</script>"],
+            },
+        }
+        html = build_dashboard_html(report)
+        self.assertIn("Global Strategic Intelligence Command Center", html)
+        self.assertIn("priority_review_required", html)
+        self.assertIn("Signal A", html)
+        self.assertIn("Verify primary sources", html)
+        self.assertNotIn("<script>must escape</script>", html)
+        self.assertIn("&lt;script&gt;", html)
+
     def test_empty_report_renders(self):
         html = build_dashboard_html({"signals": [], "daily_brief": {}})
         self.assertIn("No trend signals", html)
