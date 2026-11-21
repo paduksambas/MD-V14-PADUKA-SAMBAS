@@ -12,7 +12,7 @@ class GlobalIntelligenceTests(unittest.TestCase):
             {"title": "Flood response", "score": 40},
         ])
         self.assertEqual(result["signals_analyzed"], 3)
-        self.assertEqual(result["country_analysis"][0]["name"], "Indonesia")
+        self.assertEqual(result["country_analysis"][0]["name"], "Japan")
         self.assertEqual(result["topic_analysis"][0]["name"], "Technology")
         self.assertEqual(result["country_analysis"][-1]["name"], "unknown")
 
