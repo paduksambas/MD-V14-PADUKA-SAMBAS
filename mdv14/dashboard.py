@@ -19,6 +19,25 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     history = [item.get("history") for item in signals if item.get("history")]
     reviewed = sum(1 for item in signals if not item.get("evidence", {}).get("evidence_complete", False))
     avg_score = (sum(float(item.get("score", 0) or 0) for item in signals) / len(signals)) if signals else 0.0
+    source_status_counts = Counter(
+        (item.get("source_intelligence") or {}).get("status", "not assessed")
+        for item in signals
+    )
+    source_rows = []
+    for item in sorted(signals, key=lambda x: str(x.get("title", "")).casefold()):
+        assessment = item.get("source_intelligence") or {}
+        source_rows.append(
+            "<tr>"
+            f"<td>{_cell(item.get('title'))}</td>"
+            f"<td>{_cell(item.get('source'))}</td>"
+            f"<td>{_cell(assessment.get('source_domain') or 'unknown')}</td>"
+            f"<td>{_cell(assessment.get('status', 'not assessed'))}</td>"
+            f"<td class='num'>{_cell(str(assessment.get('metadata_checks_passed', '—')) + '/' + str(assessment.get('metadata_checks_total', '—')))}</td>"
+            "<td>Not assessed</td>"
+            "</tr>"
+        )
+    if not source_rows:
+        source_rows.append("<tr><td colspan='6'>No source records to assess.</td></tr>")
 
     rows = []
     for item in sorted(signals, key=lambda x: float(x.get("score", 0) or 0), reverse=True):
@@ -60,6 +79,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         metric("Average score", f"{avg_score:.1f}/100", "Supplied heuristic scores"),
         metric("Needs source review", reviewed, "Metadata completeness only"),
         metric("With history", len(history), "Persisted observations"),
+        metric("Source records assessed", sum(source_status_counts.values()), "Metadata checklist only"),
     ])
     warnings = "".join(
         f"<li><span>{_cell(level.title())}</span><b>{_cell(count)}</b></li>"
@@ -68,6 +88,10 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
                              ("watch", warning_counts.get("watch", 0)),
                              ("normal", warning_counts.get("normal", 0)))
     )
+    source_summary = "".join(
+        f"<li><span>{_cell(status.replace('_', ' '))}</span><b>{_cell(count)}</b></li>"
+        for status, count in sorted(source_status_counts.items())
+    ) or "<li>No source assessments</li>"
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -85,10 +109,11 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 <section class="grid">{cards}</section>
 <section class="columns">
 <article class="panel"><h2>Warning distribution</h2><ul>{warnings}</ul></article>
-<article class="panel"><h2>Category distribution</h2><div class="table-wrap"><table><thead><tr><th>Category</th><th class="num">Signals</th></tr></thead><tbody>{category_rows}</tbody></table></div></article>
+<article class="panel"><h2>Source metadata status</h2><ul>{source_summary}</ul></article>
 </section>
+<section class="panel"><h2>Source intelligence &amp; provenance</h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Source</th><th>Domain</th><th>Metadata status</th><th class="num">Checks</th><th>Reliability verdict</th></tr></thead><tbody>{''.join(source_rows)}</tbody></table></div></section>
+<section class="panel"><h2>Category distribution</h2><div class="table-wrap"><table><thead><tr><th>Category</th><th class="num">Signals</th></tr></thead><tbody>{category_rows}</tbody></table></div></section>
 <section class="panel"><h2>Advanced trend intelligence</h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Category</th><th class="num">Score</th><th>Warning</th><th>History</th><th class="num">Momentum</th><th class="num">Acceleration</th><th>Anomaly review</th><th>Confidence</th><th>Source</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div></section>
-<p class="notice">Interpretation limits: momentum and acceleration describe changes in supplied scores. Anomaly flags identify unusual score movement and require review. The attention potential index is a bounded heuristic, not a probability or guaranteed forecast. Insufficient history is shown explicitly. Source metadata checks do not establish factual truth or editorial independence.</p>
+<p class="notice">Source checks describe supplied metadata and provenance fields only. They do not rate source reputation or verify claims. Reliability and editorial independence are not assessed automatically. Momentum and acceleration are descriptive; anomaly flags require human review. No indicator is a probability or guaranteed forecast.</p>
 <footer>Generated locally by MD V14. This dashboard is a static report; it does not transmit data or publish content.</footer>
 </main></body></html>
-"""
