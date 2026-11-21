@@ -24,20 +24,22 @@ class SQLiteTrendStoreTests(unittest.TestCase):
             self.assertTrue(growth["history_sufficient"])
 
     def test_first_observation_is_not_called_a_trend(self):
-        store = SQLiteTrendStore(":memory:")
-        key = store.record_signals([{
-            "title": "Single observation", "source": "Desk",
-            "url": "https://example.org/one", "score": 50,
-        }], "2026-11-21T10:00:00+00:00")[0]
-        growth = store.get_growth(key)
-        self.assertEqual(growth["direction"], "insufficient_history")
-        self.assertFalse(growth["history_sufficient"])
+        with tempfile.TemporaryDirectory() as directory:
+            store = SQLiteTrendStore(Path(directory) / "history.sqlite3")
+            key = store.record_signals([{
+                "title": "Single observation", "source": "Desk",
+                "url": "https://example.org/one", "score": 50,
+            }], "2026-11-21T10:00:00+00:00")[0]
+            growth = store.get_growth(key)
+            self.assertEqual(growth["direction"], "insufficient_history")
+            self.assertFalse(growth["history_sufficient"])
 
     def test_invalid_timestamp_does_not_write(self):
-        store = SQLiteTrendStore(":memory:")
-        with self.assertRaises(ValueError):
-            store.record_signals([{"title": "X", "url": "https://x.test"}], "not-a-date")
-        self.assertEqual(store.list_trends(), [])
+        with tempfile.TemporaryDirectory() as directory:
+            store = SQLiteTrendStore(Path(directory) / "history.sqlite3")
+            with self.assertRaises(ValueError):
+                store.record_signals([{"title": "X", "url": "https://x.test"}], "not-a-date")
+            self.assertEqual(store.list_trends(), [])
 
 
 if __name__ == "__main__":
