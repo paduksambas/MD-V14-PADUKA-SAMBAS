@@ -7,7 +7,8 @@ Build 3.5 adds deterministic retrospective analytics to the market observations 
 ## Inputs
 
 - Public Frankfurter daily reference rates for USD/IDR, USD/EUR, and USD/CNY.
-- Stooq daily equity-index and commodity-futures observations from Build 3.6.\n- Optional FRED observations when `FRED_API_KEY` is configured.
+- Stooq daily equity-index and commodity-futures observations from Build 3.6.
+- Optional FRED observations when `FRED_API_KEY` is configured.
 
 Only valid observations with a recognized series identifier, ISO date, and numeric value are processed. Each series is analyzed independently. If providers supply overlapping dates for a series, the last supplied row for that date is retained; values are not blended.
 
