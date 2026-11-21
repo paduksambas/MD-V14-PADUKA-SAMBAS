@@ -137,3 +137,95 @@ def build_country_explorer(report: dict[str, Any], *, limit: int = 50) -> dict[s
             "Country coverage reflects configured source metadata and is not globally representative.",
         ],
     }
+
+from html import escape
+
+
+def render_country_explorer_html(data: dict[str, Any]) -> str:
+    """Render an interactive, self-contained country centroid plot and traceable record list."""
+    mapped = data.get("mapped_countries", [])
+    unmapped = data.get("unmapped_countries", [])
+    mapped = [item for item in mapped if isinstance(item, dict)] if isinstance(mapped, list) else []
+    unmapped = [item for item in unmapped if isinstance(item, dict)] if isinstance(unmapped, list) else []
+    esc = lambda value: escape(str(value if value is not None else ""), quote=True)
+    markers = []
+    buttons = []
+    details = []
+    rows = []
+    for item in mapped:
+        lat = _number(item.get("latitude"))
+        lon = _number(item.get("longitude"))
+        x = 40 + ((lon + 180) / 360) * 680
+        y = 20 + ((90 - lat) / 180) * 340
+        counts = item.get("review_priority_counts") or {}
+        band = "high" if counts.get("high", 0) else "medium" if counts.get("medium", 0) else "routine"
+        radius = max(5, min(14, 4 + (int(item.get("signal_count", 0) or 0) ** 0.5) * 2))
+        key, name = esc(item.get("canonical_name")), esc(item.get("name"))
+        markers.append(
+            f'<g class="country-marker priority-{band}" data-country-key="{key}" role="button" tabindex="0" aria-label="Select {name}">'
+            f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{radius:.1f}"></circle>'
+            f'<title>{name}: {item.get("signal_count", 0)} signals</title></g>'
+        )
+        buttons.append(f'<button type="button" class="country-select" data-country-key="{key}" aria-pressed="false">{name} · {item.get("signal_count", 0)}</button>')
+        record_rows = []
+        for record in item.get("records", []):
+            url = str(record.get("url") or "")
+            link = f'<a rel="noopener noreferrer" target="_blank" href="{esc(url)}">Open source</a>' if url.startswith(("http://", "https://")) else "Unavailable"
+            record_rows.append(
+                f'<tr><td>{esc(record.get("title"))}</td><td>{esc(record.get("source"))}</td>'
+                f'<td>{esc(record.get("priority_band"))}</td><td>{esc(record.get("warning_level"))}</td>'
+                f'<td>{esc(record.get("signal_id"))}</td><td>{link}</td></tr>'
+            )
+        details.append(
+            f'<div class="country-detail" data-country-key="{key}" hidden><h3>{name}</h3>'
+            f'<p>{item.get("signal_count", 0)} signals · average supplied score {item.get("average_score", 0)}</p>'
+            f'<p>Review priority — high: {counts.get("high", 0)}, medium: {counts.get("medium", 0)}, routine: {counts.get("routine", 0)}</p>'
+            f'<div class="table-wrap"><table><thead><tr><th>Signal</th><th>Source</th><th>Priority</th><th>Warning</th><th>ID</th><th>Article</th></tr></thead>'
+            f'<tbody>{"".join(record_rows) or "<tr><td colspan=6>No records.</td></tr>"}</tbody></table></div></div>'
+        )
+        rows.append(
+            f'<tr><td>{name}</td><td class="num">{item.get("signal_count", 0)}</td>'
+            f'<td class="num">{item.get("average_score", 0)}</td>'
+            f'<td>{counts.get("high", 0)} / {counts.get("medium", 0)} / {counts.get("routine", 0)}</td><td>Mapped</td></tr>'
+        )
+    for item in unmapped:
+        counts = item.get("review_priority_counts") or {}
+        rows.append(
+            f'<tr><td>{esc(item.get("name"))}</td><td class="num">{item.get("signal_count", 0)}</td>'
+            f'<td class="num">{item.get("average_score", 0)}</td>'
+            f'<td>{counts.get("high", 0)} / {counts.get("medium", 0)} / {counts.get("routine", 0)}</td>'
+            '<td>Unmapped — centroid unavailable</td></tr>'
+        )
+    grid = "".join(
+        f'<line x1="{40 + ((lon + 180) / 360) * 680:.1f}" y1="20" x2="{40 + ((lon + 180) / 360) * 680:.1f}" y2="360" class="map-gridline"/>'
+        for lon in (-120, -60, 0, 60, 120)
+    ) + "".join(
+        f'<line x1="40" y1="{20 + ((90 - lat) / 180) * 340:.1f}" x2="720" y2="{20 + ((90 - lat) / 180) * 340:.1f}" class="map-gridline"/>'
+        for lat in (-60, -30, 0, 30, 60)
+    )
+    markers_html = "".join(markers) or '<text x="380" y="190" text-anchor="middle" fill="currentColor">No mapped country records</text>'
+    return (
+        '<section class="panel" id="country-explorer"><h2>Global Geopolitical Intelligence Map &amp; Country Explorer · Build 3.1</h2>'
+        f'<div class="grid"><article class="metric"><div class="muted">Countries represented</div><strong>{data.get("countries_total", 0)}</strong><small>Explicit country labels</small></article>'
+        f'<article class="metric"><div class="muted">Mapped countries</div><strong>{data.get("countries_mapped", 0)}</strong><small>Approximate centroid references</small></article>'
+        f'<article class="metric"><div class="muted">Unmapped countries</div><strong>{data.get("countries_unmapped", 0)}</strong><small>No coordinate guessed</small></article>'
+        f'<article class="metric"><div class="muted">Signals with country</div><strong>{data.get("signals_with_country", 0)}</strong><small>Supplied country metadata</small></article></div>'
+        '<p class="muted">Geographic signal plot using approximate country centroid references. Points indicate records labelled with that country; they do not locate an event or represent territorial boundaries.</p>'
+        f'<div class="map-wrap"><svg class="world-plot" viewBox="0 0 760 380" role="img" aria-label="Longitude and latitude plot of countries represented in the report">'
+        f'<rect x="0" y="0" width="760" height="380" rx="12" class="map-bg"/>{grid}{markers_html}</svg></div>'
+        '<div class="map-legend"><span><i class="legend-dot priority-high"></i>Contains high review-priority signals</span>'
+        '<span><i class="legend-dot priority-medium"></i>Contains medium review-priority signals</span>'
+        '<span><i class="legend-dot priority-routine"></i>No high/medium queue item</span></div>'
+        f'<div class="country-picker">{"".join(buttons) or "<p>No mapped countries to select.</p>"}</div>'
+        f'<div id="country-detail-panel"><p>Select a plotted country or country label to inspect its signals.</p>{"".join(details) or "<p>No country detail available.</p>"}</div>'
+        '<h3>Country coverage and review profile</h3><div class="table-wrap"><table><thead><tr><th>Country label</th><th>Signals</th><th>Average score</th><th>High / medium / routine</th><th>Map status</th></tr></thead>'
+        f'<tbody>{"".join(rows) or "<tr><td colspan=5>No country-labelled signals in this report.</td></tr>"}</tbody></table></div>'
+        '<p class="muted">Priority counts are review-order cues, not geopolitical risk ratings, threat levels, or probabilities. Countries without a supported centroid remain visible in the table but are not plotted.</p></section>'
+        '<script>document.querySelectorAll(".country-marker, .country-select").forEach(function(el) {'
+        'function selectCountry() { var key=el.getAttribute("data-country-key");'
+        'document.querySelectorAll(".country-detail").forEach(function(panel) {panel.hidden=panel.getAttribute("data-country-key")!==key;});'
+        'document.querySelectorAll(".country-select").forEach(function(button) {button.setAttribute("aria-pressed",button.getAttribute("data-country-key")===key?"true":"false");});'
+        'var prompt=document.querySelector("#country-detail-panel > p"); if(prompt) prompt.hidden=true; }'
+        'el.addEventListener("click",selectCountry);el.addEventListener("keydown",function(event){'
+        'if(event.key==="Enter"||event.key===" "){event.preventDefault();selectCountry();}});});</script>'
+    )
