@@ -31,6 +31,10 @@ Without the key, the pipeline still completes and reports `market_data.status=no
 
 GitHub Actions reads the optional `FRED_API_KEY` repository secret. Add it under repository Settings → Secrets and variables → Actions to enable market data in scheduled runs. If it is absent, the workflow continues without FRED requests.
 
+## FRED attribution and terms
+
+The dashboard displays the required attribution: "This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis." It also links to the [FRED API Terms of Use](https://fred.stlouisfed.org/docs/api/terms_of_use.html). Users and operators remain responsible for compliance with the provider's current terms and applicable law.
+
 ## Safeguards and interpretation
 
 - Requests use HTTPS and the fixed `api.stlouisfed.org/fred/series/observations` endpoint.
