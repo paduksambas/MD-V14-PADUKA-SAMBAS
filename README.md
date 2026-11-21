@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 4.0 — Automated BPS Regional Dynamic-Table Connector (bounded, configurable domain/variable/period requests)
 - Build 3.9 — Indonesia Regional Intelligence (BPS region catalog + traceable province/regency indicator comparisons)
 - Build 3.8 — Indonesia Strategic Economic Intelligence (World Bank macro indicators + global commodity review channels)
 - Build 3.7 — Official Commodity Intelligence (World Bank Pink Sheet, no API key)
@@ -58,7 +59,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/public_assets.py — bounded no-key Stooq daily close adapter for selected equity indices and commodity futures (opt-in)
 - mdv14/commodity_data.py — dynamic World Bank Pink Sheet workbook discovery, standard-library XLSX parsing, and monthly benchmark normalization
 - mdv14/indonesia_intelligence.py — Indonesia-only macro indicator summaries and qualitative global commodity review channels
-- mdv14/regional_intelligence.py — BPS region-domain discovery, normalized regional indicator profiles, like-for-like rankings and descriptive spreads
+- mdv14/regional_intelligence.py — BPS region-domain discovery, bounded dynamic-table retrieval, normalized regional indicator profiles, like-for-like rankings and descriptive spreads
 - mdv14/dashboard.py — self-contained offline command-center dashboard with interactive country explorer, operational, strategic, analyst, and global coverage views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -74,6 +75,10 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 4.0 Automated BPS Regional Table Connector
+
+Optional BPS dynamic-table retrieval is enabled by `--bps-tables-config`. The JSON configuration identifies each exact domain, variable and period ID; requests are restricted to the official HTTPS BPS WebAPI host and capped at 100 per run. Only unambiguous single numeric cells are normalized into the regional intelligence pipeline. Set the private `BPS_API_KEY` as a GitHub Actions secret and create `examples/bps-regional-tables.json` from the sample template after confirming table metadata in the official BPS documentation. The sample is not automatically queried. Build 4.0 does not discover indicators or enumerate all regions automatically; coverage must be configured in deliberate batches that respect BPS rate limits. See docs/BUILD-4.0-BPS-REGIONAL-TABLE-CONNECTOR.md.
 
 ## Build 3.7 Official Commodity Intelligence
 The report now includes `commodity_data` from the official World Bank Commodity Price Data (Pink Sheet) monthly workbook. The current XLSX link is discovered from the World Bank Commodity Markets page on each run; parsing uses only the Python standard library and requires no API key. Selected series include crude oil, natural gas, coal, gold, silver, copper, aluminum, coffee, palm oil, wheat, maize, rice, and urea. Values are monthly nominal global benchmark averages with source units and attribution; missing cells remain missing. The data are not local Indonesian prices or live quotes. Build 3.5 analytics consumes each commodity series independently. See docs/BUILD-3.7-OFFICIAL-COMMODITY-INTELLIGENCE.md.
