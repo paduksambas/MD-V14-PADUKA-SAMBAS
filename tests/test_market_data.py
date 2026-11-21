@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import patch
 
-from mdv14.market_data import fetch_fred_market_data, render_fred_html
+from mdv14.market_data import (fetch_fred_market_data, render_fred_html,\n                                fetch_public_market_data, render_public_market_html)
 
 
 class FredMarketDataTests(unittest.TestCase):
@@ -43,6 +43,44 @@ class FredMarketDataTests(unittest.TestCase):
         self.assertEqual(result["requests_failed"], 1)
         self.assertNotIn("secret", str(result))
         self.assertEqual(result["observations"], [])
+
+    @patch("mdv14.market_data._fetch_frankfurter")
+    def test_public_fx_fetches_without_key_and_normalizes_rates(self, fetch):
+        fetch.return_value = [
+            {"date": "2026-11-20", "base": "USD", "quote": "IDR", "rate": 16500.0},
+            {"date": "2026-11-20", "base": "USD", "quote": "EUR", "rate": 0.87},
+            {"date": "2026-11-20", "base": "USD", "quote": "XYZ", "rate": 1.0},
+        ]
+        result = fetch_public_market_data(start_date="2026-11-20", end_date="2026-11-21")
+        self.assertEqual(result["status"], "available")
+        self.assertEqual(result["observation_count"], 2)
+        self.assertEqual(result["observations"][0]["unit"], "IDR per USD")
+        self.assertEqual(result["observations"][0]["value"], 16500.0)
+        fetch.assert_called_once()
+
+    def test_public_fx_validates_dates_and_range(self):
+        with self.assertRaises(ValueError):
+            fetch_public_market_data(start_date="2026/01/01", end_date="2026-01-02")
+        with self.assertRaises(ValueError):
+            fetch_public_market_data(start_date="2025-01-01", end_date="2026-11-21")
+
+    @patch("mdv14.market_data._fetch_frankfurter")
+    def test_public_fx_provider_failure_is_explicit(self, fetch):
+        fetch.side_effect = RuntimeError("service unavailable")
+        result = fetch_public_market_data(start_date="2026-11-20", end_date="2026-11-21")
+        self.assertEqual(result["status"], "unavailable")
+        self.assertEqual(result["observation_count"], 0)
+        self.assertEqual(result["requests_failed"], 1)
+
+    def test_public_fx_dashboard_escapes_provider_data(self):
+        html = render_public_market_html({
+            "status": "available", "observation_count": 1,
+            "requests_succeeded": 1, "requests_failed": 0,
+            "observations": [{"series": "<script>", "date": "2026-11-20",
+                              "value": 1, "unit": "IDR per USD", "source": "x"}],
+        })
+        self.assertIn("&lt;script&gt;", html)
+        self.assertNotIn("<script>", html)
 
     def test_dashboard_escapes_provider_data(self):
         html = render_fred_html({
