@@ -153,3 +153,33 @@ def fetch_world_bank_indicators(
             "Merchandise trade values are current US dollars and are not inflation-adjusted.",
         ],
     }
+
+def render_world_bank_html(data: dict[str, Any]) -> str:
+    """Render escaped official macroeconomic observations for the dashboard."""
+    from html import escape
+
+    esc = lambda value: escape(str(value if value is not None else ""), quote=True)
+    observations = data.get("observations", [])
+    observations = [item for item in observations if isinstance(item, dict)] if isinstance(observations, list) else []
+    rows = "".join(
+        f'<tr><td>{esc(item.get("country"))} ({esc(item.get("country_code"))})</td>'
+        f'<td>{esc(item.get("indicator"))}</td><td>{esc(item.get("year"))}</td>'
+        f'<td class="num">{esc(item.get("value"))}</td><td>{esc(item.get("unit"))}</td>'
+        f'<td>{esc(item.get("source"))}</td></tr>'
+        for item in observations
+    ) or '<tr><td colspan="6">No World Bank observations available for this run.</td></tr>'
+    errors = data.get("errors", [])
+    error_text = "; ".join(
+        f'{esc(item.get("country_code"))}/{esc(item.get("indicator_code"))}: {esc(item.get("error"))}'
+        for item in errors if isinstance(item, dict)
+    ) or "No request errors reported."
+    return (
+        '<section class="panel" id="world-bank-data"><h2>Official Economic Indicators · World Bank · Build 3.3</h2>'
+        f'<div class="grid"><article class="metric"><div class="muted">Observations</div><strong>{data.get("observation_count", 0)}</strong><small>Non-null published values</small></article>'
+        f'<article class="metric"><div class="muted">Requests succeeded</div><strong>{data.get("requests_succeeded", 0)}</strong><small>Country × indicator requests</small></article>'
+        f'<article class="metric"><div class="muted">Requests unavailable</div><strong>{data.get("requests_failed", 0)}</strong><small>Failures are not zero values</small></article></div>'
+        f'<p>Countries: {esc(", ".join(data.get("countries_requested", [])))} · Years: {esc((data.get("year_range") or {}).get("start"))}–{esc((data.get("year_range") or {}).get("end"))}</p>'
+        f'<div class="table-wrap"><table><thead><tr><th>Country</th><th>Indicator</th><th>Year</th><th>Value</th><th>Unit</th><th>Provider</th></tr></thead><tbody>{rows}</tbody></table></div>'
+        f'<p class="muted">Provider: <a href="https://api.worldbank.org/v2" rel="noopener noreferrer" target="_blank">World Bank Indicators API</a>. Request issues: {error_text}</p>'
+        '<p class="notice">Published historical macroeconomic observations, not real-time market prices or forecasts. Reporting lags and revisions apply. Association with news does not establish causality. Missing values remain missing, never zero-filled.</p></section>'
+    )
