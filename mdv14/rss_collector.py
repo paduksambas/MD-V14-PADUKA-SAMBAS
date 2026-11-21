@@ -24,6 +24,8 @@ def _validate_feed_url(url: str) -> None:
     parsed = urlparse(url)
     if parsed.scheme != "https" or not parsed.hostname:
         raise ValueError("feed URL must use HTTPS")
+    if parsed.username or parsed.password:
+        raise ValueError("credentials in feed URLs are not allowed")
     host = parsed.hostname.lower()
     if host in {"localhost"} or host.endswith(".localhost") or host.endswith(".local"):
         raise ValueError("local network feed hosts are not allowed")
@@ -33,6 +35,14 @@ def _validate_feed_url(url: str) -> None:
         address = None
     if address and not address.is_global:
         raise ValueError("non-public IP feed hosts are not allowed")
+    if not address:
+        try:
+            resolved = socket.getaddrinfo(host, parsed.port or 443, type=socket.SOCK_STREAM)
+        except OSError as exc:
+            raise ValueError(f"feed host could not be resolved: {exc}") from exc
+        resolved_ips = {item[4][0].split("%", 1)[0] for item in resolved}
+        if not resolved_ips or any(not ipaddress.ip_address(ip).is_global for ip in resolved_ips):
+            raise ValueError("feed host must resolve only to public IP addresses")
 
 
 def _text(element: ET.Element | None) -> str:
