@@ -17,6 +17,9 @@ on:
       - 'tests/test_regional_intelligence.py'
       - 'docs/BUILD-3.9-INDONESIA-REGIONAL-INTELLIGENCE.md'
       - 'examples/regional-data.sample.json'
+      - 'examples/bps-regional-tables.sample.json'
+      - 'examples/bps-regional-tables.json'
+      - 'docs/BUILD-4.0-BPS-REGIONAL-TABLE-CONNECTOR.md'
       - 'docs/BUILD-3.8-INDONESIA-STRATEGIC-ECONOMIC-INTELLIGENCE.md'
       - 'tests/test_indonesia_intelligence.py'
       - 'mdv14/market_data.py'
@@ -70,7 +73,8 @@ jobs:
             --output build/latest-report.json \
             --dashboard build/monitoring-dashboard.html \
             --economic-countries ID,US,CN \
-            --economic-start-year 2020
+            --economic-start-year 2020 \
+            $(if [ -f examples/bps-regional-tables.json ]; then printf '%s' '--bps-tables-config examples/bps-regional-tables.json'; fi)
       - name: Save trend history
         if: success()
         uses: actions/cache/save@v4
@@ -96,6 +100,7 @@ jobs:
               f"- Regional intelligence: {report.get('regional_intelligence', {}).get('status', 'unknown')}",
               f"- Regional observations: {report.get('regional_intelligence', {}).get('observation_count', 0)}",
               f"- BPS region catalog: {report.get('regional_intelligence', {}).get('bps_region_catalog', {}).get('status', 'unknown')} ({report.get('regional_intelligence', {}).get('bps_region_catalog', {}).get('region_count', 0)} regions)",
+              f"- BPS table connector: {report.get('bps_regional_tables', {}).get('status', 'not configured')} ({len(report.get('bps_regional_tables', {}).get('observations', []))} observations; {report.get('bps_regional_tables', {}).get('requests_failed', 0)} failed)",
               "- This is a scheduled feed collection, not continuous surveillance or fact verification.",
           ]
           Path(__import__("os").environ["GITHUB_STEP_SUMMARY"]).write_text("\n".join(lines) + "\n", encoding="utf-8")
