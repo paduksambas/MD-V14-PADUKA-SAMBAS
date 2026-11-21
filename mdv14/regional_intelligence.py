@@ -276,17 +276,16 @@ def _numeric_candidates(payload: Any) -> list[float]:
         if isinstance(value, dict):
             for child_key, child in value.items():
                 normalized = str(child_key).lower().replace("_", "")
-                if normalized in {"datacontent", "value", "nilai", "data"}:
-                    walk(child, normalized)
-                elif isinstance(child, (dict, list)):
-                    walk(child, normalized)
-                elif normalized in {"nilai", "value"}:
+                if key == "datacontent" or normalized in {"value", "nilai"}:
                     try:
                         number = float(child)
                         if math.isfinite(number):
                             found.append(number)
+                            continue
                     except (TypeError, ValueError):
                         pass
+                if isinstance(child, (dict, list)):
+                    walk(child, normalized)
         elif isinstance(value, list):
             for child in value:
                 walk(child, key)
