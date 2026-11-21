@@ -2,9 +2,9 @@
 
 ## Scope
 
-Adds an optional market-observation adapter for the official Federal Reserve Bank of St. Louis FRED API. The provider requires a FRED API key. Configure it as the `FRED_API_KEY` environment variable locally or as a repository Actions secret with that exact name. No key is stored in source control.
+Adds a default no-key foreign-exchange reference data adapter using the public Frankfurter API, plus an optional adapter for the Federal Reserve Bank of St. Louis FRED API. FRED still requires a key, but it is no longer required for MD V14 market-data collection. The public FX adapter retrieves USD reference rates against IDR, EUR, and CNY. The existing World Bank Indicators integration independently supplies macroeconomic data.
 
-## Initial series allowlist
+## No-key public FX data\n\nThe default adapter calls `https://api.frankfurter.dev/v2/rates` over HTTPS, with USD as base and IDR, EUR, and CNY as quotes. The public service does not require an API key or account. Date windows are bounded to 367 calendar days; responses are size-limited, timeouts are bounded, missing observations remain missing, and provider failures are reported without stopping the intelligence pipeline. These are daily reference/mid-market rates blended from central-bank and official sources, not intraday executable quotes. See the [Frankfurter documentation](https://frankfurter.dev/).\n\n## Optional FRED series allowlist
 
 | Series | Description | Unit |
 |---|---|---|
@@ -27,9 +27,9 @@ python -m mdv14 --market-start-date 2025-01-01 --market-end-date 2025-12-31 \
   --output build/report.json --dashboard build/dashboard.html
 ```
 
-Without the key, the pipeline still completes and reports `market_data.status=not_configured`, zero requests, and zero observations. This is an explicit configuration state, not an API failure or a market value of zero.
+Without the key, the no-key Frankfurter adapter still populates `market_data` with public FX reference rates. The optional FRED adapter is reported separately as `fred_market_data.status=not_configured`; it does not block collection.
 
-GitHub Actions reads the optional `FRED_API_KEY` repository secret. Add it under repository Settings → Secrets and variables → Actions to enable market data in scheduled runs. If it is absent, the workflow continues without FRED requests.
+GitHub Actions attempts the public Frankfurter request on each monitoring cycle without credentials. If `FRED_API_KEY` is absent, only the optional FRED supplement is skipped; no manual key setup is needed for daily USD/IDR, USD/EUR, and USD/CNY reference rates.
 
 ## FRED attribution and terms
 
