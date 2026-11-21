@@ -116,12 +116,14 @@ def fetch_fred_market_data(
             errors.append({"series_id": series_id, "error": message[:500], "status": "unavailable"})
             request_status.append({"series_id": series_id, "status": "unavailable", "observations_received": 0})
     observations.sort(key=lambda item: (item["series_id"], item["date"]))
+    successes = sum(x["status"] == "ok" for x in request_status)
+    overall_status = "available" if successes == len(request_status) else "partial" if successes else "unavailable"
     return {
         "build": "3.4", "provider": "Federal Reserve Bank of St. Louis FRED",
-        "provider_url": "https://fred.stlouisfed.org", "status": "available",
+        "provider_url": "https://fred.stlouisfed.org", "status": overall_status,
         "date_range": {"start": start, "end": end}, "series_requested": selected,
         "request_count": len(request_status),
-        "requests_succeeded": sum(x["status"] == "ok" for x in request_status),
+        "requests_succeeded": successes,
         "requests_failed": len(errors), "observation_count": len(observations),
         "observations": observations, "request_status": request_status, "errors": errors,
         "limitations": [
