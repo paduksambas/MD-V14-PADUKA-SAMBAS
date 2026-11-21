@@ -9,7 +9,7 @@
 ## Build 1.1 — Intelligence operations (berjalan)
 - [x] Definisi taxonomy domain & tag tren — docs/TREND_TAXONOMY.md
 - [x] Rubrik scoring NIVCP dengan definisi operasional — docs/SIGNAL_SCORING.md
-- [ ] Trend Registry untuk menyimpan tren, bukti, skor, indikator, dan riwayat perubahan
+- [x] Spesifikasi Trend Registry untuk menyimpan tren, bukti, skor, indikator, dan riwayat perubahan — docs/TREND_REGISTRY.md
 - [ ] Sistem Early Warning: trigger, tingkat keparahan, validasi, dan format alert
 - [ ] Template Daily Brief
 - [ ] Template Weekly Global Intelligence Report / outlook
