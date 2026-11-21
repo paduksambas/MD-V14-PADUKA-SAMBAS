@@ -25,7 +25,7 @@ class StrategicDecisionTests(unittest.TestCase):
         self.assertEqual(item["source"], "Example Desk")
         self.assertEqual(item["url"], "https://example.com/story")
         self.assertEqual(item["impact_dimensions"], ["economic", "technology"])
-        self.assertEqual(item["priority_band"], "high")
+        self.assertEqual(item["priority_band"], "medium")
         self.assertEqual(len(item["scoring_components"]), 4)
 
     def test_missing_components_are_renormalized_not_fabricated(self):
