@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 2.5 — Global Intelligence Fusion & Strategic Decision Support
 - Build 2.4 — Strategic Impact Analysis & Geopolitical Intelligence
 - Build 2.3 — Autonomous Research & Multi-Source Intelligence
 - Build 2.2 — Predictive Intelligence & Early Warning
@@ -29,6 +30,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/predictive_intelligence.py — bounded observation-horizon scenarios and threshold-crossing early-warning candidates
 - mdv14/research_orchestrator.py — question-framed multi-source relevance, collection health, source diversity, evidence gaps, and audit steps
 - mdv14/strategic_impact.py — keyword-based impact dimensions, explicit-metadata cross-border review candidates, attention bands, and human review prompts
+- mdv14/strategic_decision.py — unified explainable review queue combining supplied scores, observed momentum, impact cues, evidence gaps, and source traceability
 - mdv14/dashboard.py — self-contained offline HTML analytics dashboard with global country/topic, rising-signal, and related-event views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -44,6 +46,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 2.5 Global Intelligence Fusion & Strategic Decision Support
+The pipeline now emits `strategic_decision`, a unified human-review queue that fuses existing signal scores, observed momentum, keyword impact dimensions, and evidence-completeness gaps. Each item retains its signal ID, source, URL, country, warning/outlook labels, and transparent scoring components. Weights are renormalized when an input component is unavailable. Global, predictive, research, and strategic-impact summaries are context indicators—not independent confirmations. The priority score ranks review order only; it is not severity, probability, a forecast, or an automated policy recommendation. Optional research gaps from `--research-question` are included after collection. See docs/BUILD-2.5-STRATEGIC-DECISION-SUPPORT.md.
 
 ## Build 2.4 Strategic Impact Analysis & Geopolitical Intelligence
 The pipeline now emits `strategic_impact` with keyword-based potential impact dimensions (economic, security, diplomatic, societal, technology, environmental), score-based attention bands, metadata-completeness labels, and cross-border review candidates. Cross-border candidates require different explicitly supplied country labels plus a shared supplied entity or topic. These are analyst triage cues only: they do not establish causality, alliances, conflicts, impact probabilities, forecasts, source independence, or truth. Missing geography and actors are not inferred. Human verification is required. See docs/BUILD-2.4-STRATEGIC-IMPACT.md.
