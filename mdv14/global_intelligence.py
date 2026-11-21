@@ -121,7 +121,7 @@ def analyze_global_trends(
 
     # Pairwise links are deliberately labelled as discovery hints, never causal links.
     relations: list[dict[str, Any]] = []
-    for left_index, left in enumerate(rows):
+    for left_index, left in enumerate(rows):\n        if relation_limit == 0:\n            break
         left_title = _text(left.get("title") or left.get("topic"))
         if not left_title:
             continue
