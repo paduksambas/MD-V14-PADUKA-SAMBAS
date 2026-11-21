@@ -86,6 +86,9 @@ def main() -> int:
         "research_records_reviewed": report.get("research", {}).get("records_reviewed", 0),
         "analyst_report_findings": len(report.get("analyst_report", {}).get("key_findings", [])),
         "analyst_report_actions": len(report.get("analyst_report", {}).get("recommended_human_actions", [])),
+        "command_center_build": report.get("command_center", {}).get("build"),
+        "command_center_posture": report.get("command_center", {}).get("strategic_posture", {}).get("status"),
+        "command_center_operational_state": report.get("command_center", {}).get("operational_state"),
     }, ensure_ascii=False, indent=2))
     return 0
 
