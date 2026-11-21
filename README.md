@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 2.3 — Autonomous Research & Multi-Source Intelligence
 - Build 2.2 — Predictive Intelligence & Early Warning
 - Build 2.1 — Global Intelligence Dashboard
 - Build 2.0 — Global Intelligence Engine
@@ -25,6 +26,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/advanced_scoring.py — momentum, acceleration, anomaly and attention-potential indicators
 - mdv14/global_intelligence.py — cross-country/topic summaries, history-based momentum, and explainable related-event discovery
 - mdv14/predictive_intelligence.py — bounded observation-horizon scenarios and threshold-crossing early-warning candidates
+- mdv14/research_orchestrator.py — question-framed multi-source relevance, collection health, source diversity, evidence gaps, and audit steps
 - mdv14/dashboard.py — self-contained offline HTML analytics dashboard with global country/topic, rising-signal, and related-event views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -40,6 +42,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 2.3 Autonomous Research & Multi-Source Intelligence
+For configured RSS/Atom sources, pass `--research-question` with `--feeds` to add an auditable `research` section to the JSON report. Example: `python -m mdv14 --feeds examples/feeds.sample.json --research-question "semiconductor supply chain" --output build/research-report.json`. The report ranks records using literal keyword overlap in titles and summaries, summarizes feed health and metadata coverage, and lists research gaps and human review steps. It does not discover arbitrary websites, perform semantic search, verify truth, or publish findings. The Python API accepts `research_question` in `collect_and_run`. See docs/BUILD-2.3-RESEARCH-ORCHESTRATION.md.
 
 ## Build 2.2 Predictive Intelligence & Early Warning
 The pipeline now attaches a `predictive_outlook` to each signal and reports evaluated histories, insufficient histories, and threshold-crossing candidates in `predictive_summary`. It extends the mean of up to three latest supplied score changes over a configurable number of future observations; observation units are not calendar days. Fewer than two valid observations yield no projection. These are bounded heuristic scenarios, not probabilities, dated forecasts, causal findings, or guarantees. Elevated and critical scenarios require human review. No autonomous notifications are enabled. See docs/BUILD-2.2-PREDICTIVE-INTELLIGENCE.md.
