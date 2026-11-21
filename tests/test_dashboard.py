@@ -41,6 +41,49 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("&lt;script&gt;", html)
         self.assertIn("&quot; onclick=&quot;bad", html)
 
+    def test_dashboard_renders_global_country_topic_momentum_and_relations(self):
+        report = {
+            "signals": [],
+            "global_intelligence": {
+                "signals_analyzed": 2,
+                "country_analysis": [{"name": "Japan", "signal_count": 2, "average_score": 72.5}],
+                "topic_analysis": [{"name": "Energy", "signal_count": 2, "average_score": 72.5}],
+                "rising_signals": [{
+                    "title": "Battery investment", "country": "Japan",
+                    "topics": ["Energy"], "score": 80, "momentum": 12,
+                }],
+                "related_events": [{
+                    "left_title": "Battery supply update", "left_country": "Japan",
+                    "right_title": "Battery investment outlook", "right_country": "Korea",
+                    "relationship_basis": ["shared_explicit_topics"],
+                }],
+            },
+        }
+        html = build_dashboard_html(report)
+        self.assertIn("Global intelligence overview", html)
+        self.assertIn("Country activity", html)
+        self.assertIn("Topic activity", html)
+        self.assertIn("Japan", html)
+        self.assertIn("Energy", html)
+        self.assertIn("Battery investment", html)
+        self.assertIn("Related-event discovery", html)
+        self.assertIn("shared_explicit_topics", html)
+        self.assertIn("not evidence of causality", html)
+
+    def test_global_dashboard_escapes_untrusted_labels(self):
+        report = {
+            "signals": [],
+            "global_intelligence": {
+                "country_analysis": [{"name": "<img src=x onerror=alert(1)>", "signal_count": 1, "average_score": 90}],
+                "topic_analysis": [],
+                "rising_signals": [],
+                "related_events": [],
+            },
+        }
+        html = build_dashboard_html(report)
+        self.assertNotIn("<img src=x onerror=alert(1)>", html)
+        self.assertIn("&lt;img", html)
+
     def test_empty_report_renders(self):
         html = build_dashboard_html({"signals": [], "daily_brief": {}})
         self.assertIn("No trend signals", html)
