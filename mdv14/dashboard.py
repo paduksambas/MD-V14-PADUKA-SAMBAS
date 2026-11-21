@@ -6,7 +6,6 @@ from html import escape
 from typing import Any
 from .country_explorer import render_country_explorer_html
 from .economic_intelligence import render_economic_intelligence_html
-from .economic_intelligence import render_economic_intelligence_html
 
 
 def _cell(value: Any) -> str:
@@ -77,7 +76,6 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
 
     intelligence = report.get("global_intelligence") or {}
     country_explorer_html = render_country_explorer_html(report.get("country_explorer") or {})
-    economic_intelligence_html = render_economic_intelligence_html(report.get("economic_intelligence") or {})
     economic_intelligence_html = render_economic_intelligence_html(report.get("economic_intelligence") or {})
 
     def group_rows(items: list[dict[str, Any]]) -> str:
