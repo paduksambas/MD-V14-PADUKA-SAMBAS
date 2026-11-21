@@ -9,6 +9,11 @@ _LANGUAGE_NAMES = {
     "en": "English", "eng": "English", "english": "English",
     "id": "Indonesian", "ind": "Indonesian", "indonesian": "Indonesian",
     "in": "Indonesian",
+    "fr": "French", "fra": "French", "french": "French",
+    "es": "Spanish", "spa": "Spanish", "spanish": "Spanish",
+    "de": "German", "ger": "German", "german": "German",
+    "ar": "Arabic", "ara": "Arabic", "arabic": "Arabic",
+    "zh": "Chinese", "zho": "Chinese", "chinese": "Chinese",
 }
 
 
