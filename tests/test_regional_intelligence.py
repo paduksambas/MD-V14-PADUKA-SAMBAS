@@ -1,6 +1,6 @@
 import unittest
 from mdv14.regional_intelligence import (
-    build_regional_intelligence, fetch_bps_region_catalog, render_regional_intelligence_html,
+    build_regional_intelligence, fetch_bps_region_catalog, fetch_bps_regional_tables, render_regional_intelligence_html,
 )
 
 
@@ -70,6 +70,45 @@ class RegionalIntelligenceTests(unittest.TestCase):
         self.assertIn("&lt;script&gt;", html)
         self.assertNotIn("<script>", html)
         self.assertIn("&lt;img&gt;", html)
+
+    def test_bps_dynamic_table_fetch_extracts_single_cell(self):
+        from unittest.mock import patch
+        config = {"tables": [{
+            "domain_id": "32", "region_name": "Jawa Barat", "level": "province",
+            "indicator_code": "PDRB_GROWTH", "indicator_name": "Pertumbuhan PDRB",
+            "variable_id": "145", "period_id": "100", "period": "2023", "unit": "%"
+        }]}
+        with patch("mdv14.regional_intelligence._request_json",
+                   return_value={"status": "OK", "data": [{"datacontent": {"32": "5.31"}}]}):
+            result = fetch_bps_regional_tables("private-key", config)
+        self.assertEqual(result["status"], "available")
+        self.assertEqual(result["observations"][0]["value"], 5.31)
+        self.assertNotIn("private-key", str(result))
+
+    def test_bps_dynamic_table_rejects_ambiguous_cells(self):
+        from unittest.mock import patch
+        config = {"tables": [{
+            "domain_id": "32", "region_name": "Jawa Barat", "level": "province",
+            "indicator_code": "X", "variable_id": "145", "period_id": "100", "period": "2023"
+        }]}
+        with patch("mdv14.regional_intelligence._request_json",
+                   return_value={"data": [{"datacontent": {"32": "5", "33": "6"}}]}):
+            result = fetch_bps_regional_tables("private-key", config)
+        self.assertEqual(result["requests_failed"], 1)
+        self.assertEqual(result["observations"], [])
+
+    def test_bps_dynamic_table_request_limit_prevents_network_calls(self):
+        from unittest.mock import patch
+        config = {"tables": [{}] * 101}
+        with patch("mdv14.regional_intelligence._request_json") as request:
+            result = fetch_bps_regional_tables("private-key", config)
+        request.assert_not_called()
+        self.assertEqual(result["status"], "request_limit_exceeded")
+
+    def test_bps_dynamic_table_requires_key(self):
+        result = fetch_bps_regional_tables(None, {"tables": []})
+        self.assertEqual(result["status"], "not_configured")
+        self.assertEqual(result["request_count"], 0)
 
 
 if __name__ == "__main__":
