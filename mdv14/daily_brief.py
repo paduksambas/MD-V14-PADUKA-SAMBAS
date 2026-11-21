@@ -8,6 +8,7 @@ from __future__ import annotations
 from collections import Counter
 from datetime import date
 from typing import Any, Iterable
+from urllib.parse import urlparse
 
 
 def _clean_text(value: Any) -> str:
@@ -26,14 +27,17 @@ def normalize_signal(signal: dict[str, Any]) -> dict[str, Any]:
     except (TypeError, ValueError):
         score = 0.0
     score = max(0.0, min(100.0, score))
+    parsed_url = urlparse(url)
+    valid_url = parsed_url.scheme in {"http", "https"} and bool(parsed_url.netloc)
     return {
+        "id": _clean_text(signal.get("id")),
         "title": title,
         "source": source,
         "url": url,
         "summary": summary,
         "category": category,
         "score": round(score, 2),
-        "evidence_complete": bool(title and source and url),
+        "evidence_complete": bool(title and source and valid_url),
     }
 
 
