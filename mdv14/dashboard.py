@@ -24,6 +24,9 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     for item in sorted(signals, key=lambda x: float(x.get("score", 0) or 0), reverse=True):
         hist = item.get("history") or {}
         warning = item.get("warning") or {}
+        advanced = item.get("advanced_intelligence") or {}
+        anomaly = advanced.get("anomaly") or {}
+        anomaly_label = "Unusual change — review" if anomaly.get("detected") else anomaly.get("status", "not assessed")
         rows.append(
             "<tr>"
             f"<td>{_cell(item.get('title'))}</td>"
@@ -31,12 +34,15 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
             f"<td class='num'>{_cell(item.get('score', 0))}</td>"
             f"<td>{_cell(warning.get('level', 'unknown'))}</td>"
             f"<td>{_cell(hist.get('direction', 'no history'))}</td>"
-            f"<td class='num'>{_cell(hist.get('score_delta', '—'))}</td>"
+            f"<td class='num'>{_cell(advanced.get('momentum', '—'))}</td>"
+            f"<td class='num'>{_cell(advanced.get('acceleration', '—'))}</td>"
+            f"<td>{_cell(anomaly_label)}</td>"
+            f"<td>{_cell(advanced.get('confidence', 'not assessed'))}</td>"
             f"<td>{_cell(item.get('source') or 'Source review needed')}</td>"
             "</tr>"
         )
     if not rows:
-        rows.append("<tr><td colspan='7'>No trend signals in this report.</td></tr>")
+        rows.append("<tr><td colspan='10'>No trend signals in this report.</td></tr>")
 
     category_rows = "".join(
         f"<tr><td>{_cell(name)}</td><td class='num'>{count}</td></tr>"
@@ -81,8 +87,8 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 <article class="panel"><h2>Warning distribution</h2><ul>{warnings}</ul></article>
 <article class="panel"><h2>Category distribution</h2><div class="table-wrap"><table><thead><tr><th>Category</th><th class="num">Signals</th></tr></thead><tbody>{category_rows}</tbody></table></div></article>
 </section>
-<section class="panel"><h2>Trend signals</h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Category</th><th class="num">Score</th><th>Warning</th><th>History</th><th class="num">Δ score</th><th>Source</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div></section>
-<p class="notice">Interpretation limits: scores and warning levels are heuristic inputs, not verified predictions. Historical score change is descriptive and is not a probability or forecast. Source metadata checks do not establish factual truth. Review original sources and context before acting.</p>
+<section class="panel"><h2>Advanced trend intelligence</h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Category</th><th class="num">Score</th><th>Warning</th><th>History</th><th class="num">Momentum</th><th class="num">Acceleration</th><th>Anomaly review</th><th>Confidence</th><th>Source</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div></section>
+<p class="notice">Interpretation limits: momentum and acceleration describe changes in supplied scores. Anomaly flags identify unusual score movement and require review. The attention potential index is a bounded heuristic, not a probability or guaranteed forecast. Insufficient history is shown explicitly. Source metadata checks do not establish factual truth or editorial independence.</p>
 <footer>Generated locally by MD V14. This dashboard is a static report; it does not transmit data or publish content.</footer>
 </main></body></html>
-""" 
+"""
