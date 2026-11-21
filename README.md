@@ -1,3 +1,6 @@
+## Build 4.1 BPS Public Export Import (No API Key)
+Regional intelligence can now ingest official BPS public table exports in CSV, XLSX or normalized JSON without a WebAPI key. Use `--bps-public-export` with `--bps-public-config` to supply an explicit column mapping and metadata; the report records file SHA-256, source URL, accepted rows and rejected rows. XLSX reads the first worksheet only. This is a file-import workflow, not an automatic crawler or a direct Query Builder download. See docs/BUILD-4.1-BPS-PUBLIC-EXPORT-IMPORT.md and examples/bps-public-export.sample.json.
+
 # MD V14 — Paduka Sambas Global Trend Intelligence
 
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
