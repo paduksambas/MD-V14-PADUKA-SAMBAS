@@ -4,6 +4,7 @@ from __future__ import annotations
 from collections import Counter
 from html import escape
 from typing import Any
+from .country_explorer import render_country_explorer_html
 
 
 def _cell(value: Any) -> str:
@@ -73,6 +74,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
                 f"<strong>{_cell(value)}</strong><small>{_cell(note)}</small></article>")
 
     intelligence = report.get("global_intelligence") or {}
+    country_explorer_html = render_country_explorer_html(report.get("country_explorer") or {})
 
     def group_rows(items: list[dict[str, Any]]) -> str:
         rendered = []
@@ -244,7 +246,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
 main{{max-width:1180px;margin:auto;padding:28px 20px 56px}}header{{margin-bottom:24px}}h1{{font-size:clamp(1.6rem,4vw,2.35rem);margin:0 0 6px}}h2{{font-size:1.1rem;margin:0 0 14px}}.muted,small{{color:var(--muted)}}.grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:12px;margin:20px 0}}
 .metric,.panel{{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:17px}}.metric strong{{display:block;font-size:1.9rem;margin:5px 0}}.metric small{{display:block}}
 .columns{{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}}@media(max-width:700px){{.columns{{grid-template-columns:1fr}}}}
-table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}}th{{color:var(--muted);font-weight:600}}.num{{font-variant-numeric:tabular-nums;text-align:right}}.table-wrap{{overflow-x:auto}}ul{{list-style:none;padding:0;margin:0}}li{{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}}.bar-track{{height:9px;min-width:100px;background:var(--line);border-radius:99px;overflow:hidden}}.bar-fill{{display:block;height:100%;background:var(--accent);border-radius:99px}}.notice{{border-left:3px solid var(--accent);padding:10px 14px;background:var(--panel);border-radius:5px;color:var(--muted);margin-top:18px}}footer{{margin-top:22px;color:var(--muted);font-size:.85rem}}
+table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}}th{{color:var(--muted);font-weight:600}}.num{{font-variant-numeric:tabular-nums;text-align:right}}.table-wrap{{overflow-x:auto}}ul{{list-style:none;padding:0;margin:0}}li{{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}}.bar-track{{height:9px;min-width:100px;background:var(--line);border-radius:99px;overflow:hidden}}.bar-fill{{display:block;height:100%;background:var(--accent);border-radius:99px}}.map-wrap{{background:#0b1422;border:1px solid var(--line);border-radius:12px;overflow:hidden}}.world-plot{{display:block;width:100%;height:auto;max-height:480px}}.map-bg{{fill:#0b1422}}.map-gridline{{stroke:#34445b;stroke-width:1;stroke-dasharray:3 5}}.country-marker{{cursor:pointer;outline:none}}.country-marker circle,.legend-dot{{stroke:#f2f6fc;stroke-width:1.5;fill:#83b7ff}}.country-marker.priority-high circle,.legend-dot.priority-high{{fill:#f07878}}.country-marker.priority-medium circle,.legend-dot.priority-medium{{fill:#e7b75d}}.country-marker.priority-routine circle,.legend-dot.priority-routine{{fill:#83b7ff}}.country-marker:focus circle,.country-marker:hover circle{{stroke:#fff;stroke-width:3}}.map-legend,.country-picker{{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}}.map-legend span{{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.85rem}}.legend-dot{{display:inline-block;width:11px;height:11px;border-radius:50%}}.country-select{{background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:7px 10px;cursor:pointer}}.country-select[aria-pressed=true]{{border-color:var(--accent);outline:1px solid var(--accent)}}.country-detail{{padding:14px;border:1px solid var(--line);border-radius:10px}}.country-detail[hidden]{{display:none}}.notice{{border-left:3px solid var(--accent);padding:10px 14px;background:var(--panel);border-radius:5px;color:var(--muted);margin-top:18px}}footer{{margin-top:22px;color:var(--muted);font-size:.85rem}}
 </style></head><body><main>
 <header><div class="muted">PADUKA SAMBAS · GLOBAL TREND INTELLIGENCE</div>
 <h1>{_cell(title)}</h1><div class="muted">Report date: {_cell(date_label)}</div></header>
@@ -272,6 +274,7 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 <article class="panel"><h2>Warning distribution</h2><ul>{warnings}</ul></article>
 <article class="panel"><h2>Source metadata status</h2><ul>{source_summary}</ul></article>
 </section>
+{country_explorer_html}
 <section class="panel"><h2>Global intelligence overview</h2><div class="grid">{global_cards}</div></section>
 <section class="columns">
 <article class="panel"><h2>Country activity</h2><div class="table-wrap"><table><thead><tr><th>Country</th><th class="num">Signals</th><th class="num">Avg. score</th><th>Score profile</th></tr></thead><tbody>{country_rows}</tbody></table></div></article>
