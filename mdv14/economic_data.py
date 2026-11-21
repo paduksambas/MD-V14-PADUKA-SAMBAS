@@ -183,3 +183,5 @@ def render_world_bank_html(data: dict[str, Any]) -> str:
         f'<p class="muted">Provider: <a href="https://api.worldbank.org/v2" rel="noopener noreferrer" target="_blank">World Bank Indicators API</a>. Request issues: {error_text}</p>'
         '<p class="notice">Published historical macroeconomic observations, not real-time market prices or forecasts. Reporting lags and revisions apply. Association with news does not establish causality. Missing values remain missing, never zero-filled.</p></section>'
     )
+
+# Build 3.3 connector is exercised by scheduled monitoring and mocked unit tests.
