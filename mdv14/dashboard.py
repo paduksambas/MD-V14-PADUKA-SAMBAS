@@ -117,3 +117,4 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 <p class="notice">Source checks describe supplied metadata and provenance fields only. They do not rate source reputation or verify claims. Reliability and editorial independence are not assessed automatically. Momentum and acceleration are descriptive; anomaly flags require human review. No indicator is a probability or guaranteed forecast.</p>
 <footer>Generated locally by MD V14. This dashboard is a static report; it does not transmit data or publish content.</footer>
 </main></body></html>
+"""
