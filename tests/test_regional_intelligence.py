@@ -41,6 +41,19 @@ class RegionalIntelligenceTests(unittest.TestCase):
         self.assertEqual(result["status"], "not_configured")
         self.assertEqual(result["requests_succeeded"], 0)
 
+    def test_bps_catalog_fetch_normalizes_domains_without_exposing_key(self):
+        from unittest.mock import patch
+        payloads = [
+            [{"status": "ok"}, [{"domain_id": "32", "domain_name": "Jawa Barat"}]],
+            [{"status": "ok"}, [{"domain_id": "3201", "domain_name": "Kabupaten Bogor", "parent_id": "32"}]],
+        ]
+        with patch("mdv14.regional_intelligence._request_json", side_effect=payloads):
+            result = fetch_bps_region_catalog("secret-token")
+        self.assertEqual(result["status"], "available")
+        self.assertEqual(result["region_count"], 2)
+        self.assertEqual({item["level"] for item in result["regions"]}, {"province", "regency_city"})
+        self.assertNotIn("secret-token", str(result))
+
     def test_catalog_parser_accepts_bps_list_shape(self):
         from mdv14.regional_intelligence import _domain_rows
         rows = _domain_rows([{"status": "ok"}, [{"domain_id": "32", "domain_name": "Jawa Barat"}]])
