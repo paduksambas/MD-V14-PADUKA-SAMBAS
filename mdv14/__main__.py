@@ -35,6 +35,7 @@ def main() -> int:
     parser.add_argument("--fred-api-key-env", default="FRED_API_KEY", help="Environment variable holding an optional FRED API key (default: FRED_API_KEY).")
     parser.add_argument("--market-start-date", default=None, help="First public FX/asset/FRED observation date (YYYY-MM-DD; default: 30 days before today).")
     parser.add_argument("--market-end-date", default=None, help="Last public-market observation date (default: today).")
+    parser.add_argument("--enable-public-assets", action="store_true", help="Opt in to Stooq daily equity/commodity history; disabled by default because the free endpoint may rate-limit automated runners.")
     args = parser.parse_args()
 
     if args.limit < 1:
@@ -67,9 +68,21 @@ def main() -> int:
     report["market_data"] = fetch_public_market_data(
         start_date=market_start_date, end_date=market_end_date,
     )
-    report["public_asset_data"] = fetch_public_asset_data(
-        start_date=market_start_date, end_date=market_end_date,
-    )
+    if args.enable_public_assets:
+        report["public_asset_data"] = fetch_public_asset_data(
+            start_date=market_start_date, end_date=market_end_date,
+        )
+    else:
+        report["public_asset_data"] = {
+            "build": "3.6", "provider": "Stooq public daily CSV",
+            "status": "not_requested", "request_count": 0,
+            "requests_succeeded": 0, "requests_failed": 0,
+            "observation_count": 0, "observations": [], "errors": [],
+            "limitations": [
+                "Stooq collection is opt-in via --enable-public-assets because its free endpoint may rate-limit automated runner IPs.",
+                "No public asset observations were requested in this run.",
+            ],
+        }
     try:
         report["fred_market_data"] = fetch_fred_market_data(
             os.environ.get(args.fred_api_key_env), start_date=market_start_date,
