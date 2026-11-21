@@ -1,0 +1,10 @@
+[
+  {
+    "name": "BBC World",
+    "url": "https://feeds.bbci.co.uk/news/world/rss.xml"
+  },
+  {
+    "name": "NPR World",
+    "url": "https://feeds.npr.org/1004/rss.xml"
+  }
+]
