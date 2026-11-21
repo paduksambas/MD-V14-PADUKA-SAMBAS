@@ -108,15 +108,15 @@ def fetch_feed(
     max_bytes: int = MAX_FEED_BYTES,
 ) -> dict[str, Any]:
     """Fetch one HTTPS feed. Redirects are not followed; response size is bounded."""
-    _validate_feed_url(feed_url)
     if timeout < 1 or max_bytes < 1:
         raise ValueError("timeout and max_bytes must be positive")
-    request = urllib.request.Request(
-        feed_url,
-        headers={"User-Agent": USER_AGENT, "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml"},
-    )
-    opener = urllib.request.build_opener(_NoRedirect)
     try:
+        _validate_feed_url(feed_url)
+        request = urllib.request.Request(
+            feed_url,
+            headers={"User-Agent": USER_AGENT, "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml"},
+        )
+        opener = urllib.request.build_opener(_NoRedirect)
         with opener.open(request, timeout=timeout) as response:
             body = response.read(max_bytes + 1)
             if len(body) > max_bytes:
@@ -136,7 +136,10 @@ def collect_feeds(feeds: list[dict[str, str]]) -> dict[str, Any]:
         if not url:
             results.append({"feed_url": "", "ok": False, "items": [], "item_count": 0, "error": "missing feed URL"})
         else:
-            results.append(fetch_feed(url, name))
+            try:
+                results.append(fetch_feed(url, name))
+            except (ValueError, OSError) as exc:
+                results.append({"feed_url": url, "ok": False, "items": [], "item_count": 0, "error": str(exc)})
     items = [item for result in results for item in result["items"]]
     return {
         "collector": "MD V14 RSS/Atom",
