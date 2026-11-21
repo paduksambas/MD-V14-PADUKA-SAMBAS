@@ -13,6 +13,8 @@ on:
       - 'mdv14/economic_intelligence.py'
       - 'mdv14/economic_data.py'
       - 'mdv14/market_data.py'
+      - 'mdv14/market_analytics.py'
+      - 'tests/test_market_analytics.py'
       - 'tests/test_market_data.py'
       - 'mdv14/__main__.py'
       - 'tests/test_economic_data.py'
