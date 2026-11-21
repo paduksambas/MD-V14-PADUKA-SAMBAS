@@ -4,7 +4,7 @@ import unittest
 from mdv14.early_warning import WarningThresholds, classify_signal
 from mdv14.fact_check import assess_evidence
 from mdv14.pipeline import run_pipeline
-from mdv14.trend_registry import TrendRegistry, signal_id
+from mdv14.trend_registry import TrendRegistry
 
 
 class PipelineTests(unittest.TestCase):
@@ -19,6 +19,16 @@ class PipelineTests(unittest.TestCase):
     def test_registry_rejects_missing_title(self):
         with self.assertRaises(ValueError):
             TrendRegistry([{"source": "Desk"}])
+
+    def test_registry_preserves_supplied_provenance_metadata(self):
+        registry = TrendRegistry([{
+            "title": "Topic", "url": "https://example.com/a",
+            "author": "Reporter", "published_at": "2026-11-21T09:00:00Z",
+            "source_profile": {"ownership_url": "https://example.com/about"},
+        }])
+        item = registry.all()[0]
+        self.assertEqual(item["author"], "Reporter")
+        self.assertIn("source_profile", item)
 
     def test_warning_boundaries(self):
         self.assertEqual(classify_signal({"score": 80})["level"], "critical")
@@ -45,19 +55,26 @@ class PipelineTests(unittest.TestCase):
         self.assertFalse(result["truth_verified"])
 
     def test_pipeline_integrates_all_stages(self):
-        result = run_pipeline([
-            {"title": "Major signal", "source": "Example Desk",
-             "url": "https://example.com/story", "score": 85,
-             "category": "Technology"}
-        ], brief_date="2026-11-21")
+        result = run_pipeline([{
+            "title": "Major signal", "source": "Example Desk",
+            "url": "https://example.com/story", "score": 85,
+            "category": "Technology", "author": "Reporter",
+            "published_at": "2026-11-21T09:00:00Z",
+        }], brief_date="2026-11-21")
         self.assertEqual(result["registry_size"], 1)
         self.assertEqual(result["warning_summary"]["critical"], 1)
         self.assertEqual(result["daily_brief"]["signals_included"], 1)
         self.assertFalse(result["signals"][0]["evidence"]["truth_verified"])
+        intelligence = result["signals"][0]["source_intelligence"]
+        self.assertEqual(intelligence["reliability_verdict"], "not_assessed")
+        self.assertEqual(intelligence["source_domain"], "example.com")
+        self.assertTrue(intelligence["checks"]["author_attribution_present"])
         brief_signal = result["daily_brief"]["top_signals"][0]
         self.assertIn("evidence", brief_signal)
         self.assertIn("warning", brief_signal)
+        self.assertIn("source_intelligence", brief_signal)
         self.assertEqual(brief_signal["warning"]["level"], "critical")
+        self.assertEqual(result["source_intelligence_summary"]["reputation_verdicts_issued"], 0)
 
 
 if __name__ == "__main__":
