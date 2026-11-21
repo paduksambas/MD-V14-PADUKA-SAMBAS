@@ -64,7 +64,7 @@ jobs:
         env:
           BPS_API_KEY: ${{ secrets.BPS_API_KEY }}
         run: |
-          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
           import json, os, urllib.parse, urllib.request
           print("\\n## BPS Sambas metadata discovery")
           key = os.environ.get("BPS_API_KEY", "").strip()
