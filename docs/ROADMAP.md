@@ -14,7 +14,7 @@
 - [x] Template Daily Intelligence Brief — docs/DAILY_BRIEF.md
 - [x] Template Weekly Global Intelligence Report / outlook — docs/WEEKLY_GLOBAL_INTELLIGENCE_REPORT.md
 - [x] Template Early Warning Memo — docs/EARLY_WARNING_MEMO.md
-- [ ] Register indikator dan trigger yang dapat ditinjau berkala
+- [x] Register indikator dan trigger yang dapat ditinjau berkala — docs/INDICATOR_TRIGGER_REGISTER.md
 
 ## Build 1.2 — Quality & repeatability
 - [ ] Checklist kualitas sumber dan sitasi
