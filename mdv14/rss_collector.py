@@ -45,6 +45,20 @@ def _validate_feed_url(url: str) -> None:
             raise ValueError("feed host must resolve only to public IP addresses")
 
 
+def _valid_article_url(value: str) -> bool:
+    """Accept navigable web links only; reject script, file, credential and hostless URLs."""
+    try:
+        parsed = urlparse(str(value or "").strip())
+        return (
+            parsed.scheme.lower() in {"http", "https"}
+            and bool(parsed.hostname)
+            and not parsed.username
+            and not parsed.password
+        )
+    except ValueError:
+        return False
+
+
 def _text(element: ET.Element | None) -> str:
     if element is None:
         return ""
@@ -73,7 +87,7 @@ def _entry_url(entry: ET.Element) -> str:
 
 
 def parse_feed(xml_bytes: bytes, feed_url: str, source_name: str = "") -> list[dict[str, Any]]:
-    """Parse common RSS 2.0 and Atom entries; skip entries without title/link."""
+    """Parse common RSS 2.0 and Atom entries; skip entries without safe title/link."""
     root = ET.fromstring(xml_bytes)
     entries = [
         element for element in root.iter()
@@ -83,7 +97,7 @@ def parse_feed(xml_bytes: bytes, feed_url: str, source_name: str = "") -> list[d
     for entry in entries:
         title = _child_text(entry, ("title",))
         link = _entry_url(entry)
-        if not title or not link:
+        if not title or not _valid_article_url(link):
             continue
         summary = _child_text(entry, ("description", "summary", "content", "encoded"))
         published = _child_text(entry, ("pubdate", "published", "updated", "date"))
