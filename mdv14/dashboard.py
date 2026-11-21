@@ -7,7 +7,7 @@ from typing import Any
 from .country_explorer import render_country_explorer_html
 from .economic_intelligence import render_economic_intelligence_html
 from .economic_data import render_world_bank_html
-from .market_data import render_fred_html
+from .market_data import render_fred_html, render_public_market_html
 
 
 def _cell(value: Any) -> str:
@@ -80,7 +80,8 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     country_explorer_html = render_country_explorer_html(report.get("country_explorer") or {})
     economic_intelligence_html = render_economic_intelligence_html(report.get("economic_intelligence") or {})
     world_bank_html = render_world_bank_html(report.get("economic_data") or {})
-    fred_market_html = render_fred_html(report.get("market_data") or {})
+    public_market_html = render_public_market_html(report.get("market_data") or {})
+    fred_market_html = render_fred_html(report.get("fred_market_data") or {})
 
     def group_rows(items: list[dict[str, Any]]) -> str:
         rendered = []
@@ -283,6 +284,7 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 {country_explorer_html}
 {economic_intelligence_html}
 {world_bank_html}
+{public_market_html}
 {fred_market_html}
 <section class="panel"><h2>Global intelligence overview</h2><div class="grid">{global_cards}</div></section>
 <section class="columns">
