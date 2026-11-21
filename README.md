@@ -3,7 +3,8 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
-- Build 3.4 — Global Financial Markets Intelligence (optional FRED observations API)\n- Build 3.3 — Dedicated Economic Data Sources & Market Intelligence Integration (World Bank Indicators API)
+- Build 3.4 — Global Financial Markets Intelligence (no-key Frankfurter FX + optional FRED API)
+- Build 3.3 — Dedicated Economic Data Sources & Market Intelligence Integration (World Bank Indicators API)
 - Build 3.2 — Global Economic Intelligence & Strategic Market Impact (keyword-based sector review cues)
 - Build 3.1 — Global Geopolitical Intelligence Map & Interactive Country Risk Explorer (review-priority explorer)
 - Build 3.0 — Global Strategic Intelligence Command Center
@@ -46,7 +47,8 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/command_center.py — unified operational state, strategic posture, source coverage, and priority review queue
 - mdv14/country_explorer.py — country-centroid plotting, explicit metadata aggregation, and traceable country-level review profiles
 - mdv14/economic_intelligence.py — curated English/Indonesian sector cues for energy, commodities/mining, trade/supply chains, finance/macroeconomy, technology/semiconductors, agriculture/food, and transport/logistics
-- mdv14/economic_data.py — bounded World Bank Indicators API client with country/year validation, allowlisted indicators, provenance, and missing-data preservation\n- mdv14/market_data.py — no-key Frankfurter daily FX reference-rate adapter plus optional FRED market observations adapter with fixed allowlists, key redaction, request bounds, and explicit missing-data status
+- mdv14/economic_data.py — bounded World Bank Indicators API client with country/year validation, allowlisted indicators, provenance, and missing-data preservation
+- mdv14/market_data.py — no-key Frankfurter daily FX reference-rate adapter plus optional FRED market observations adapter with fixed allowlists, key redaction, request bounds, and explicit missing-data status
 - mdv14/dashboard.py — self-contained offline command-center dashboard with interactive country explorer, operational, strategic, analyst, and global coverage views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -63,7 +65,10 @@ python -m mdv14 examples/signals.sample.json \
   --dashboard build/trend-dashboard.html
 ```
 
-## Build 3.4 Global Financial Markets Intelligence\nThe default no-key market adapter retrieves daily USD reference rates for IDR, EUR, and CNY from the public Frankfurter API; it requires no account or API key. It reports reference/mid-market rates, not intraday trading quotes. World Bank macroeconomic observations remain available independently. An additional optional FRED adapter can retrieve selected FX series, equity indices, U.S. Treasury yields, WTI crude, and gold only when `FRED_API_KEY` is configured; FRED absence does not block market-data collection. CLI date bounds are `--market-start-date` and `--market-end-date` (public FX range is bounded to 367 days). Values are historical/reference observations—not guaranteed executable quotes, trading signals, forecasts, or investment advice. See docs/BUILD-3.4-FINANCIAL-MARKETS.md.\n\n## Build 3.3 Dedicated Economic Data Sources & Market Intelligence Integration
+## Build 3.4 Global Financial Markets Intelligence
+The default no-key market adapter retrieves daily USD reference rates for IDR, EUR, and CNY from the public Frankfurter API; it requires no account or API key. It reports reference/mid-market rates, not intraday trading quotes. World Bank macroeconomic observations remain available independently. An additional optional FRED adapter can retrieve selected FX series, equity indices, U.S. Treasury yields, WTI crude, and gold only when `FRED_API_KEY` is configured; FRED absence does not block market-data collection. CLI date bounds are `--market-start-date` and `--market-end-date` (public FX range is bounded to 367 days). Values are historical/reference observations—not guaranteed executable quotes, trading signals, forecasts, or investment advice. See docs/BUILD-3.4-FINANCIAL-MARKETS.md.
+
+## Build 3.3 Dedicated Economic Data Sources & Market Intelligence Integration
 The CLI accepts `--economic-countries ID,US,CN --economic-start-year 2020` to retrieve published macroeconomic observations from the official World Bank Indicators API. The scheduled monitoring workflow enables this for Indonesia, the United States, and China and adds the observations to the JSON report and HTML dashboard. Initial allowlisted series cover GDP growth, consumer-price inflation, trade as a share of GDP, net energy imports, and merchandise exports/imports. Requests are restricted to `api.worldbank.org`, response sizes and timeouts are bounded, country codes and years are validated, and missing values remain missing. The data are historical observations with reporting lags—not real-time market quotes, forecasts, or proof of causal market impact. See docs/BUILD-3.3-ECONOMIC-DATA-INTEGRATION.md.
 
 ## Build 3.2 Global Economic Intelligence & Strategic Market Impact
