@@ -133,6 +133,7 @@ def main() -> int:
     combined_regional_input = {"observations": existing_rows + bps_table_result.get("observations", []) + public_export_result.get("observations", [])}
     report["bps_regional_tables"] = bps_table_result
     report["regional_intelligence"] = build_regional_intelligence(combined_regional_input, bps_catalog)
+    report["regional_intelligence"]["public_export"] = {key: public_export_result.get(key) for key in ("status", "file_name", "file_sha256", "source_url", "format", "rows_read", "observation_count", "rejected_rows")}
     try:
         report["fred_market_data"] = fetch_fred_market_data(
             os.environ.get(args.fred_api_key_env), start_date=market_start_date,
