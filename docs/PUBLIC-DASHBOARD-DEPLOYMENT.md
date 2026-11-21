@@ -1,28 +1,28 @@
-# Public Dashboard Deployment (Cloudflare Pages)
+# Public Dashboard Deployment (GitHub Pages)
 
-This guide publishes the generated static dashboard intentionally as a **public** site. Do not use Cloudflare Access, Zero Trust, or private deployment workflows for this public option.
+This repository deploys the public static dashboard automatically to GitHub Pages from branch `main` using GitHub Actions.
 
-## Cloudflare Pages settings
+## Deployment workflow
 
-Connect this GitHub repository: `paduksambas/MD-V14-PADUKA-SAMBAS`, branch `main`.
+Workflow: `.github/workflows/pages-deploy.yml`
 
-- Framework preset: **None**
-- Build command: `bash scripts/build_public_dashboard.sh`
-- Build output directory: `public`
-- Root directory: `/`
-- Python: **3.11** (if the build environment exposes a Python version setting, set it to 3.11)
+- Builds the dashboard with `bash scripts/build_public_dashboard.sh`
+- Publishes only `public/index.html`
+- Deploys to GitHub Pages after successful artifact validation
+- Runs on relevant changes to `main` and via manual workflow dispatch
 
-The build script creates only `public/index.html` for publication. The generated report JSON is stored in a temporary file outside the publish directory and deleted when the build finishes. The build validation workflow independently checks the same script on GitHub Actions.
+Expected public URL:
 
-## Public-data and safety note
+`https://paduksambas.github.io/MD-V14-PADUKA-SAMBAS/`
 
-A public dashboard can be viewed by anyone. The configured sample feeds and public macroeconomic observations are intended for display. Never add API keys, private feed URLs, confidential BPS exports, raw personal information, or private report files to the public build or repository.
+The URL is not considered live until the GitHub Pages deployment job succeeds and the page can be opened.
 
-## Validate before going live
+## If the first deployment requires Pages activation
 
-1. Confirm the Pages build command and output directory exactly match the settings above.
-2. Check the build log is successful.
-3. Open the public Pages URL and verify the dashboard loads.
-4. Verify that no secrets or private source data are shown.
+In repository Settings → Pages, set **Build and deployment → Source** to **GitHub Actions**. Then open Actions → **Deploy PADUKA public dashboard to GitHub Pages** and run it with **Run workflow** if it has not automatically deployed.
 
-This repository does not claim a public URL is live until a successful Pages deployment is confirmed.
+## Privacy and output
+
+The generated report JSON is stored in a temporary file outside the publish directory and removed at build completion. The build validation checks that the Pages artifact contains only the generated HTML file.
+
+A public dashboard is visible to everyone. Do not include API keys, private feed URLs, confidential BPS exports, personal information, or private report files in the public build.
