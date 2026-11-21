@@ -66,51 +66,55 @@ jobs:
         run: |
           python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json, os, urllib.parse, urllib.request
-          key=os.environ.get("BPS_API_KEY","").strip()
+          key = os.environ.get("BPS_API_KEY", "").strip()
           print("\\n## BPS Sambas metadata discovery")
           if not key:
-              print("- Status: BLOCKED — BPS_API_KEY secret is unavailable to this job")
+              print("- Status: BLOCKED — BPS_API_KEY secret unavailable")
               raise SystemExit(0)
-          base="https://webapi.bps.go.id/v1/api"
+          base = "https://webapi.bps.go.id/v1/api"
           def get(path):
-              req=urllib.request.Request(base+path, headers={"Accept":"application/json","User-Agent":"MDV14-BPS-Metadata/1.0"})
-              with urllib.request.urlopen(req,timeout=20) as r:
+              req = urllib.request.Request(base + path, headers={"Accept":"application/json"})
+              with urllib.request.urlopen(req, timeout=20) as r:
                   return json.loads(r.read(3000000).decode("utf-8"))
-          def walk(x):
-              if isinstance(x,dict):
-                  yield x
-                  for v in x.values(): yield from walk(v)
-              elif isinstance(x,list):
-                  for v in x: yield from walk(v)
-          def rows(payload):
-              return [x for x in walk(payload) if isinstance(x,dict)]
+          def walk(obj):
+              if isinstance(obj, dict):
+                  yield obj
+                  for v in obj.values(): yield from walk(v)
+              elif isinstance(obj, list):
+                  for v in obj: yield from walk(v)
           try:
-              catalog=get("/domain/type/kab/key/"+urllib.parse.quote(key,safe=""))
-              sambas=[r for r in rows(catalog) if "sambas" in str(r.get("domain_name",r.get("name",r.get("nama","")))).lower()]
-              if not sambas:
-                  print("- Status: Sambas not found in regency catalog response")
+              catalog = get("/domain/type/kab/key/" + urllib.parse.quote(key, safe=""))
+              candidates = []
+              for row in walk(catalog):
+                  if not isinstance(row, dict): continue
+                  name = str(row.get("domain_name", row.get("name", row.get("nama", ""))))
+                  if "sambas" in name.lower():
+                      did = row.get("domain_id", row.get("domain", row.get("id", row.get("kode"))))
+                      if did is not None: candidates.append((str(did), name))
+              if not candidates:
+                  print("- Sambas domain: not identified in catalog response")
                   raise SystemExit(0)
-              domain=str(sambas[0].get("domain_id",sambas[0].get("domain",sambas[0].get("id",sambas[0].get("kode","")))))
-              print("- Sambas domain: discovered from official regency catalog")
-              payload=get("/list/model/var/domain/"+domain+"/key/"+urllib.parse.quote(key,safe=""))
-              variables=[]
-              for r in rows(payload):
-                  vid=r.get("var_id",r.get("id"))
-                  title=r.get("title",r.get("label",r.get("var_name")))
+              domain, name = candidates[0]
+              print("- Sambas domain: discovered (catalog name: " + name + ")")
+              data = get("/list/model/var/domain/" + urllib.parse.quote(domain, safe="") + "/key/" + urllib.parse.quote(key, safe=""))
+              variables = []
+              for row in walk(data):
+                  if not isinstance(row, dict): continue
+                  vid = row.get("var_id", row.get("id"))
+                  title = row.get("title", row.get("var_name", row.get("label")))
                   if vid is not None and title:
-                      variables.append({"id":str(vid),"title":str(title),"unit":r.get("unit","")})
-              terms=("penduduk","populasi","kemiskinan","pengangguran","tenaga kerja","pdrb","pertumbuhan ekonomi","pertanian")
-              matches=[v for v in variables if any(t in v["title"].lower() for t in terms)]
-              print("- Variable metadata retrieved: "+str(len(variables)))
-              print("- Relevant candidates (metadata only; not live table values):")
-              for v in matches[:30]:
-                  print("- "+v["title"]+" | variable ID "+v["id"]+" | unit "+str(v["unit"]))
-              if not matches:
-                  print("- No candidate matched the initial indicator keywords; metadata review required.")
+                      variables.append((str(vid), str(title), str(row.get("unit", ""))))
+              terms = ("penduduk", "populasi", "kemiskinan", "pengangguran", "tenaga kerja", "pdrb", "pertumbuhan ekonomi", "pertanian")
+              matches = [v for v in variables if any(t in v[1].lower() for t in terms)]
+              print("- Variable metadata records: " + str(len(variables)))
+              print("- Indicator candidates:")
+              for vid, title, unit in matches[:30]:
+                  print("- " + title + " | variable ID " + vid + " | unit " + unit)
+              if not matches: print("- No matching indicator labels; review metadata.")
           except SystemExit:
               raise
-          except Exception as e:
-              print("- Discovery status: ERROR — "+type(e).__name__+" (message withheld to protect credentials)")
+          except Exception as exc:
+              print("- Discovery ERROR: " + type(exc).__name__ + " (details suppressed)")
           PY
       - name: Run RSS/Atom monitoring cycle
         env:
