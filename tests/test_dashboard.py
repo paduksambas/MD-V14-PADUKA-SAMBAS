@@ -125,6 +125,36 @@ class DashboardTests(unittest.TestCase):
         self.assertNotIn("<script>must escape</script>", html)
         self.assertIn("&lt;script&gt;", html)
 
+    def test_dashboard_renders_interactive_country_explorer_and_escapes_labels(self):
+        report = {
+            "signals": [],
+            "country_explorer": {
+                "countries_total": 2, "countries_mapped": 1, "countries_unmapped": 1,
+                "signals_with_country": 3,
+                "mapped_countries": [{
+                    "name": "Indonesia", "canonical_name": "indonesia",
+                    "latitude": -0.79, "longitude": 113.92, "signal_count": 2,
+                    "average_score": 60, "review_priority_counts": {"high": 1, "medium": 0, "routine": 1},
+                    "records": [{"signal_id": "s1", "title": "<script>bad</script>", "source": "Desk",
+                                 "priority_band": "high", "warning_level": "elevated",
+                                 "url": "https://example.org/story"}],
+                }],
+                "unmapped_countries": [{
+                    "name": "Unknownland", "signal_count": 1, "average_score": 20,
+                    "review_priority_counts": {"high": 0, "medium": 0, "routine": 0},
+                }],
+            },
+        }
+        html = build_dashboard_html(report)
+        self.assertIn("Global Geopolitical Intelligence Map", html)
+        self.assertIn('data-country-key="indonesia"', html)
+        self.assertIn("country-marker", html)
+        self.assertIn("Unknownland", html)
+        self.assertIn("Open source", html)
+        self.assertNotIn("<script>bad</script>", html)
+        self.assertIn("&lt;script&gt;bad&lt;/script&gt;", html)
+        self.assertIn("review-order cues", html)
+
     def test_empty_report_renders(self):
         html = build_dashboard_html({"signals": [], "daily_brief": {}})
         self.assertIn("No trend signals", html)
