@@ -59,6 +59,7 @@ class CollectionPipelineTests(unittest.TestCase):
         self.assertIn("research", report)
         self.assertEqual(report["research"]["records_reviewed"], 1)
         self.assertEqual(report["research"]["records_with_keyword_match"], 1)
+        self.assertEqual(report["strategic_decision"]["evidence_and_coverage_gaps"]["research_gaps"], report["research"]["research_gaps"])
 
     @patch("mdv14.pipeline.collect_feeds")
     def test_failed_feed_does_not_prevent_pipeline(self, collector):
