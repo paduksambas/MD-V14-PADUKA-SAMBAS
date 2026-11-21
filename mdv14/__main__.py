@@ -17,6 +17,7 @@ from .economic_data import fetch_world_bank_indicators
 from .market_data import fetch_fred_market_data, fetch_public_market_data
 from .market_analytics import build_market_analytics
 from .public_assets import fetch_public_asset_data
+from .commodity_data import fetch_world_bank_commodity_data
 
 
 def main() -> int:
@@ -83,6 +84,10 @@ def main() -> int:
                 "No public asset observations were requested in this run.",
             ],
         }
+    report["commodity_data"] = fetch_world_bank_commodity_data(
+        start_date=(date.today().replace(year=date.today().year - 2)).isoformat(),
+        end_date=market_end_date,
+    )
     try:
         report["fred_market_data"] = fetch_fred_market_data(
             os.environ.get(args.fred_api_key_env), start_date=market_start_date,
@@ -90,7 +95,7 @@ def main() -> int:
         )
     except ValueError as exc:
         parser.error(str(exc))
-    report['market_analytics'] = build_market_analytics(report.get('market_data', {}), report.get('fred_market_data', {}), report.get('public_asset_data', {}))
+    report['market_analytics'] = build_market_analytics(report.get('market_data', {}), report.get('fred_market_data', {}), report.get('public_asset_data', {}), report.get('commodity_data', {}))
     store = SQLiteTrendStore(args.database) if args.database else None
     if store:
         store.record_signals(report["signals"])
@@ -164,6 +169,10 @@ def main() -> int:
         "market_analytics_build": report.get("market_analytics", {}).get("build"),
         "market_analytics_status": report.get("market_analytics", {}).get("status"),
         "market_analytics_series": report.get("market_analytics", {}).get("series_analyzed", 0),
+        "commodity_data_build": report.get("commodity_data", {}).get("build"),
+        "commodity_data_status": report.get("commodity_data", {}).get("status"),
+        "commodity_data_observations": report.get("commodity_data", {}).get("observation_count", 0),
+        "commodity_data_requests_failed": report.get("commodity_data", {}).get("requests_failed", 0),
     }, ensure_ascii=False, indent=2))
     return 0
 
