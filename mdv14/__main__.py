@@ -10,6 +10,7 @@ from .storage import load_signals, save_json_atomic
 from .sqlite_store import SQLiteTrendStore
 from .trend_registry import signal_id
 from .dashboard import build_dashboard_html
+from .advanced_scoring import assess_advanced_trend
 
 
 def main() -> int:
@@ -37,14 +38,10 @@ def main() -> int:
     else:
         report = run_pipeline(local_signals, brief_date=args.date, limit=args.limit)
 
-    if args.database:
-        store = SQLiteTrendStore(args.database)
+    store = SQLiteTrendStore(args.database) if args.database else None
+    if store:
         store.record_signals(report["signals"])
         history = {item["signal_id"]: item for item in store.list_trends()}
-        for item in report["signals"]:
-            item["history"] = history.get(signal_id(item))
-        for item in report["daily_brief"]["top_signals"]:
-            item["history"] = history.get(signal_id(item))
         report["history"] = {
             "database": args.database,
             "tracked_trends": len(history),
@@ -52,6 +49,21 @@ def main() -> int:
             "method": "earliest-versus-latest supplied score",
             "notice": "Historical score movement is descriptive, not a forecast.",
         }
+    for item in report["signals"]:
+        key = signal_id(item)
+        observations = store.get_observations(key) if store else []
+        item["advanced_intelligence"] = assess_advanced_trend(
+            observations, current_score=item.get("score", 0)
+        )
+        if store:
+            item["history"] = store.get_growth(key)
+    for item in report["daily_brief"]["top_signals"]:
+        key = signal_id(item)
+        match = next((entry for entry in report["signals"] if signal_id(entry) == key), None)
+        if match:
+            item["advanced_intelligence"] = match["advanced_intelligence"]
+            if store:
+                item["history"] = match.get("history")
 
     save_json_atomic(args.output, report)
     if args.dashboard:
