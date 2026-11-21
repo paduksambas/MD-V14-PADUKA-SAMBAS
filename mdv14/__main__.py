@@ -19,6 +19,7 @@ from .market_analytics import build_market_analytics
 from .public_assets import fetch_public_asset_data
 from .commodity_data import fetch_world_bank_commodity_data
 from .indonesia_intelligence import build_indonesia_economic_intelligence
+from .regional_intelligence import build_regional_intelligence, fetch_bps_region_catalog
 
 
 def main() -> int:
@@ -38,6 +39,8 @@ def main() -> int:
     parser.add_argument("--market-start-date", default=None, help="First public FX/asset/FRED observation date (YYYY-MM-DD; default: 30 days before today).")
     parser.add_argument("--market-end-date", default=None, help="Last public-market observation date (default: today).")
     parser.add_argument("--enable-public-assets", action="store_true", help="Opt in to Stooq daily equity/commodity history; disabled by default because the free endpoint may rate-limit automated runners.")
+    parser.add_argument("--regional-data", default=None, help="Optional normalized JSON export of BPS provincial/regency indicator observations.")
+    parser.add_argument("--bps-api-key-env", default="BPS_API_KEY", help="Environment variable holding optional BPS WebAPI key (default: BPS_API_KEY).")
     args = parser.parse_args()
 
     if args.limit < 1:
@@ -92,6 +95,15 @@ def main() -> int:
     report["indonesia_economic_intelligence"] = build_indonesia_economic_intelligence(
         report.get("economic_data", {}), report.get("commodity_data", {})
     )
+    regional_input = []
+    if args.regional_data:
+        try:
+            with open(args.regional_data, "r", encoding="utf-8") as handle:
+                regional_input = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            parser.error(f"cannot read --regional-data: {exc}")
+    bps_catalog = fetch_bps_region_catalog(os.environ.get(args.bps_api_key_env))
+    report["regional_intelligence"] = build_regional_intelligence(regional_input, bps_catalog)
     try:
         report["fred_market_data"] = fetch_fred_market_data(
             os.environ.get(args.fred_api_key_env), start_date=market_start_date,
@@ -182,6 +194,13 @@ def main() -> int:
         "indonesia_economic_status": report.get("indonesia_economic_intelligence", {}).get("status"),
         "indonesia_indicator_count": report.get("indonesia_economic_intelligence", {}).get("indicator_count", 0),
         "indonesia_commodity_channels": report.get("indonesia_economic_intelligence", {}).get("commodity_channel_count", 0),
+        "regional_intelligence_build": report.get("regional_intelligence", {}).get("build"),
+        "regional_intelligence_status": report.get("regional_intelligence", {}).get("status"),
+        "regional_observations": report.get("regional_intelligence", {}).get("observation_count", 0),
+        "regional_provinces": report.get("regional_intelligence", {}).get("regions_with_indicator_data", {}).get("province", 0),
+        "regional_regencies_cities": report.get("regional_intelligence", {}).get("regions_with_indicator_data", {}).get("regency_city", 0),
+        "bps_region_catalog_status": report.get("regional_intelligence", {}).get("bps_region_catalog", {}).get("status"),
+        "bps_region_catalog_count": report.get("regional_intelligence", {}).get("bps_region_catalog", {}).get("region_count", 0),
     }, ensure_ascii=False, indent=2))
     return 0
 
