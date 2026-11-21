@@ -5,7 +5,7 @@ from mdv14.dashboard import build_dashboard_html
 
 
 class DashboardTests(unittest.TestCase):
-    def test_dashboard_contains_report_metrics_and_history(self):
+    def test_dashboard_contains_report_metrics_history_and_advanced_indicators(self):
         report = {
             "daily_brief": {"date": "2026-11-21"},
             "warning_summary": {"normal": 0, "watch": 0, "elevated": 1, "critical": 0},
@@ -15,6 +15,10 @@ class DashboardTests(unittest.TestCase):
                 "warning": {"level": "elevated"},
                 "evidence": {"evidence_complete": True},
                 "history": {"direction": "rising", "score_delta": 12},
+                "advanced_intelligence": {
+                    "momentum": 8, "acceleration": 3, "confidence": "moderate",
+                    "anomaly": {"detected": False, "status": "evaluated"},
+                },
             }],
         }
         html = build_dashboard_html(report)
@@ -22,6 +26,9 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Trend A", html)
         self.assertIn("Technology", html)
         self.assertIn("rising", html)
+        self.assertIn("Momentum", html)
+        self.assertIn("Acceleration", html)
+        self.assertIn("moderate", html)
         self.assertIn("Needs source review", html)
 
     def test_dashboard_escapes_untrusted_titles_and_source_text(self):
