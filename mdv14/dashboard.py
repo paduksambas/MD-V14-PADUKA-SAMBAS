@@ -11,6 +11,7 @@ from .market_data import render_fred_html, render_public_market_html
 from .market_analytics import render_market_analytics_html
 from .public_assets import render_public_asset_html
 from .commodity_data import render_world_bank_commodity_html
+from .indonesia_intelligence import render_indonesia_economic_html
 
 
 def _cell(value: Any) -> str:
@@ -86,6 +87,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     public_market_html = render_public_market_html(report.get("market_data") or {})
     public_asset_html = render_public_asset_html(report.get("public_asset_data") or {})
     commodity_html = render_world_bank_commodity_html(report.get("commodity_data") or {})
+    indonesia_economic_html = render_indonesia_economic_html(report.get("indonesia_economic_intelligence") or {})
     fred_market_html = render_fred_html(report.get("fred_market_data") or {})
     market_analytics_html = render_market_analytics_html(report.get("market_analytics") or {})
 
@@ -293,6 +295,7 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 {public_market_html}
 {public_asset_html}
         {commodity_html}
+{indonesia_economic_html}
 {fred_market_html}
 {market_analytics_html}
 <section class="panel"><h2>Global intelligence overview</h2><div class="grid">{global_cards}</div></section>
