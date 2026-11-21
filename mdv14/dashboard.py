@@ -19,6 +19,14 @@ def _cell(value: Any) -> str:
     return escape(str(value if value is not None else ""), quote=True)
 
 
+def _score(value: Any) -> float:
+    """Return a safe numeric score for dashboard sorting and averages."""
+    try:
+        return float(value or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def build_dashboard_html(report: dict[str, Any]) -> str:
     """Render an accessible static dashboard from an existing MD V14 report."""
     signals = report.get("signals", [])
@@ -27,7 +35,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     categories = Counter(str(item.get("category") or "Unclassified") for item in signals)
     history = [item.get("history") for item in signals if item.get("history")]
     reviewed = sum(1 for item in signals if not item.get("evidence", {}).get("evidence_complete", False))
-    avg_score = (sum(float(item.get("score", 0) or 0) for item in signals) / len(signals)) if signals else 0.0
+    avg_score = (sum(_score(item.get("score")) for item in signals) / len(signals)) if signals else 0.0
     source_status_counts = Counter(
         (item.get("source_intelligence") or {}).get("status", "not assessed")
         for item in signals
@@ -49,7 +57,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         source_rows.append("<tr><td colspan='6'>No source records to assess.</td></tr>")
 
     rows = []
-    for item in sorted(signals, key=lambda x: float(x.get("score", 0) or 0), reverse=True):
+    for item in sorted(signals, key=lambda x: _score(x.get("score")), reverse=True):
         hist = item.get("history") or {}
         warning = item.get("warning") or {}
         advanced = item.get("advanced_intelligence") or {}
