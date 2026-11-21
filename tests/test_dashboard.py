@@ -199,6 +199,24 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("0.625%", html)
         self.assertIn("Observed-step volatility", html)
 
+    def test_dashboard_renders_build_3_6_public_assets(self):
+        report = {
+            "signals": [],
+            "public_asset_data": {
+                "build": "3.6", "status": "available", "observation_count": 1,
+                "requests_succeeded": 1, "requests_failed": 0,
+                "observations": [{
+                    "series": "S&P 500 Index", "date": "2026-11-20",
+                    "value": 6000, "unit": "index points", "source": "Stooq",
+                }],
+                "errors": [],
+            },
+        }
+        html = build_dashboard_html(report)
+        self.assertIn("Public Equity &amp; Commodity Data", html)
+        self.assertIn("S&amp;P 500 Index", html)
+        self.assertIn("not live executable prices", html)
+
     def test_empty_report_renders(self):
         html = build_dashboard_html({"signals": [], "daily_brief": {}})
         self.assertIn("No trend signals", html)
