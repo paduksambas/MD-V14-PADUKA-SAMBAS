@@ -6,6 +6,7 @@ from .daily_brief import build_daily_brief
 from .data_integration import build_data_coverage, normalize_global_signal, validate_source_catalog
 from .early_warning import classify_signal
 from .fact_check import assess_evidence
+from .global_intelligence import analyze_global_trends
 from .rss_collector import collect_feeds
 from .source_intelligence import assess_source_intelligence
 from .trend_registry import TrendRegistry, signal_id
@@ -34,6 +35,7 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
             "notice": "Matching titles and distinct domains are discovery context only; independence and accuracy are not verified.",
         }
     brief = build_daily_brief(enriched, brief_date=brief_date, limit=limit)
+    global_intelligence = analyze_global_trends(enriched, limit=limit)
     assessments = {item["id"]: item for item in enriched}
     for item in brief["top_signals"]:
         match = assessments.get(signal_id(item))
@@ -45,9 +47,9 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
         status = item["source_intelligence"]["status"]
         statuses[status] = statuses.get(status, 0) + 1
     return {
-        "pipeline": "MD V14", "stage": "Build 1.8 global intelligence data integration",
+        "pipeline": "MD V14", "stage": "Build 2.0 global intelligence engine",
         "data_schema_version": "1.0", "registry_size": len(registry),
-        "data_coverage": build_data_coverage(enriched), "daily_brief": brief,
+        "data_coverage": build_data_coverage(enriched), "daily_brief": brief,\n        "global_intelligence": global_intelligence,
         "warning_summary": {level: sum(1 for item in enriched if item["warning"]["level"] == level)
                             for level in ("normal", "watch", "elevated", "critical")},
         "evidence_review_required": sum(1 for item in enriched if not item["evidence"]["evidence_complete"]),
@@ -65,7 +67,7 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
             "Cross-source grouping matches normalized titles only; distinct domains do not establish editorial independence or truth.",
             "Source intelligence checks metadata only; it does not rate reputation or verify claims.",
             "Warning levels and trend scores are heuristics based on supplied inputs and require human review.",
-            "Registry state is in-memory for each run; persist reports with the JSON storage helpers.",
+            "Registry state is in-memory for each run; persist reports with the JSON storage helpers.",\n            "Global intelligence uses supplied geography, topics, entities, and score history only; related-event links are not causal findings.",
         ],
     }
 
