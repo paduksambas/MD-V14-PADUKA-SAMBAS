@@ -217,7 +217,10 @@ def main() -> int:
         "regional_regencies_cities": report.get("regional_intelligence", {}).get("regions_with_indicator_data", {}).get("regency_city", 0),
         "bps_region_catalog_status": report.get("regional_intelligence", {}).get("bps_region_catalog", {}).get("status"),
         "bps_region_catalog_count": report.get("regional_intelligence", {}).get("bps_region_catalog", {}).get("region_count", 0),
-        "bps_table_status": report.get("bps_regional_tables", {}).get("status"),\n        "bps_table_requests": report.get("bps_regional_tables", {}).get("request_count", 0),\n        "bps_table_observations": len(report.get("bps_regional_tables", {}).get("observations", [])),\n        "bps_table_errors": report.get("bps_regional_tables", {}).get("requests_failed", 0),
+        "bps_table_status": report.get("bps_regional_tables", {}).get("status"),
+        "bps_table_requests": report.get("bps_regional_tables", {}).get("request_count", 0),
+        "bps_table_observations": len(report.get("bps_regional_tables", {}).get("observations", [])),
+        "bps_table_errors": report.get("bps_regional_tables", {}).get("requests_failed", 0),
     }, ensure_ascii=False, indent=2))
     return 0
 
