@@ -43,5 +43,5 @@ class AdvancedScoringTests(unittest.TestCase):
         self.assertEqual(result["momentum"], 100.0)
 
 
-if __name == "__main__":
+if __name__ == "__main__":
     unittest.main()
