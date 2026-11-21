@@ -197,7 +197,7 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Cross-Asset Market Analytics", html)
         self.assertIn("USDIDR", html)
         self.assertIn("0.625%", html)
-        self.assertIn("observed-step volatility", html)
+        self.assertIn("Observed-step volatility", html)
 
     def test_empty_report_renders(self):
         html = build_dashboard_html({"signals": [], "daily_brief": {}})
