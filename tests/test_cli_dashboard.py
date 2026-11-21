@@ -9,12 +9,16 @@ from pathlib import Path
 
 class CLIDashboardTests(unittest.TestCase):
     def test_dashboard_score_parser_handles_invalid_values(self):
-        from mdv14.dashboard import _score
+        from mdv14.dashboard import _score, _safe_count
         self.assertEqual(_score("12.5"), 12.5)
         self.assertEqual(_score("invalid"), 0.0)
         self.assertEqual(_score(None), 0.0)
         self.assertEqual(_score(float("nan")), 0.0)
         self.assertEqual(_score(float("inf")), 0.0)
+        self.assertEqual(_safe_count("7"), 7)
+        self.assertEqual(_safe_count(-2), 0)
+        self.assertEqual(_safe_count("not-a-count"), 0)
+        self.assertEqual(_safe_count(float("inf")), 0)
 
     def test_cli_generates_json_and_offline_dashboard(self):
         root = Path(__file__).resolve().parents[1]
