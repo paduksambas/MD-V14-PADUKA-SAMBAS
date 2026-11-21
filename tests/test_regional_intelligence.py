@@ -111,5 +111,81 @@ class RegionalIntelligenceTests(unittest.TestCase):
         self.assertEqual(result["request_count"], 0)
 
 
+    def test_public_bps_csv_import_uses_explicit_mapping_and_hash(self):
+        import tempfile
+        from pathlib import Path
+        from mdv14.regional_intelligence import load_bps_public_export
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "bps.csv"
+            source.write_text("Kode,Nama,Tingkat,Indikator,Tahun,Nilai\\n32,Jawa Barat,province,PDRB,2023,5.31\\n", encoding="utf-8")
+            result = load_bps_public_export(str(source), {
+                "columns": {"region_code": "Kode", "region_name": "Nama", "level": "Tingkat",
+                            "indicator_code": "Indikator", "period": "Tahun", "value": "Nilai"},
+                "defaults": {"indicator_name": "Pertumbuhan PDRB", "unit": "%"},
+                "source_url": "https://jabar.bps.go.id/id/statistics-table"
+            })
+        self.assertEqual(result["status"], "available")
+        self.assertEqual(result["observation_count"], 1)
+        self.assertEqual(result["observations"][0]["value"], 5.31)
+        self.assertEqual(len(result["file_sha256"]), 64)
+
+    def test_public_bps_csv_rejects_unmapped_or_invalid_rows(self):
+        import tempfile
+        from pathlib import Path
+        from mdv14.regional_intelligence import load_bps_public_export
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "bps.csv"
+            source.write_text("Kode,Nama,Tingkat,Indikator,Tahun,Nilai\\n32,Jawa Barat,province,PDRB,2023,bukan-angka\\n", encoding="utf-8")
+            result = load_bps_public_export(str(source), {
+                "columns": {"region_code": "Kode", "region_name": "Nama", "level": "Tingkat",
+                            "indicator_code": "Indikator", "period": "Tahun", "value": "Nilai"}
+            })
+        self.assertEqual(result["observation_count"], 0)
+        self.assertEqual(result["rejected_rows"], 1)
+
+    def test_public_bps_json_export_is_supported_without_api_key(self):
+        import json
+        import tempfile
+        from pathlib import Path
+        from mdv14.regional_intelligence import load_bps_public_export
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "bps.json"
+            source.write_text(json.dumps([{"region_code":"32","region_name":"Jawa Barat","level":"province",
+                "indicator_code":"PDRB","period":"2023","value":5.3}]), encoding="utf-8")
+            result = load_bps_public_export(str(source), {"columns": {}})
+        self.assertEqual(result["observation_count"], 1)
+
+    def test_public_bps_xlsx_first_sheet_reader(self):
+        import tempfile
+        import zipfile
+        from pathlib import Path
+        from mdv14.regional_intelligence import load_bps_public_export
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "bps.xlsx"
+            entries = {
+                "xl/workbook.xml": '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Data" sheetId="1" r:id="rId1"/></sheets></workbook>',
+                "xl/_rels/workbook.xml.rels": '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Target="worksheets/sheet1.xml"/></Relationships>',
+                "xl/worksheets/sheet1.xml": '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>Kode</t></is></c><c r="B1" t="inlineStr"><is><t>Nama</t></is></c><c r="C1" t="inlineStr"><is><t>Tingkat</t></is></c><c r="D1" t="inlineStr"><is><t>Indikator</t></is></c><c r="E1" t="inlineStr"><is><t>Tahun</t></is></c><c r="F1" t="inlineStr"><is><t>Nilai</t></is></c></row><row r="2"><c r="A2"><v>32</v></c><c r="B2" t="inlineStr"><is><t>Jawa Barat</t></is></c><c r="C2" t="inlineStr"><is><t>province</t></is></c><c r="D2" t="inlineStr"><is><t>PDRB</t></is></c><c r="E2"><v>2023</v></c><c r="F2"><v>5.31</v></c></row></sheetData></worksheet>',
+            }
+            with zipfile.ZipFile(source, "w") as archive:
+                for name, value in entries.items():
+                    archive.writestr(name, value)
+            result = load_bps_public_export(str(source), {"columns": {
+                "region_code":"Kode","region_name":"Nama","level":"Tingkat",
+                "indicator_code":"Indikator","period":"Tahun","value":"Nilai"}})
+        self.assertEqual(result["observation_count"], 1)
+        self.assertEqual(result["observations"][0]["value"], 5.31)
+
+    def test_public_bps_export_size_and_format_limits(self):
+        import tempfile
+        from pathlib import Path
+        from mdv14.regional_intelligence import load_bps_public_export
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "bps.txt"
+            source.write_text("x", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                load_bps_public_export(str(source), {"columns": {}})
+
+
 if __name__ == "__main__":
     unittest.main()
