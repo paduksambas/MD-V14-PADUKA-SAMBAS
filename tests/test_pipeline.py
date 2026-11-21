@@ -61,7 +61,7 @@ class PipelineTests(unittest.TestCase):
             "category": "Technology", "author": "Reporter",
             "published_at": "2026-11-21T09:00:00Z",
         }], brief_date="2026-11-21")
-        self.assertEqual(result["registry_size"], 1)
+        self.assertEqual(result["registry_size"], 1)\n        self.assertEqual(result["global_intelligence"]["build"], "2.0")\n        self.assertEqual(result["global_intelligence"]["signals_analyzed"], 1)
         self.assertEqual(result["data_schema_version"], "1.0")
         self.assertEqual(result["data_coverage"]["records_total"], 1)
         self.assertEqual(result["signals"][0]["data_schema_version"], "1.0")
