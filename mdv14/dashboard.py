@@ -343,24 +343,24 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 <p class="notice">Source checks describe supplied metadata and provenance fields only. They do not rate source reputation or verify claims. Reliability and editorial independence are not assessed automatically. Momentum and acceleration are descriptive; anomaly flags require human review. No indicator is a probability or guaranteed forecast.</p>
 <footer>Generated locally by MD V14. This dashboard is a static report; it does not transmit data or publish content.</footer>
 </main><script>
-(function () {
+(function () {{
   const clock = document.getElementById("wib-clock");
   const date = document.getElementById("wib-date");
-  const timeOptions = { timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false };
-  const dateOptions = { timeZone: "Asia/Jakarta", weekday: "long", year: "numeric", month: "long", day: "numeric" };
-  function updateWibClock() {
+  const timeOptions = {{ timeZone: "Asia/Jakarta", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }};
+  const dateOptions = {{ timeZone: "Asia/Jakarta", weekday: "long", year: "numeric", month: "long", day: "numeric" }};
+  function updateWibClock() {{
     const now = new Date();
     clock.textContent = new Intl.DateTimeFormat("id-ID", timeOptions).format(now) + " WIB";
     date.textContent = new Intl.DateTimeFormat("id-ID", dateOptions).format(now);
-  }
+  }}
   updateWibClock();
   window.setInterval(updateWibClock, 1000);
   const raw = document.getElementById("report-updated").textContent.trim();
   const parsed = Date.parse(raw);
-  if (Number.isFinite(parsed)) {
+  if (Number.isFinite(parsed)) {{
     document.getElementById("report-updated").textContent =
-      new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "medium", timeZone: "Asia/Jakarta" }).format(new Date(parsed)) + " WIB";
-  }
-})();
+      new Intl.DateTimeFormat("id-ID", {{ dateStyle: "medium", timeStyle: "medium", timeZone: "Asia/Jakarta" }}).format(new Date(parsed)) + " WIB";
+  }}
+}})();
 </script></body></html>
 """
