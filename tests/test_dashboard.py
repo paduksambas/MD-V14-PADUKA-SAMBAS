@@ -158,7 +158,7 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Global Economic Intelligence &amp; Strategic Market Impact", html)
         self.assertIn("Traceable economic signal review queue", html)
         self.assertIn("Energy supply and infrastructure", html)
-        self.assertIn("no asset prices", html)
+        self.assertIn("No asset prices", html)
         self.assertIn("Global Geopolitical Intelligence Map", html)
         self.assertIn('data-country-key="indonesia"', html)
         self.assertIn("country-marker", html)
