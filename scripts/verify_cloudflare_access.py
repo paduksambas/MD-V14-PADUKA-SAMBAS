@@ -80,5 +80,5 @@ def main() -> None:
     print("Cloudflare Access verification passed: matching hostname and exactly one owner-only allow policy.")
 
 
-if ____ == "__main__":
+if __name__ == "__main__":
     main()
