@@ -37,6 +37,8 @@ class CollectionPipelineTests(unittest.TestCase):
         self.assertEqual(report["monitoring"]["signals_collected"], 1)
         self.assertEqual(report["analyst_report"]["build"], "2.9")
         self.assertEqual(report["command_center"]["build"], "3.0")
+        self.assertEqual(report["country_explorer"]["build"], "3.1")
+        self.assertEqual(report["country_explorer"]["mapped_countries"][0]["name"], "Indonesia")
 
     @patch("mdv14.pipeline.collect_feeds")
     def test_research_question_is_integrated_with_collected_records(self, collector):
