@@ -116,7 +116,18 @@ def main() -> int:
         except (OSError, json.JSONDecodeError) as exc:
             parser.error(f"cannot read --bps-tables-config: {exc}")
         bps_table_result = fetch_bps_regional_tables(bps_key, bps_config)
-    public_export_result = {"build": "4.1", "status": "not_configured", "observation_count": 0, "observations": [], "rejected_rows": 0}\n    if args.bps_public_export:\n        if not args.bps_public_config:\n            parser.error("--bps-public-export requires --bps-public-config with explicit column mapping and indicator metadata")\n        try:\n            with open(args.bps_public_config, "r", encoding="utf-8") as handle:\n                public_config = json.load(handle)\n            public_export_result = load_bps_public_export(args.bps_public_export, public_config)\n        except (OSError, json.JSONDecodeError, ValueError) as exc:\n            parser.error(f"cannot import --bps-public-export: {exc}")\n    report["bps_public_export"] = public_export_result\n    existing_rows = regional_input.get("observations", []) if isinstance(regional_input, dict) else regional_input
+    public_export_result = {"build": "4.1", "status": "not_configured", "observation_count": 0, "observations": [], "rejected_rows": 0}
+    if args.bps_public_export:
+        if not args.bps_public_config:
+            parser.error("--bps-public-export requires --bps-public-config with explicit column mapping and indicator metadata")
+        try:
+            with open(args.bps_public_config, "r", encoding="utf-8") as handle:
+                public_config = json.load(handle)
+            public_export_result = load_bps_public_export(args.bps_public_export, public_config)
+        except (OSError, json.JSONDecodeError, ValueError) as exc:
+            parser.error(f"cannot import --bps-public-export: {exc}")
+    report["bps_public_export"] = public_export_result
+    existing_rows = regional_input.get("observations", []) if isinstance(regional_input, dict) else regional_input
     if not isinstance(existing_rows, list):
         parser.error("--regional-data must contain an observations array or JSON array")
     combined_regional_input = {"observations": existing_rows + bps_table_result.get("observations", []) + public_export_result.get("observations", [])}
