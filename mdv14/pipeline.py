@@ -14,6 +14,7 @@ from .strategic_decision import build_strategic_decision_brief
 from .monitoring import build_monitoring_status
 from .language_intelligence import analyze_language_coverage
 from .knowledge_graph import build_knowledge_graph
+from .analyst_report import build_analyst_report
 from .rss_collector import collect_feeds
 from .source_intelligence import assess_source_intelligence
 from .trend_registry import TrendRegistry, signal_id
@@ -61,8 +62,8 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
     for item in enriched:
         status = item["source_intelligence"]["status"]
         statuses[status] = statuses.get(status, 0) + 1
-    return {
-        "pipeline": "MD V14", "stage": "Build 2.8 entity recognition and cross-language knowledge graph",
+    report = {
+        "pipeline": "MD V14", "stage": "Build 2.9 analyst reporting and strategic synthesis",
         "data_schema_version": "1.0", "registry_size": len(registry),
         "data_coverage": build_data_coverage(enriched),
         "language_intelligence": analyze_language_coverage(enriched),
@@ -100,8 +101,11 @@ def run_pipeline(signals: Iterable[dict[str, Any]], brief_date: str | None = Non
             "Predictive outlooks are linear scenarios in observation units based on supplied history; they are not dated forecasts or probabilities.",
             "Strategic impact dimensions are keyword-based review cues; geopolitical cross-border candidates require explicit shared metadata and do not establish causality.",
             "Strategic decision priority scores rank human review order only; they are not severity, probability, or policy recommendations.",
+            "Analyst report is deterministic synthesis of existing assessments, not a generative AI model or independent fact verification.",
         ],
     }
+    report["analyst_report"] = build_analyst_report(report, limit=limit)
+    return report
 
 def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[str, Any]] = (),
                     brief_date: str | None = None, limit: int = 10,
@@ -127,6 +131,7 @@ def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[st
         "extra_signals_added": len(local_signals),
     })
     report["monitoring"] = build_monitoring_status(report["collection"], report["signals"])
+    report["analyst_report"] = build_analyst_report(report, limit=limit)
     if research_question and research_question.strip():
         report["research"] = build_research_report(
             research_question, report["signals"], report["collection"], limit=limit
@@ -137,4 +142,5 @@ def collect_and_run(feeds: list[dict[str, Any]], extra_signals: Iterable[dict[st
             research=report["research"], strategic_impact=report["strategic_impact"],
             limit=limit,
         )
+        report["analyst_report"] = build_analyst_report(report, limit=limit)
     return report
