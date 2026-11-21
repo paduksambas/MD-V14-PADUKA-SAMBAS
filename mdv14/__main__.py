@@ -92,6 +92,9 @@ def main() -> int:
         "country_explorer_build": report.get("country_explorer", {}).get("build"),
         "countries_mapped": report.get("country_explorer", {}).get("countries_mapped", 0),
         "countries_unmapped": report.get("country_explorer", {}).get("countries_unmapped", 0),
+        "economic_intelligence_build": report.get("economic_intelligence", {}).get("build"),
+        "economic_signals_matched": report.get("economic_intelligence", {}).get("signals_with_sector_matches", 0),
+        "economic_sectors_represented": len(report.get("economic_intelligence", {}).get("sector_profiles", [])),
     }, ensure_ascii=False, indent=2))
     return 0
 
