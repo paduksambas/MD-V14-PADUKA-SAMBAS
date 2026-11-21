@@ -1,0 +1,33 @@
+name: Public dashboard build validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/build_public_dashboard.sh'
+      - 'mdv14/**'
+      - 'examples/feeds.sample.json'
+      - '.github/workflows/public-dashboard-build.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-public-dashboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build public dashboard without publishing reports
+        run: bash scripts/build_public_dashboard.sh
+      - name: Verify publish directory contents
+        run: |
+          test -s public/index.html
+          test "$(find public -type f | wc -l)" -eq 1
+          test "$(find public -type f -name '*.json' | wc -l)" -eq 0
