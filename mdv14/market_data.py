@@ -153,5 +153,7 @@ def render_fred_html(data: dict[str, Any]) -> str:
         f'<article class="metric"><div class="muted">Requests unavailable</div><strong>{data.get("requests_failed", 0)}</strong><small>Not configured or failed requests remain visible</small></article></div>'
         f'<div class="table-wrap"><table><thead><tr><th>Series</th><th>Date</th><th>Value</th><th>Unit</th><th>Frequency</th></tr></thead><tbody>{rows}</tbody></table></div>'
         f'<p class="muted">Provider: <a href="https://fred.stlouisfed.org" rel="noopener noreferrer" target="_blank">FRED</a>. Status: {esc(data.get("status", "unknown"))}. Notes: {error_text}</p>'
-        '<p class="notice">Historical published observations, not guaranteed real-time or executable quotes. No trading signals, investment advice, or forecasts. Verify series definitions, units, release dates, and quote conventions before analysis.</p></section>'
+        '<p class="notice"><strong>This product uses the FRED® API but is not endorsed or certified by the Federal Reserve Bank of St. Louis.</strong></p>'
+        '<p class="notice">Historical published observations, not guaranteed real-time or executable quotes. No trading signals, investment advice, or forecasts. Verify series definitions, units, release dates, and quote conventions before analysis.</p>'
+        '<p class="muted">Use of FRED data is subject to the <a href="https://fred.stlouisfed.org/docs/api/terms_of_use.html" rel="noopener noreferrer" target="_blank">FRED API Terms of Use</a>.</p></section>'
     )
