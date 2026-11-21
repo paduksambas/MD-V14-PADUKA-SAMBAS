@@ -1,0 +1,76 @@
+name: Scheduled global intelligence monitoring
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mdv14-global-monitoring
+  cancel-in-progress: false
+
+jobs:
+  collect-and-publish-artifact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Restore trend history
+        uses: actions/cache/restore@v4
+        with:
+          path: build/mdv14-history.sqlite3
+          key: mdv14-history-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            mdv14-history-${{ runner.os }}-
+      - name: Run RSS/Atom monitoring cycle
+        run: |
+          python -m mdv14 --feeds examples/feeds.sample.json \
+            --database build/mdv14-history.sqlite3 \
+            --output build/latest-report.json \
+            --dashboard build/monitoring-dashboard.html
+      - name: Save trend history
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: build/mdv14-history.sqlite3
+          key: mdv14-history-${{ runner.os }}-${{ github.run_id }}
+      - name: Add monitoring summary
+        if: always()
+        run: |
+          if [ -f build/latest-report.json ]; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path("build/latest-report.json").read_text(encoding="utf-8"))
+          status = report.get("monitoring", {})
+          lines = [
+              "# MD V14 monitoring cycle",
+              f"- Status: **{status.get('cycle_status', 'unknown')}**",
+              f"- Generated: {status.get('generated_at', 'unknown')}",
+              f"- Feeds: {status.get('feeds_succeeded', 0)}/{status.get('feeds_attempted', 0)} succeeded",
+              f"- Signals: {status.get('signals_collected', 0)}",
+              f"- Recent published items (24h): {status.get('signals_published_within_window', 0)}",
+              "- This is a scheduled feed collection, not continuous surveillance or fact verification.",
+          ]
+          Path(__import__("os").environ["GITHUB_STEP_SUMMARY"]).write_text("\n".join(lines) + "\n", encoding="utf-8")
+          PY
+          else
+            echo "Monitoring report was not generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload monitoring report and dashboard
+        if: always() && hashFiles('build/latest-report.json', 'build/monitoring-dashboard.html') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: mdv14-monitoring-${{ github.run_number }}
+          path: |
+            build/latest-report.json
+            build/monitoring-dashboard.html
+          retention-days: 14
