@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 from .pipeline import collect_and_run, run_pipeline
@@ -12,6 +13,7 @@ from .trend_registry import signal_id
 from .dashboard import build_dashboard_html
 from .advanced_scoring import assess_advanced_trend
 from .economic_data import fetch_world_bank_indicators
+from .market_data import fetch_fred_market_data
 
 
 def main() -> int:
@@ -27,6 +29,9 @@ def main() -> int:
     parser.add_argument("--economic-countries", default="", help="Optional comma-separated ISO alpha-2 country codes for World Bank indicators, e.g. ID,US,CN.")
     parser.add_argument("--economic-start-year", type=int, default=2020, help="First World Bank observation year (default: 2020).")
     parser.add_argument("--economic-end-year", type=int, default=None, help="Last World Bank observation year (default: current year).")
+    parser.add_argument("--fred-api-key-env", default="FRED_API_KEY", help="Environment variable holding an optional FRED API key (default: FRED_API_KEY).")
+    parser.add_argument("--market-start-date", default="2020-01-01", help="First FRED observation date (YYYY-MM-DD).")
+    parser.add_argument("--market-end-date", default=None, help="Last FRED observation date (default: today).")
     args = parser.parse_args()
 
     if args.limit < 1:
@@ -54,6 +59,13 @@ def main() -> int:
             )
         except ValueError as exc:
             parser.error(str(exc))
+    try:
+        report["market_data"] = fetch_fred_market_data(
+            os.environ.get(args.fred_api_key_env), start_date=args.market_start_date,
+            end_date=args.market_end_date,
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
     store = SQLiteTrendStore(args.database) if args.database else None
     if store:
         store.record_signals(report["signals"])
@@ -111,6 +123,11 @@ def main() -> int:
         "economic_data_observations": report.get("economic_data", {}).get("observation_count", 0),
         "economic_data_requests_succeeded": report.get("economic_data", {}).get("requests_succeeded", 0),
         "economic_data_requests_failed": report.get("economic_data", {}).get("requests_failed", 0),
+        "market_data_build": report.get("market_data", {}).get("build"),
+        "market_data_status": report.get("market_data", {}).get("status"),
+        "market_data_observations": report.get("market_data", {}).get("observation_count", 0),
+        "market_data_requests_succeeded": report.get("market_data", {}).get("requests_succeeded", 0),
+        "market_data_requests_failed": report.get("market_data", {}).get("requests_failed", 0),
     }, ensure_ascii=False, indent=2))
     return 0
 
