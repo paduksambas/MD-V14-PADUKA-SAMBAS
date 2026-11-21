@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 2.4 — Strategic Impact Analysis & Geopolitical Intelligence
 - Build 2.3 — Autonomous Research & Multi-Source Intelligence
 - Build 2.2 — Predictive Intelligence & Early Warning
 - Build 2.1 — Global Intelligence Dashboard
@@ -27,6 +28,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/global_intelligence.py — cross-country/topic summaries, history-based momentum, and explainable related-event discovery
 - mdv14/predictive_intelligence.py — bounded observation-horizon scenarios and threshold-crossing early-warning candidates
 - mdv14/research_orchestrator.py — question-framed multi-source relevance, collection health, source diversity, evidence gaps, and audit steps
+- mdv14/strategic_impact.py — keyword-based impact dimensions, explicit-metadata cross-border review candidates, attention bands, and human review prompts
 - mdv14/dashboard.py — self-contained offline HTML analytics dashboard with global country/topic, rising-signal, and related-event views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -42,6 +44,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 2.4 Strategic Impact Analysis & Geopolitical Intelligence
+The pipeline now emits `strategic_impact` with keyword-based potential impact dimensions (economic, security, diplomatic, societal, technology, environmental), score-based attention bands, metadata-completeness labels, and cross-border review candidates. Cross-border candidates require different explicitly supplied country labels plus a shared supplied entity or topic. These are analyst triage cues only: they do not establish causality, alliances, conflicts, impact probabilities, forecasts, source independence, or truth. Missing geography and actors are not inferred. Human verification is required. See docs/BUILD-2.4-STRATEGIC-IMPACT.md.
 
 ## Build 2.3 Autonomous Research & Multi-Source Intelligence
 For configured RSS/Atom sources, pass `--research-question` with `--feeds` to add an auditable `research` section to the JSON report. Example: `python -m mdv14 --feeds path/to/your-feeds.json --research-question "semiconductor supply chain" --output build/research-report.json`. The report ranks records using literal keyword overlap in titles and summaries, summarizes feed health and metadata coverage, and lists research gaps and human review steps. It does not discover arbitrary websites, perform semantic search, verify truth, or publish findings. The feed JSON must be an array of source objects containing `id`, `name`, and HTTPS `url` fields; include optional publisher, country, language, topics, and enabled metadata. The Python API accepts `research_question` in `collect_and_run`. See docs/BUILD-2.3-RESEARCH-ORCHESTRATION.md.
