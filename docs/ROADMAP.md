@@ -13,7 +13,7 @@
 - [x] Kerangka operasional Early Warning: trigger, severity, validasi, dan format alert — docs/EARLY_WARNING_SYSTEM.md
 - [x] Template Daily Intelligence Brief — docs/DAILY_BRIEF.md
 - [x] Template Weekly Global Intelligence Report / outlook — docs/WEEKLY_GLOBAL_INTELLIGENCE_REPORT.md
-- [ ] Template Early Warning Memo
+- [x] Template Early Warning Memo — docs/EARLY_WARNING_MEMO.md
 - [ ] Register indikator dan trigger yang dapat ditinjau berkala
 
 ## Build 1.2 — Quality & repeatability
