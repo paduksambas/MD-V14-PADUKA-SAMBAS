@@ -2,6 +2,7 @@
 from __future__ import annotations
 from collections import Counter
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from typing import Any, Iterable
 from urllib.parse import urlparse
 
@@ -30,7 +31,13 @@ def _timestamp(value: Any) -> str | None:
             parsed = parsed.replace(tzinfo=timezone.utc)
         return parsed.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
     except ValueError:
-        return raw
+        try:
+            parsed = parsedate_to_datetime(raw)
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+            return parsed.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+        except (TypeError, ValueError, OverflowError):
+            return raw
 
 def validate_source_catalog(sources: Iterable[dict[str, Any]]) -> dict[str, Any]:
     source_list = list(sources)
