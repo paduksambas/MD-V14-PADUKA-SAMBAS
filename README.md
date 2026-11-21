@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 3.9 — Indonesia Regional Intelligence (BPS region catalog + traceable province/regency indicator comparisons)
 - Build 3.8 — Indonesia Strategic Economic Intelligence (World Bank macro indicators + global commodity review channels)
 - Build 3.7 — Official Commodity Intelligence (World Bank Pink Sheet, no API key)
 - Build 3.6 — Public Equity & Commodity Market Data (no-key Stooq daily observations)
@@ -57,6 +58,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/public_assets.py — bounded no-key Stooq daily close adapter for selected equity indices and commodity futures (opt-in)
 - mdv14/commodity_data.py — dynamic World Bank Pink Sheet workbook discovery, standard-library XLSX parsing, and monthly benchmark normalization
 - mdv14/indonesia_intelligence.py — Indonesia-only macro indicator summaries and qualitative global commodity review channels
+- mdv14/regional_intelligence.py — BPS region-domain discovery, normalized regional indicator profiles, like-for-like rankings and descriptive spreads
 - mdv14/dashboard.py — self-contained offline command-center dashboard with interactive country explorer, operational, strategic, analyst, and global coverage views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
