@@ -17,7 +17,7 @@
 - [x] Register indikator dan trigger yang dapat ditinjau berkala — docs/INDICATOR_TRIGGER_REGISTER.md
 
 ## Build 1.2 — Quality & repeatability
-- [ ] Checklist kualitas sumber dan sitasi
+- [x] Checklist kualitas sumber dan sitasi — docs/SOURCE_QUALITY_CITATION_CHECKLIST.md
 - [ ] Protokol confidence dan scenario assumptions
 - [x] Kerangka test cases awal — docs/TEST_CASES.md
 - [ ] Contoh analisis end-to-end dan test prompts yang dapat diulang
