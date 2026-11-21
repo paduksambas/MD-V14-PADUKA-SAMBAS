@@ -97,7 +97,7 @@ jobs:
         run: |
           {
             echo "# MD V14 scheduled run"
-            echo "- Workflow execution completed; detailed report contents and collection metrics are intentionally not written to this public summary."
+            echo "- Workflow execution completed; only aggregate provider-health metrics (status and counts) are published above. Detailed reports, raw observations, dashboards, and SQLite history remain private and are not uploaded."
             echo "- Reports and dashboards remain transient on the runner and are not uploaded as artifacts."
             echo "- No persistent trend-history cache is created by this workflow."
           } >> "$GITHUB_STEP_SUMMARY"
