@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 3.3 — Dedicated Economic Data Sources & Market Intelligence Integration (World Bank Indicators API)
 - Build 3.2 — Global Economic Intelligence & Strategic Market Impact (keyword-based sector review cues)
 - Build 3.1 — Global Geopolitical Intelligence Map & Interactive Country Risk Explorer (review-priority explorer)
 - Build 3.0 — Global Strategic Intelligence Command Center
@@ -45,6 +46,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/command_center.py — unified operational state, strategic posture, source coverage, and priority review queue
 - mdv14/country_explorer.py — country-centroid plotting, explicit metadata aggregation, and traceable country-level review profiles
 - mdv14/economic_intelligence.py — curated English/Indonesian sector cues for energy, commodities/mining, trade/supply chains, finance/macroeconomy, technology/semiconductors, agriculture/food, and transport/logistics
+- mdv14/economic_data.py — bounded World Bank Indicators API client with country/year validation, allowlisted indicators, provenance, and missing-data preservation
 - mdv14/dashboard.py — self-contained offline command-center dashboard with interactive country explorer, operational, strategic, analyst, and global coverage views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -60,6 +62,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 3.3 Dedicated Economic Data Sources & Market Intelligence Integration
+The CLI accepts `--economic-countries ID,US,CN --economic-start-year 2020` to retrieve published macroeconomic observations from the official World Bank Indicators API. The scheduled monitoring workflow enables this for Indonesia, the United States, and China and adds the observations to the JSON report and HTML dashboard. Initial allowlisted series cover GDP growth, consumer-price inflation, trade as a share of GDP, net energy imports, and merchandise exports/imports. Requests are restricted to `api.worldbank.org`, response sizes and timeouts are bounded, country codes and years are validated, and missing values remain missing. The data are historical observations with reporting lags—not real-time market quotes, forecasts, or proof of causal market impact. See docs/BUILD-3.3-ECONOMIC-DATA-INTEGRATION.md.
 
 ## Build 3.2 Global Economic Intelligence & Strategic Market Impact
 The pipeline emits `economic_intelligence` with traceable records grouped into energy, trade/supply chain, commodities, technology/semiconductors, financial markets, and macroeconomy. Matching uses a curated English-Indonesian token vocabulary across supplied titles and summaries. A signal may appear in multiple sectors. These are discovery cues—not live market prices, macroeconomic statistics, measured impact, causal attribution, financial advice, or forecasts. Input scores remain supplied heuristic scores; publisher labels do not prove independence. See docs/BUILD-3.2-ECONOMIC-INTELLIGENCE.md.
