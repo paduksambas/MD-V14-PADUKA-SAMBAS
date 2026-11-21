@@ -70,7 +70,10 @@ def fetch_public_asset_data(
             payload = _fetch_stooq(url, timeout=timeout)
             reader = csv.DictReader(io.StringIO(payload))
             if not reader.fieldnames or not {"Date", "Close"}.issubset(reader.fieldnames):
-                raise ValueError("unexpected Stooq CSV columns")
+                raise ValueError(
+                    "Stooq returned a non-CSV response; the free endpoint may apply IP quotas, "
+                    "anti-bot challenges, or authentication requirements"
+                )
             count = 0
             for row in reader:
                 try:
