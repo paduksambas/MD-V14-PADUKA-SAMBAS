@@ -53,6 +53,8 @@ class FredMarketDataTests(unittest.TestCase):
         })
         self.assertIn("&lt;script&gt;", html)
         self.assertNotIn("<script>", html)
+        self.assertIn("not endorsed or certified by the Federal Reserve Bank of St. Louis", html)
+        self.assertIn("FRED API Terms of Use", html)
 
 
 if __name__ == "__main__":
