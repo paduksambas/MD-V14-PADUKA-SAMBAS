@@ -35,6 +35,32 @@ class CollectionPipelineTests(unittest.TestCase):
         self.assertEqual(report["daily_brief"]["signals_included"], 1)
 
     @patch("mdv14.pipeline.collect_feeds")
+    def test_research_question_is_integrated_with_collected_records(self, collector):
+        collector.return_value = {
+            "collector": "MD V14 RSS/Atom",
+            "feeds_attempted": 1,
+            "feeds_succeeded": 1,
+            "feeds_failed": 0,
+            "items_collected": 1,
+            "feed_results": [{"ok": True}],
+            "signals": [{
+                "title": "AI semiconductor investment expands",
+                "source": "Example News",
+                "url": "https://example.com/story",
+                "summary": "New chip investment",
+                "feed_url": "https://example.com/rss",
+                "score": 0,
+            }],
+        }
+        report = collect_and_run(
+            [{"id": "example", "name": "Example", "url": "https://example.com/rss"}],
+            research_question="AI semiconductor investment",
+        )
+        self.assertIn("research", report)
+        self.assertEqual(report["research"]["records_reviewed"], 1)
+        self.assertEqual(report["research"]["records_with_keyword_match"], 1)
+
+    @patch("mdv14.pipeline.collect_feeds")
     def test_failed_feed_does_not_prevent_pipeline(self, collector):
         collector.return_value = {
             "collector": "MD V14 RSS/Atom", "feeds_attempted": 1,
