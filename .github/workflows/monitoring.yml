@@ -11,6 +11,7 @@ on:
       - 'mdv14/command_center.py'
       - 'mdv14/country_explorer.py'
       - 'mdv14/economic_intelligence.py'
+      - 'mdv14/economic_data.py'
       - 'mdv14/dashboard.py'
       - 'mdv14/pipeline.py'
   workflow_dispatch:
@@ -47,7 +48,9 @@ jobs:
           python -m mdv14 --feeds examples/feeds.sample.json \
             --database build/mdv14-history.sqlite3 \
             --output build/latest-report.json \
-            --dashboard build/monitoring-dashboard.html
+            --dashboard build/monitoring-dashboard.html \\
+            --economic-countries ID,US,CN \\
+            --economic-start-year 2020
       - name: Save trend history
         if: success()
         uses: actions/cache/save@v4
