@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 3.7 — Official Commodity Intelligence (World Bank Pink Sheet, no API key)
 - Build 3.6 — Public Equity & Commodity Market Data (no-key Stooq daily observations)
 - Build 3.5 — Cross-Asset Market Analytics (descriptive change and observed-step volatility)
 - Build 3.4 — Global Financial Markets Intelligence (no-key Frankfurter FX + optional FRED API)
@@ -52,7 +53,8 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/economic_data.py — bounded World Bank Indicators API client with country/year validation, allowlisted indicators, provenance, and missing-data preservation
 - mdv14/market_data.py — no-key Frankfurter daily FX reference-rate adapter plus optional FRED market observations adapter with fixed allowlists, key redaction, request bounds, and explicit missing-data status
 - mdv14/market_analytics.py — per-series retrospective change and observed-step volatility summaries without interpolation, cross-asset scoring, or forecasts
-- mdv14/public_assets.py — bounded no-key Stooq daily close adapter for selected equity indices and commodity futures
+- mdv14/public_assets.py — bounded no-key Stooq daily close adapter for selected equity indices and commodity futures (opt-in)
+- mdv14/commodity_data.py — dynamic World Bank Pink Sheet workbook discovery, standard-library XLSX parsing, and monthly benchmark normalization
 - mdv14/dashboard.py — self-contained offline command-center dashboard with interactive country explorer, operational, strategic, analyst, and global coverage views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -68,6 +70,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 3.7 Official Commodity Intelligence
+The report now includes `commodity_data` from the official World Bank Commodity Price Data (Pink Sheet) monthly workbook. The current XLSX link is discovered from the World Bank Commodity Markets page on each run; parsing uses only the Python standard library and requires no API key. Selected series include crude oil, natural gas, coal, gold, silver, copper, aluminum, coffee, palm oil, wheat, maize, rice, and urea. Values are monthly nominal global benchmark averages with source units and attribution; missing cells remain missing. The data are not local Indonesian prices or live quotes. Build 3.5 analytics consumes each commodity series independently. See docs/BUILD-3.7-OFFICIAL-COMMODITY-INTELLIGENCE.md.
 
 ## Build 3.6 Public Equity & Commodity Market Data
 The report now includes `public_asset_data`, available as an opt-in fetch without an API key from Stooq's daily CSV endpoint (`--enable-public-assets`). The fixed symbol allowlist covers the S&P 500, NASDAQ Composite, DAX, Nikkei 225, WTI crude-oil futures, and gold futures. It is disabled in scheduled monitoring because live GitHub Actions validation received non-CSV quota/challenge responses from Stooq. Each instrument is fetched independently; failed symbols are reported without suppressing successful instruments, and missing observations are not zero-filled. These are provider-supplied daily closes, not real-time or executable quotes. Futures values may depend on contract-roll conventions. This adapter does not include government-bond yields; optional FRED remains available only when configured. Build 3.5 analytics now includes these observations while keeping every series independent. See docs/BUILD-3.6-PUBLIC-ASSET-DATA.md.
