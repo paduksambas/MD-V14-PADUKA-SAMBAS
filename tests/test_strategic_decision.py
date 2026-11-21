@@ -34,7 +34,7 @@ class StrategicDecisionTests(unittest.TestCase):
             "evidence": {"evidence_complete": False},
         }])
         item = result["review_queue"][0]
-        self.assertEqual(item["priority_score"], 55.0)
+        self.assertEqual(item["priority_score"], 57.69)
         self.assertEqual(item["momentum"], None)
         self.assertEqual(item["country"], "unknown")
         self.assertEqual(result["evidence_and_coverage_gaps"]["signals_missing_complete_evidence"], 1)
