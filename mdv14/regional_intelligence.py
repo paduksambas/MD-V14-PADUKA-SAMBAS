@@ -264,3 +264,123 @@ def render_regional_intelligence_html(data: dict[str, Any]) -> str:
         '<p class="muted">Source: <a href="https://webapi.bps.go.id/documentation/" target="_blank" rel="noopener noreferrer">BPS WebAPI documentation</a>. A BPS API key is required for domain discovery.</p>'
         '<p class="notice">Rankings compare like-for-like indicator, period and administrative level only. BPS domain discovery is not the same as loading regional statistics. No national-to-regional downscaling, causal inference, forecasts or policy advice.</p></section>'
     )
+
+
+MAX_TABLE_REQUESTS = 100
+
+
+def _numeric_candidates(payload: Any) -> list[float]:
+    """Extract unambiguous numeric cells from documented BPS JSON envelopes."""
+    found: list[float] = []
+    def walk(value: Any, key: str = "") -> None:
+        if isinstance(value, dict):
+            for child_key, child in value.items():
+                normalized = str(child_key).lower().replace("_", "")
+                if normalized in {"datacontent", "value", "nilai", "data"}:
+                    walk(child, normalized)
+                elif isinstance(child, (dict, list)):
+                    walk(child, normalized)
+                elif normalized in {"nilai", "value"}:
+                    try:
+                        number = float(child)
+                        if math.isfinite(number):
+                            found.append(number)
+                    except (TypeError, ValueError):
+                        pass
+        elif isinstance(value, list):
+            for child in value:
+                walk(child, key)
+        elif key in {"datacontent", "nilai", "value", "data"}:
+            try:
+                number = float(value)
+                if math.isfinite(number):
+                    found.append(number)
+            except (TypeError, ValueError):
+                pass
+    walk(payload)
+    return found
+
+
+def _bps_table_value(payload: Any) -> float | None:
+    """Return a value only when a BPS response contains exactly one numeric cell."""
+    candidates = _numeric_candidates(payload)
+    return candidates[0] if len(candidates) == 1 else None
+
+
+def fetch_bps_regional_tables(
+    api_key: str | None,
+    table_config: Any,
+    *,
+    timeout: int = TIMEOUT_SECONDS,
+    max_requests: int = MAX_TABLE_REQUESTS,
+) -> dict[str, Any]:
+    """Fetch explicitly configured BPS dynamic-table cells with strict request bounds.
+
+    Each item identifies one BPS domain, variable and period. The API key is
+    never returned. Ambiguous response cells are rejected rather than guessed.
+    """
+    if not api_key or not str(api_key).strip():
+        return {"build": "4.0", "status": "not_configured", "request_count": 0,
+                "requests_succeeded": 0, "requests_failed": 0, "observations": [],
+                "errors": [], "limitations": ["Set BPS_API_KEY as a GitHub Actions secret."]}
+    if not isinstance(table_config, dict) or not isinstance(table_config.get("tables"), list):
+        return {"build": "4.0", "status": "invalid_config", "request_count": 0,
+                "requests_succeeded": 0, "requests_failed": 0, "observations": [],
+                "errors": ["Configuration must be an object with a tables array."]}
+    if not 1 <= max_requests <= MAX_TABLE_REQUESTS or timeout < 1:
+        raise ValueError("max_requests must be 1..100 and timeout must be positive")
+    specs = table_config["tables"]
+    if len(specs) > max_requests:
+        return {"build": "4.0", "status": "request_limit_exceeded", "request_count": 0,
+                "requests_succeeded": 0, "requests_failed": 0, "observations": [],
+                "errors": [f"Configured {len(specs)} table requests; limit is {max_requests}."]}
+    observations: list[dict[str, Any]] = []
+    errors: list[dict[str, str]] = []
+    succeeded = 0
+    for index, spec in enumerate(specs):
+        if not isinstance(spec, dict):
+            errors.append({"item": str(index), "error": "table spec must be an object"})
+            continue
+        required = ("domain_id", "region_name", "level", "indicator_code",
+                    "variable_id", "period_id", "period")
+        if any(spec.get(key) in (None, "") for key in required) or spec.get("level") not in {"province", "regency_city"}:
+            errors.append({"item": str(index), "error": "missing required table/domain metadata"})
+            continue
+        values = [str(spec[k]) for k in ("domain_id", "variable_id", "period_id")]
+        if any(not value.isdigit() for value in values):
+            errors.append({"item": str(index), "error": "domain_id, variable_id and period_id must be numeric IDs"})
+            continue
+        domain_id, variable_id, period_id = values
+        url = (f"{BPS_BASE}/list/model/data/domain/{domain_id}/var/{variable_id}"
+               f"/th/{period_id}/key/{urllib.parse.quote(str(api_key), safe='')}")
+        try:
+            payload = _request_json(url, timeout)
+            value = _bps_table_value(payload)
+            if value is None:
+                raise ValueError("BPS response did not contain exactly one unambiguous numeric cell")
+            observations.append({
+                "region_code": domain_id, "region_name": str(spec["region_name"]),
+                "level": spec["level"], "province_code": str(spec.get("province_code") or ""),
+                "indicator_code": str(spec["indicator_code"]),
+                "indicator_name": str(spec.get("indicator_name") or spec["indicator_code"]),
+                "period": str(spec["period"]), "value": value,
+                "unit": str(spec.get("unit") or ""), "source": "BPS WebAPI",
+                "source_url": "https://webapi.bps.go.id/documentation/",
+                "bps_variable_id": variable_id, "bps_period_id": period_id,
+            })
+            succeeded += 1
+        except (OSError, ValueError, urllib.error.URLError, json.JSONDecodeError) as exc:
+            safe_error = str(exc).replace(str(api_key), "[REDACTED]")
+            errors.append({"item": str(index), "error": safe_error[:250]})
+    return {
+        "build": "4.0", "status": "available" if observations and not errors else
+                  "partial" if observations else "unavailable" if errors else "no_data",
+        "request_count": len(specs), "requests_succeeded": succeeded,
+        "requests_failed": len(errors), "observations": observations, "errors": errors,
+        "limitations": [
+            "Only explicitly configured domain/variable/period combinations are queried.",
+            "The maximum is 100 requests per run; expand coverage in deliberate, rate-limit-aware batches.",
+            "A response with zero or multiple numeric cells is rejected as ambiguous.",
+            "BPS table definitions, units, periods and revisions must be checked against source metadata.",
+        ],
+    }
