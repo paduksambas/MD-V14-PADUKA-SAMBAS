@@ -52,7 +52,6 @@ class SQLiteTrendStore:
     ) -> list[str]:
         """Upsert signal metadata and append one score observation per input signal."""
         timestamp = observed_at or datetime.now(timezone.utc).isoformat()
-        # Validate timestamp before beginning writes; normalize Z for datetime.fromisoformat.
         datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
         recorded: list[str] = []
         with self._connect() as db:
@@ -78,19 +77,26 @@ class SQLiteTrendStore:
                 recorded.append(key)
         return recorded
 
+    def get_observations(self, signal_key: str) -> list[dict[str, Any]]:
+        """Return ordered score observations for descriptive trend analysis."""
+        with self._connect() as db:
+            rows = db.execute("""
+                SELECT observed_at, score FROM observations
+                WHERE signal_id = ?
+                ORDER BY observed_at ASC, observation_id ASC
+            """, (signal_key,)).fetchall()
+        return [{"observed_at": row["observed_at"], "score": float(row["score"])}
+                for row in rows]
+
     def get_growth(self, signal_key: str) -> dict[str, Any] | None:
         """Compare earliest and latest recorded score; this is descriptive, not predictive."""
         with self._connect() as db:
             trend = db.execute(
                 "SELECT * FROM trends WHERE signal_id = ?", (signal_key,)
             ).fetchone()
-            if trend is None:
-                return None
-            rows = db.execute("""
-                SELECT observed_at, score FROM observations
-                WHERE signal_id = ?
-                ORDER BY observed_at ASC, observation_id ASC
-            """, (signal_key,)).fetchall()
+        if trend is None:
+            return None
+        rows = self.get_observations(signal_key)
         first, latest = rows[0], rows[-1]
         delta = round(float(latest["score"]) - float(first["score"]), 2)
         direction = "rising" if delta > 0 else "falling" if delta < 0 else "stable"
@@ -114,4 +120,3 @@ class SQLiteTrendStore:
                 "SELECT signal_id FROM trends ORDER BY last_seen DESC, signal_id"
             ).fetchall()
         return [self.get_growth(row["signal_id"]) for row in rows]
-
