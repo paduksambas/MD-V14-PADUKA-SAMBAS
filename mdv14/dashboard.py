@@ -133,6 +133,22 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         metric("Unknown language", language_data.get("records_with_unknown_language", 0), "Not inferred"),
         metric("Languages represented", len(language_counts), "Declared labels"),
     ])
+    graph = report.get("knowledge_graph") or {}
+    graph_nodes = graph.get("nodes", [])
+    graph_edges = graph.get("edges", [])
+    graph_node_rows = "".join(
+        "<tr><td>" + _cell(item.get("label")) + "</td><td>" + _cell(item.get("type")) + "</td><td>" + _cell(", ".join(item.get("evidence_sources", []))) + "</td></tr>"
+        for item in graph_nodes
+    ) or "<tr><td colspan=\"3\">No recognized entities or graph nodes.</td></tr>"
+    graph_edge_rows = "".join(
+        "<tr><td>" + _cell(item.get("relation")) + "</td><td>" + _cell(item.get("source")) + "</td><td>" + _cell(item.get("target")) + "</td><td>" + _cell(", ".join(item.get("supporting_record_ids", []))) + "</td></tr>"
+        for item in graph_edges
+    ) or "<tr><td colspan=\"4\">No graph relationships identified.</td></tr>"
+    graph_cards = "".join([
+        metric("Graph nodes", graph.get("nodes_total", 0), "Entity, event, topic and country nodes"),
+        metric("Graph edges", graph.get("edges_total", 0), "Discovery relationships"),
+        metric("Records with entities", graph.get("records_with_recognized_entities", 0), "Curated aliases or explicit metadata"),
+    ])
     monitoring = report.get("monitoring") or {}
     decision = report.get("strategic_decision") or {}
     review_rows = []
@@ -192,6 +208,10 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 <section class="grid">{cards}</section>
 <section class="panel"><h2>Live monitoring · latest collection cycle</h2><div class="grid">{monitor_cards}</div><p class="muted">Cycle timestamp: {_cell(monitoring.get("generated_at", "Not available"))}. Feed health is collection status, not content verification. Scheduled runs execute only when the repository workflow runs.</p></section>
 <section class="panel"><h2>Multilingual source coverage</h2><div class="grid">{language_cards}</div><div class="table-wrap"><table><thead><tr><th>Declared language</th><th class="num">Records</th></tr></thead><tbody>{language_rows}</tbody></table></div><p class="muted">Language labels are supplied metadata. The bilingual research matcher is a limited lexical aid, not translation or automatic language detection.</p></section>
+<section class="panel"><h2>Cross-language knowledge graph</h2><div class="grid">{graph_cards}</div>
+<h3>Recognized nodes</h3><div class="table-wrap"><table><thead><tr><th>Node</th><th>Type</th><th>Evidence basis</th></tr></thead><tbody>{graph_node_rows}</tbody></table></div>
+<h3>Relationships for analyst review</h3><div class="table-wrap"><table><thead><tr><th>Relationship</th><th>Source node</th><th>Target node</th><th>Supporting records</th></tr></thead><tbody>{graph_edge_rows}</tbody></table></div>
+<p class="muted">Curated alias matches and shared metadata are discovery cues only. They do not establish factual truth, causality, influence, or source independence.</p></section>
 <section class="panel"><h2>Strategic decision review queue</h2><div class="table-wrap"><table><thead><tr><th>Priority</th><th>Signal</th><th class="num">Score</th><th>Warning</th><th>Source</th><th>Article URL</th></tr></thead><tbody>{''.join(review_rows)}</tbody></table></div><p class="muted">Priority is a human-review ordering cue, not event severity or probability.</p></section>
 <section class="columns">
 <article class="panel"><h2>Warning distribution</h2><ul>{warnings}</ul></article>
