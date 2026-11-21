@@ -15,6 +15,8 @@ on:
       - 'mdv14/market_data.py'
       - 'mdv14/market_analytics.py'
       - 'mdv14/public_assets.py'
+      - 'mdv14/commodity_data.py'
+      - 'tests/test_commodity_data.py'
       - 'tests/test_public_assets.py'
       - 'tests/test_market_analytics.py'
       - 'tests/test_market_data.py'
