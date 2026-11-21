@@ -3,11 +3,13 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 
 from .pipeline import collect_and_run, run_pipeline
 from .storage import load_signals, save_json_atomic
 from .sqlite_store import SQLiteTrendStore
 from .trend_registry import signal_id
+from .dashboard import build_dashboard_html
 
 
 def main() -> int:
@@ -16,6 +18,7 @@ def main() -> int:
     parser.add_argument("--feeds", help="Optional JSON array of RSS/Atom feed definitions.")
     parser.add_argument("--output", default="mdv14-report.json", help="Output report path.")
     parser.add_argument("--database", help="Optional SQLite path for persistent trend history.")
+    parser.add_argument("--dashboard", help="Optional path for a self-contained HTML dashboard.")
     parser.add_argument("--limit", type=int, default=10, help="Maximum brief entries.")
     parser.add_argument("--date", default=None, help="Brief date in YYYY-MM-DD format.")
     args = parser.parse_args()
@@ -51,8 +54,14 @@ def main() -> int:
         }
 
     save_json_atomic(args.output, report)
+    if args.dashboard:
+        dashboard_path = Path(args.dashboard)
+        dashboard_path.parent.mkdir(parents=True, exist_ok=True)
+        dashboard_path.write_text(build_dashboard_html(report), encoding="utf-8")
+
     print(json.dumps({
         "output": args.output,
+        "dashboard": args.dashboard,
         "signals_received": report["registry_size"],
         "signals_in_brief": report["daily_brief"]["signals_included"],
         "signals_needing_review": report["evidence_review_required"],
