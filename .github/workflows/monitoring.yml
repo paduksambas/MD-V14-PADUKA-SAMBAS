@@ -10,6 +10,7 @@ on:
       - 'mdv14/analyst_report.py'
       - 'mdv14/command_center.py'
       - 'mdv14/country_explorer.py'
+      - 'mdv14/economic_intelligence.py'
       - 'mdv14/dashboard.py'
       - 'mdv14/pipeline.py'
   workflow_dispatch:
