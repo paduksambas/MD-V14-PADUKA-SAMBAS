@@ -122,6 +122,21 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     if not relation_rows:
         relation_rows.append("<tr><td colspan='5'>No related-event candidates identified.</td></tr>")
 
+    monitoring = report.get("monitoring") or {}
+    decision = report.get("strategic_decision") or {}
+    review_rows = []
+    for item in decision.get("review_queue", []):
+        review_rows.append("<tr>" + f"<td>{_cell(item.get('priority_band'))}</td><td>{_cell(item.get('title'))}</td><td class='num'>{_cell(item.get('priority_score'))}</td><td>{_cell(item.get('warning_level'))}</td><td>{_cell(item.get('source'))}</td><td>{_cell(item.get('url') or 'Unavailable')}</td>" + "</tr>")
+    if not review_rows:
+        review_rows.append("<tr><td colspan='6'>No records in the strategic review queue.</td></tr>")
+    monitor_cards = "".join([
+        metric("Monitoring cycle", monitoring.get("cycle_status", "not configured"), "Latest collection cycle"),
+        metric("Feeds healthy", f"{monitoring.get('feeds_succeeded', 0)}/{monitoring.get('feeds_attempted', 0)}", "RSS/Atom endpoints"),
+        metric("Items collected", monitoring.get("signals_collected", len(signals)), "Records in this cycle"),
+        metric("Published in 24h", monitoring.get("signals_published_within_window", 0), "Parseable timestamps only"),
+        metric("Unknown publish time", monitoring.get("signals_with_unknown_published_at", 0), "Missing or invalid timestamp"),
+    ])
+
     global_cards = "".join([
         metric("Signals analyzed", intelligence.get("signals_analyzed", 0), "Global intelligence input"),
         metric("Countries represented", len(intelligence.get("country_analysis", [])), "Explicit metadata only"),
@@ -164,6 +179,8 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 <header><div class="muted">PADUKA SAMBAS · GLOBAL TREND INTELLIGENCE</div>
 <h1>{_cell(title)}</h1><div class="muted">Report date: {_cell(date_label)}</div></header>
 <section class="grid">{cards}</section>
+<section class="panel"><h2>Live monitoring · latest collection cycle</h2><div class="grid">{monitor_cards}</div><p class="muted">Cycle timestamp: {_cell(monitoring.get("generated_at", "Not available"))}. Feed health is collection status, not content verification. Scheduled runs execute only when the repository workflow runs.</p></section>
+<section class="panel"><h2>Strategic decision review queue</h2><div class="table-wrap"><table><thead><tr><th>Priority</th><th>Signal</th><th class="num">Score</th><th>Warning</th><th>Source</th><th>Article URL</th></tr></thead><tbody>{''.join(review_rows)}</tbody></table></div><p class="muted">Priority is a human-review ordering cue, not event severity or probability.</p></section>
 <section class="columns">
 <article class="panel"><h2>Warning distribution</h2><ul>{warnings}</ul></article>
 <article class="panel"><h2>Source metadata status</h2><ul>{source_summary}</ul></article>
