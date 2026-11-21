@@ -3,6 +3,7 @@
 Repositori pengembangan sistem riset tren global, intelijen strategis, analisis dampak, dan briefing.
 
 ## Status
+- Build 2.2 — Predictive Intelligence & Early Warning
 - Build 2.1 — Global Intelligence Dashboard
 - Build 2.0 — Global Intelligence Engine
 - Build 1.9 — Safe RSS/Atom Article Links
@@ -23,6 +24,7 @@ Repositori pengembangan sistem riset tren global, intelijen strategis, analisis 
 - mdv14/sqlite_store.py — persistent SQLite trend history and ordered observations
 - mdv14/advanced_scoring.py — momentum, acceleration, anomaly and attention-potential indicators
 - mdv14/global_intelligence.py — cross-country/topic summaries, history-based momentum, and explainable related-event discovery
+- mdv14/predictive_intelligence.py — bounded observation-horizon scenarios and threshold-crossing early-warning candidates
 - mdv14/dashboard.py — self-contained offline HTML analytics dashboard with global country/topic, rising-signal, and related-event views
 - mdv14/__main__.py — CLI with optional history and dashboard output
 
@@ -38,6 +40,9 @@ python -m mdv14 examples/signals.sample.json \
   --output build/history-report.json \
   --dashboard build/trend-dashboard.html
 ```
+
+## Build 2.2 Predictive Intelligence & Early Warning
+The pipeline now attaches a `predictive_outlook` to each signal and reports evaluated histories, insufficient histories, and threshold-crossing candidates in `predictive_summary`. It extends the mean of up to three latest supplied score changes over a configurable number of future observations; observation units are not calendar days. Fewer than two valid observations yield no projection. These are bounded heuristic scenarios, not probabilities, dated forecasts, causal findings, or guarantees. Elevated and critical scenarios require human review. No autonomous notifications are enabled. See docs/BUILD-2.2-PREDICTIVE-INTELLIGENCE.md.
 
 ## Build 2.1 Global Intelligence Dashboard
 The offline HTML dashboard now includes global intelligence summary metrics, country and topic activity tables with average-score profiles, rising signals with history-based momentum, and related-event discovery candidates with their matching basis. All untrusted labels are HTML-escaped. The dashboard remains a static local report and does not publish or transmit data. See docs/BUILD-2.1-GLOBAL-DASHBOARD.md.
