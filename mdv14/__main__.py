@@ -84,6 +84,8 @@ def main() -> int:
         "feeds_succeeded": report.get("collection", {}).get("feeds_succeeded", 0),
         "history_tracked": report.get("history", {}).get("tracked_trends", 0),
         "research_records_reviewed": report.get("research", {}).get("records_reviewed", 0),
+        "analyst_report_findings": len(report.get("analyst_report", {}).get("key_findings", [])),
+        "analyst_report_actions": len(report.get("analyst_report", {}).get("recommended_human_actions", [])),
     }, ensure_ascii=False, indent=2))
     return 0
 
