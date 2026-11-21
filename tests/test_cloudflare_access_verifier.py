@@ -61,6 +61,26 @@ class CloudflareAccessVerifierTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.run_verifier(app)
 
+    def test_non_allow_policy_is_rejected(self):
+        app = app_with_policy(decision="deny")
+        with self.assertRaises(SystemExit):
+            self.run_verifier(app)
+
+    def test_unprotected_path_is_rejected(self):
+        app = app_with_policy(domain="private.example.com/private")
+        with self.assertRaises(SystemExit):
+            self.run_verifier(app, access_url="https://private.example.com/dashboard")
+
+    def test_access_url_query_is_rejected(self):
+        app = app_with_policy()
+        with self.assertRaises(SystemExit):
+            self.run_verifier(app, access_url="https://private.example.com/dashboard?share=1")
+
+    def test_email_rule_with_extra_condition_is_rejected(self):
+        app = app_with_policy(include=[{"email": {"email": OWNER, "domain": "example.com"}}])
+        with self.assertRaises(SystemExit):
+            self.run_verifier(app)
+
 
 if __name__ == "__main__":
     unittest.main()
