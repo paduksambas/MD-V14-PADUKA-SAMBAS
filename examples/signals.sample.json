@@ -1,0 +1,18 @@
+[
+  {
+    "title": "Example global technology trend",
+    "source": "Example Research Desk",
+    "url": "https://example.com/research/trend",
+    "summary": "Replace this placeholder with a summary from the original source.",
+    "category": "Technology",
+    "score": 72
+  },
+  {
+    "title": "Example geopolitical signal",
+    "source": "",
+    "url": "",
+    "summary": "Placeholder signal that should be flagged for source review.",
+    "category": "Geopolitics",
+    "score": 48
+  }
+]
