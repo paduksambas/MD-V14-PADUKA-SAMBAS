@@ -171,3 +171,8 @@ Each signal includes a source_intelligence object with observable metadata check
 
 ## Integrity and safety
 Feed collection requires configured feeds and an internet connection. Distinct domains do not establish editorial independence. Source metadata checks do not verify factual truth. Country and language are never inferred from domain names. Coverage describes supplied metadata, not representativeness. Scores, momentum, anomaly flags and warning levels are heuristics, not verified predictions. Dashboard output is local and static. No auto-publishing or external notifications are enabled.
+
+
+## Public Dashboard Deployment
+
+For the intentionally public Cloudflare Pages dashboard (no Cloudflare Access/Zero Trust), follow [`docs/PUBLIC-DASHBOARD-DEPLOYMENT.md`](docs/PUBLIC-DASHBOARD-DEPLOYMENT.md). The validated build script is `bash scripts/build_public_dashboard.sh`; publish directory: `public`.
