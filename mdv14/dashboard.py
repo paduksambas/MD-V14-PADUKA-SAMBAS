@@ -289,6 +289,7 @@ table{{border-collapse:collapse;width:100%;font-size:.9rem}}th,td{{text-align:le
 {economic_intelligence_html}
 {world_bank_html}
 {public_market_html}
+{public_asset_html}
 {fred_market_html}
 {market_analytics_html}
 <section class="panel"><h2>Global intelligence overview</h2><div class="grid">{global_cards}</div></section>
