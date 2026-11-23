@@ -112,3 +112,17 @@ def load_airtable_regional_snapshot(path: str | Path) -> dict[str, Any]:
         "pending_observations": pending_rows,
         "errors": rejected[:20],
     }
+
+
+def apply_airtable_validation_status(
+    regional_result: dict[str, Any], airtable_result: dict[str, Any]
+) -> dict[str, Any]:
+    """Avoid reporting no regional data when Airtable rows await human validation."""
+    try:
+        observation_count = int(regional_result.get("observation_count", 0))
+        pending_count = int(airtable_result.get("pending_validation_count", 0))
+    except (TypeError, ValueError):
+        return regional_result
+    if observation_count == 0 and pending_count > 0:
+        regional_result["status"] = "pending_validation"
+    return regional_result
