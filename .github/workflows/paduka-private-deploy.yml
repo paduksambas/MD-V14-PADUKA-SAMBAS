@@ -33,13 +33,22 @@ jobs:
           ACCESS_URL: ${{ secrets.PADUKA_ACCESS_URL }}
           OWNER_EMAIL: ${{ secrets.PADUKA_OWNER_EMAIL }}
         run: |
-          test "$ACCESS_GATE_CONFIRMED" = "YES" || { echo "Deployment blocked: owner-only Cloudflare Access must be configured." >&2; exit 1; }
-          test -n "$CF_API_TOKEN" || { echo "Missing Cloudflare API token." >&2; exit 1; }
-          test -n "$CF_ACCOUNT_ID" || { echo "Missing Cloudflare account ID." >&2; exit 1; }
-          test -n "$CF_PROJECT_NAME" || { echo "Missing Cloudflare Pages project name." >&2; exit 1; }
-          test -n "$CF_ACCESS_APP_ID" || { echo "Missing Cloudflare Access application ID." >&2; exit 1; }
-          test -n "$ACCESS_URL" || { echo "Missing PADUKA Access URL." >&2; exit 1; }
-          test -n "$OWNER_EMAIL" || { echo "Missing PADUKA owner email." >&2; exit 1; }
+          missing=()
+          [[ -n "$ACCESS_GATE_CONFIRMED" ]] || missing+=("PADUKA_ACCESS_PROTECTION_CONFIRMED")
+          [[ -n "$CF_API_TOKEN" ]] || missing+=("CLOUDFLARE_API_TOKEN")
+          [[ -n "$CF_ACCOUNT_ID" ]] || missing+=("CLOUDFLARE_ACCOUNT_ID")
+          [[ -n "$CF_PROJECT_NAME" ]] || missing+=("CLOUDFLARE_PAGES_PROJECT")
+          [[ -n "$CF_ACCESS_APP_ID" ]] || missing+=("CLOUDFLARE_ACCESS_APP_ID")
+          [[ -n "$ACCESS_URL" ]] || missing+=("PADUKA_ACCESS_URL")
+          [[ -n "$OWNER_EMAIL" ]] || missing+=("PADUKA_OWNER_EMAIL")
+          if (( ${#missing[@]} > 0 )); then
+            printf '::error title=Missing deployment secrets::Add these repository Actions secrets: %s\n' "$(IFS=', '; echo "${missing[*]}")"
+            exit 1
+          fi
+          if [[ "$ACCESS_GATE_CONFIRMED" != "YES" ]]; then
+            echo "::error title=Cloudflare Access not confirmed::Set PADUKA_ACCESS_PROTECTION_CONFIRMED to the exact value YES only after configuring owner-only Access."
+            exit 1
+          fi
           if ! [[ "$CF_PROJECT_NAME" =~ ^[a-z0-9][a-z0-9-]{0,57}$ ]]; then
             echo "Invalid Cloudflare Pages project name; expected 1-58 lowercase letters, digits, or hyphens." >&2
             exit 1
