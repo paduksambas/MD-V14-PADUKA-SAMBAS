@@ -348,7 +348,7 @@ def export_dashboard_snapshot(
     }
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return {
         "status": status,
         "records_read": len(records),
@@ -416,9 +416,9 @@ def main(argv: list[str] | None = None) -> int:
                     "records_read": 0, "valid_count": 0, "pending_validation_count": 0,
                     "rejected_count": 0, "observations": [], "pending_observations": [],
                 }
-                Path(output_path).write_text(json.dumps(empty, ensure_ascii=False) + "\\n", encoding="utf-8")
+                Path(output_path).write_text(json.dumps(empty, ensure_ascii=False) + "\n", encoding="utf-8")
             else:
-                Path(output_path).write_text('{"observations": []}\\n', encoding="utf-8")
+                Path(output_path).write_text('{"observations": []}\n', encoding="utf-8")
         print(json.dumps({"status": "skipped", "reason": "AIRTABLE_API_TOKEN is not configured"}))
         return 0
 
