@@ -30,6 +30,13 @@ class PrivateDeployWorkflowSafetyTests(unittest.TestCase):
         deploy = self.workflow.index("Deploy behind verified Cloudflare Access")
         self.assertLess(verify, deploy)
 
+    def test_only_dashboard_html_is_sent_to_cloudflare(self):
+        self.assertIn('PRIVATE_REPORT="$(mktemp', self.workflow)
+        self.assertIn('--output "$PRIVATE_REPORT"', self.workflow)
+        self.assertIn('trap \'rm -f "$PRIVATE_REPORT"\' EXIT', self.workflow)
+        self.assertIn('test "$(find build -type f | wc -l)" -eq 1', self.workflow)
+        self.assertNotIn("--output build/latest-report.json", self.workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
