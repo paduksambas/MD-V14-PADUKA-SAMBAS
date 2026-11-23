@@ -40,7 +40,9 @@ Data yang tidak memiliki satu nilai numerik yang tidak ambigu ditolak. Nilai kos
 
 ## Gerbang publikasi dashboard
 
-Build GitHub Pages membaca Airtable dengan perintah `python scripts/airtable_bps.py --export-dashboard`. Ekspor membagi data menjadi dua kelompok: observasi berstatus **Valid** masuk ke perhitungan statistik, sedangkan observasi **Belum ditinjau** ditampilkan di tabel antrean validasi. Baris **Ditolak**, status tidak dikenal, atau nilai tidak valid dikecualikan.
+Build GitHub Pages membaca Airtable dengan perintah `python scripts/airtable_bps.py --export-dashboard` ketika secret `AIRTABLE_API_TOKEN` tersedia di GitHub Actions. Ekspor membagi data menjadi dua kelompok: observasi berstatus **Valid** masuk ke perhitungan statistik, sedangkan observasi **Belum ditinjau** ditampilkan di tabel antrean validasi. Baris **Ditolak**, status tidak dikenal, atau nilai tidak valid dikecualikan.
+
+Koneksi Airtable di ChatGPT tidak otomatis dibagikan ke GitHub Actions. Jika secret runner belum tersedia, build memakai snapshot bertanggal `examples/airtable-bps-dashboard.json` yang diperbarui melalui koneksi Airtable yang terpasang. Snapshot tersebut hanya cadangan; untuk pembaruan otomatis setiap build, konfigurasi PAT Airtable sebagai Actions secret `AIRTABLE_API_TOKEN`.
 
 Sebelum mengubah status menjadi **Valid**, cocokkan nilai, definisi, satuan, periode, dan cakupan wilayah dengan tabel/publikasi BPS asli. Jika BPS merevisi angka pada sinkronisasi berikutnya, status kembali ke **Belum ditinjau** dan nilai baru tidak langsung dipublikasikan.
 
@@ -59,7 +61,7 @@ Tiga kandidat lain (variabel 105, 107, dan 108) belum dapat dipetakan menjadi sa
 
 ## Batasan dan keamanan
 
-- PAT Airtable hanya berada di GitHub Actions Secrets dan hanya digunakan pada langkah sinkronisasi/ekspor.
+- PAT Airtable hanya berada di GitHub Actions Secrets dan hanya digunakan pada langkah sinkronisasi/ekspor. Jika PAT belum dipasang, dashboard memakai snapshot terakhir yang dicatat di repository.
 - Build publik mengunggah satu file HTML; report JSON, ekspor sementara, dan database lokal dibersihkan setelah build.
 - Dashboard publik hanya menggunakan baris berstatus **Valid** untuk ranking dan perhitungan; baris **Belum ditinjau** ditampilkan untuk tinjauan manusia tanpa memengaruhi statistik.
 - Hasil BPS yang ambigu, kosong, atau gagal ditolak; sistem tidak mengisi nilai perkiraan.
