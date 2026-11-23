@@ -39,8 +39,12 @@ def main() -> None:
     if not all((token, account_id, app_id, access_url, owner_email)):
         fail("Required verification inputs are missing.")
     parsed = urllib.parse.urlparse(access_url)
-    if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
-        fail("PADUKA_ACCESS_URL must be a clean HTTPS URL without credentials, query, or fragment.")
+    try:
+        access_port = parsed.port
+    except ValueError:
+        fail("PADUKA_ACCESS_URL contains an invalid port.")
+    if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password or access_port is not None or parsed.query or parsed.fragment:
+        fail("PADUKA_ACCESS_URL must be a clean HTTPS URL without credentials, port, query, or fragment.")
     target_host = parsed.hostname.lower()
     api_base = f"https://api.cloudflare.com/client/v4/accounts/{urllib.parse.quote(account_id, safe='')}/access/apps"
     apps = api_get(api_base + "?per_page=1000", token).get("result", [])
@@ -49,7 +53,13 @@ def main() -> None:
         fail("Configured Access application ID was not found.")
     app_domain = str(app.get("domain", "")).strip()
     domain_url = urllib.parse.urlparse("https://" + app_domain.lstrip("/"))
-    if domain_url.hostname is None or domain_url.hostname.lower() != target_host:
+    try:
+        app_port = domain_url.port
+    except ValueError:
+        fail("Cloudflare Access application domain contains an invalid port.")
+    if domain_url.hostname is None or domain_url.username or domain_url.password or app_port is not None or domain_url.query or domain_url.fragment:
+        fail("Cloudflare Access application domain is malformed or contains a port.")
+    if domain_url.hostname.lower() != target_host:
         fail("Access application hostname does not match the deployment target URL.")
     protected_path = domain_url.path.rstrip("/")
     target_path = parsed.path.rstrip("/")
