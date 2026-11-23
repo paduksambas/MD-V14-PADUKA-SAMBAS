@@ -52,8 +52,8 @@ python -m mdv14 \
   --dashboard "$OUTPUT_DIR/index.html" \
   --economic-countries ID,US,CN \
   --economic-start-year 2020 \
-  ${AIRTABLE_ARGS[@]} \
-  ${BPS_PUBLIC_ARGS[@]}
+  "${AIRTABLE_ARGS[@]}" \
+  "${BPS_PUBLIC_ARGS[@]}"
 
 test -s "$OUTPUT_DIR/index.html"
 if find "$OUTPUT_DIR" -type f ! -name 'index.html' -print -quit | grep -q .; then
