@@ -71,6 +71,45 @@ class RegionalIntelligenceTests(unittest.TestCase):
         self.assertNotIn("<script>", html)
         self.assertIn("&lt;img&gt;", html)
 
+    def test_airtable_pending_observations_are_visible_but_not_ranked(self):
+        pending = [
+            {
+                "region_code": "6101", "region_name": "Kabupaten Sambas",
+                "level": "regency_city", "indicator_code": "163",
+                "indicator_name": "Tingkat Pengangguran Terbuka (TPT)",
+                "period": "2024", "value": 4.99, "unit": "Persen",
+                "validation_status": "Belum ditinjau", "date_collected": "2026-11-23",
+            },
+            {
+                "region_code": "6101", "region_name": "Kabupaten Sambas",
+                "level": "regency_city", "indicator_code": "168",
+                "indicator_name": "EPR", "period": "2024", "value": 69.15,
+                "unit": "Persen", "validation_status": "Belum ditinjau",
+                "date_collected": "2026-11-23",
+            },
+        ]
+        result = build_regional_intelligence({"observations": []})
+        result["status"] = "pending_validation"
+        result["airtable"] = {
+            "base_name": "PADUKA — Data Regional BPS Sambas",
+            "snapshot_date": "2026-11-23",
+            "records_read": 2,
+            "valid_count": 0,
+            "pending_validation_count": 2,
+            "rejected_count": 0,
+            "pending_observations": pending,
+        }
+
+        html = render_regional_intelligence_html(result)
+
+        self.assertIn("Observasi Airtable", html)
+        self.assertIn("Kabupaten Sambas", html)
+        self.assertIn("4.99 Persen", html)
+        self.assertIn("69.15 Persen", html)
+        self.assertIn("Belum ditinjau", html)
+        self.assertIn("No comparable regional indicator observations loaded.", html)
+        self.assertIn("tidak dipakai dalam ranking", html.lower())
+
     def test_bps_dynamic_table_fetch_extracts_single_cell(self):
         from unittest.mock import patch
         config = {"tables": [{
