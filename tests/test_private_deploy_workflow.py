@@ -16,8 +16,10 @@ class PrivateDeployWorkflowSafetyTests(unittest.TestCase):
         self.assertIn("default: false", self.workflow)
         self.assertIn("if: ${{ !inputs.deploy_now }}", self.workflow)
 
-    def test_deployment_requires_explicit_opt_in(self):
-        self.assertIn("if: ${{ inputs.deploy_now }}", self.workflow)
+    def test_deployment_requires_explicit_opt_in_and_hostname_confirmation(self):
+        self.assertIn("alternate_hostnames_confirmed:", self.workflow)
+        self.assertIn("if: ${{ inputs.deploy_now && inputs.alternate_hostnames_confirmed }}", self.workflow)
+        self.assertIn("Require alternate-hostname privacy confirmation before publishing", self.workflow)
 
     def test_validation_reports_missing_secret_names_without_values(self):
         self.assertIn('missing=()', self.workflow)
