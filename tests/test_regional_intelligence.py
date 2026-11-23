@@ -187,5 +187,18 @@ class RegionalIntelligenceTests(unittest.TestCase):
                 load_bps_public_export(str(source), {"columns": {}})
 
 
+    def test_checked_in_sambas_bps_config_uses_confirmed_domain_variables_and_period(self):
+        import json
+        from pathlib import Path
+        config_path = Path(__file__).resolve().parents[1] / "examples" / "bps-regional-tables.json"
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+        self.assertEqual(len(config["tables"]), 5)
+        self.assertEqual({item["domain_id"] for item in config["tables"]}, {"6101"})
+        self.assertEqual({item["period_id"] for item in config["tables"]}, {"124"})
+        self.assertEqual({item["period"] for item in config["tables"]}, {"2024"})
+        self.assertEqual({item["variable_id"] for item in config["tables"]}, {"105", "107", "108", "163", "168"})
+        self.assertTrue(all(item["region_name"] == "Kabupaten Sambas" for item in config["tables"]))
+        self.assertTrue(all(item["level"] == "regency_city" for item in config["tables"]))
+
 if __name__ == "__main__":
     unittest.main()
