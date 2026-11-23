@@ -12,14 +12,25 @@ mkdir -p "$OUTPUT_DIR"
 # accidental publication of leftover reports, databases, or previous build files.
 find "$OUTPUT_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 REPORT="$(mktemp -t mdv14-public-report-XXXXXX.json)"
-trap 'rm -f "$REPORT"' EXIT
+AIRTABLE_EXPORT="$(mktemp -t mdv14-airtable-bps-XXXXXX.json)"
+trap 'rm -f "$REPORT" "$AIRTABLE_EXPORT"' EXIT
+
+AIRTABLE_ARGS=()
+if [[ -n "${AIRTABLE_API_TOKEN:-}" ]]; then
+  python scripts/airtable_bps.py --export-valid "$AIRTABLE_EXPORT"
+  AIRTABLE_ARGS+=(--regional-data "$AIRTABLE_EXPORT")
+else
+  printf '{"observations": []}\\n' > "$AIRTABLE_EXPORT"
+  echo "Airtable BPS export skipped: AIRTABLE_API_TOKEN is not configured."
+fi
 
 python -m mdv14 \
   --feeds examples/feeds.sample.json \
   --output "$REPORT" \
   --dashboard "$OUTPUT_DIR/index.html" \
   --economic-countries ID,US,CN \
-  --economic-start-year 2020
+  --economic-start-year 2020 \
+  "${AIRTABLE_ARGS[@]}"
 
 test -s "$OUTPUT_DIR/index.html"
 # Keep report JSON and databases out of the publishable directory.
