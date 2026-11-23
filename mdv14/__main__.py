@@ -20,7 +20,7 @@ from .public_assets import fetch_public_asset_data
 from .commodity_data import fetch_world_bank_commodity_data
 from .indonesia_intelligence import build_indonesia_economic_intelligence
 from .regional_intelligence import build_regional_intelligence, fetch_bps_region_catalog, fetch_bps_regional_tables, load_bps_public_export
-from .airtable_regional import load_airtable_regional_snapshot
+from .airtable_regional import load_airtable_regional_snapshot, apply_airtable_validation_status
 
 
 def main() -> int:
@@ -164,9 +164,9 @@ def main() -> int:
             "pending_observations",
         )
     }
-    if (report["regional_intelligence"].get("status") == "no_data"
-            and airtable_result.get("pending_validation_count", 0) > 0):
-        report["regional_intelligence"]["status"] = "pending_validation"
+    report["regional_intelligence"] = apply_airtable_validation_status(
+        report["regional_intelligence"], airtable_result
+    )
     report["regional_intelligence"]["public_export"] = {key: public_export_result.get(key) for key in ("status", "file_name", "file_sha256", "source_url", "format", "rows_read", "observation_count", "rejected_rows")}
     try:
         report["fred_market_data"] = fetch_fred_market_data(
