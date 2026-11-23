@@ -195,6 +195,8 @@ def sync_bps_observations(
             same_value = old_value is not None and math.isclose(old_value, value, rel_tol=1e-9, abs_tol=1e-9)
             old_status = str(old_fields.get("Status Validasi") or PENDING_STATUS)
             base_fields["Status Validasi"] = old_status if same_value else PENDING_STATUS
+            if same_value:
+                unchanged += 1
             updates.append({"id": old["id"], "fields": base_fields})
         else:
             creates.append({"fields": base_fields})
