@@ -72,7 +72,8 @@ class CloudflareAccessVerifierTests(unittest.TestCase):
         api_get.return_value = {"success": True, "result": [APP]}
         with self.assertRaises(SystemExit):
             verifier.main()
-        api_get.assert_not_called()
+        self.assertEqual(api_get.call_count, 1)
+        self.assertIn("/access/apps?per_page=100", api_get.call_args.args[0])
 
     @patch("scripts.verify_cloudflare_access.api_get")
     def test_rejects_empty_policy_list(self, api_get):
