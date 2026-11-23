@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "source": "Airtable",
+  "base_name": "PADUKA — Data Regional BPS Sambas",
+  "table_name": "Observasi Regional",
+  "snapshot_date": "2026-11-23",
+  "source_note": "Snapshot dibaca dari Airtable. Nilai dengan Status Validasi selain 'Valid' ditampilkan dalam antrean tinjauan dan tidak dipakai untuk ranking/perbandingan.",
+  "observations": [
+    {
+      "region_code": "6101",
+      "region_name": "Kabupaten Sambas",
+      "level": "regency_city",
+      "province_code": "",
+      "indicator_code": "163",
+      "indicator_name": "Tingkat Pengangguran Terbuka (TPT)",
+      "period": "2024",
+      "value": 4.99,
+      "unit": "Persen",
+      "source": "BPS WebAPI",
+      "source_url": "https://webapi.bps.go.id/documentation/",
+      "date_collected": "2026-11-23",
+      "validation_status": "Belum ditinjau",
+      "airtable_record_created_at": "2026-11-23T14:34:45.000Z",
+      "note": "BPS WebAPI mengembalikan satu sel numerik yang tidak ambigu. Tetap perlu ditinjau terhadap publikasi/tabel BPS asli sebelum dipakai sebagai dasar keputusan."
+    },
+    {
+      "region_code": "6101",
+      "region_name": "Kabupaten Sambas",
+      "level": "regency_city",
+      "province_code": "",
+      "indicator_code": "168",
+      "indicator_name": "Rasio Penduduk Umur 15 Tahun ke Atas yang Bekerja Terhadap Jumlah Penduduk (EPR)",
+      "period": "2024",
+      "value": 69.15,
+      "unit": "Persen",
+      "source": "BPS WebAPI",
+      "source_url": "https://webapi.bps.go.id/documentation/",
+      "date_collected": "2026-11-23",
+      "validation_status": "Belum ditinjau",
+      "airtable_record_created_at": "2026-11-23T14:34:45.000Z",
+      "note": "BPS WebAPI mengembalikan satu sel numerik yang tidak ambigu. Tetap perlu ditinjau terhadap publikasi/tabel BPS asli sebelum dipakai sebagai dasar keputusan."
+    }
+  ]
+}
