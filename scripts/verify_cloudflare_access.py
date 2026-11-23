@@ -30,6 +30,28 @@ def api_get(url: str, token: str) -> dict:
     return payload
 
 
+def api_list(url: str, token: str) -> list[dict]:
+    """Read a paginated Cloudflare list endpoint; reject malformed responses."""
+    items: list[dict] = []
+    page = 1
+    while page <= 100:
+        separator = "&" if "?" in url else "?"
+        payload = api_get(f"{url}{separator}per_page=100&page={page}", token)
+        result = payload.get("result")
+        if not isinstance(result, list) or any(not isinstance(item, dict) for item in result):
+            fail("Cloudflare API returned a malformed list response.")
+        items.extend(result)
+        info = payload.get("result_info") or {}
+        total_pages = info.get("total_pages", page) if isinstance(info, dict) else page
+        if not isinstance(total_pages, int) or total_pages < page:
+            fail("Cloudflare API returned invalid pagination metadata.")
+        if page >= total_pages:
+            return items
+        page += 1
+    fail("Cloudflare API pagination exceeded the safety limit.")
+    return []
+
+
 def main() -> None:
     token = os.environ.get("CLOUDFLARE_API_TOKEN", "").strip()
     account_id = os.environ.get("CLOUDFLARE_ACCOUNT_ID", "").strip()
@@ -45,12 +67,18 @@ def main() -> None:
         fail("PADUKA_ACCESS_URL contains an invalid port.")
     if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password or access_port is not None or parsed.query or parsed.fragment:
         fail("PADUKA_ACCESS_URL must be a clean HTTPS URL without credentials, port, query, or fragment.")
+
     target_host = parsed.hostname.lower()
-    api_base = f"https://api.cloudflare.com/client/v4/accounts/{urllib.parse.quote(account_id, safe='')}/access/apps"
-    apps = api_get(api_base + "?per_page=1000", token).get("result", [])
+    account_path = (
+        "https://api.cloudflare.com/client/v4/accounts/"
+        + urllib.parse.quote(account_id, safe="")
+        + "/access/apps"
+    )
+    apps = api_list(account_path, token)
     app = next((item for item in apps if str(item.get("id", "")) == app_id), None)
     if not app:
         fail("Configured Access application ID was not found.")
+
     app_domain = str(app.get("domain", "")).strip()
     domain_url = urllib.parse.urlparse("https://" + app_domain.lstrip("/"))
     try:
@@ -67,9 +95,14 @@ def main() -> None:
         fail("Deployment URL path is outside the Access application protected path.")
     if app.get("type") != "self_hosted":
         fail("Target Access application is not a self-hosted application.")
-    policies = app.get("policies")
-    if not isinstance(policies, list) or not policies:
-        fail("Access application has no embedded policies to verify.")
+
+    # Policies are fetched from their documented per-application endpoint rather
+    # than assuming the applications-list response embeds a complete policy set.
+    policy_path = account_path + "/" + urllib.parse.quote(app_id, safe="") + "/policies"
+    policies = api_list(policy_path, token)
+    if not policies:
+        fail("Access application has no policies to verify.")
+
     allowed_owner_policies = 0
     for policy in policies:
         decision = str(policy.get("decision", "")).lower()

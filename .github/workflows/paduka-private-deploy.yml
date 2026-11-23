@@ -4,7 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       deploy_now:
-        description: "Deploy to Cloudflare Pages only after the Access verification succeeds."
+        description: "Deploy only after Access verification and alternate-hostname privacy checks."
+        required: true
+        type: boolean
+        default: false
+      alternate_hostnames_confirmed:
+        description: "Confirm pages.dev and all preview URLs are disabled or separately protected by owner-only Access."
         required: true
         type: boolean
         default: false
@@ -81,6 +86,11 @@ jobs:
           PADUKA_ACCESS_URL: ${{ secrets.PADUKA_ACCESS_URL }}
           PADUKA_OWNER_EMAIL: ${{ secrets.PADUKA_OWNER_EMAIL }}
         run: python scripts/verify_cloudflare_access.py
+      - name: Require alternate-hostname privacy confirmation before publishing
+        if: ${{ inputs.deploy_now && !inputs.alternate_hostnames_confirmed }}
+        run: |
+          echo "::error title=Alternate hostnames not confirmed::Disable pages.dev and preview URLs or protect them with owner-only Cloudflare Access before deployment."
+          exit 1
       - name: Confirm preflight-only mode
         if: ${{ !inputs.deploy_now }}
         run: |
@@ -89,7 +99,7 @@ jobs:
           echo "Before deploying, ensure the project's pages.dev and preview URLs are disabled or separately protected by owner-only Access."
 
       - name: Deploy behind verified Cloudflare Access
-        if: ${{ inputs.deploy_now }}
+        if: ${{ inputs.deploy_now && inputs.alternate_hostnames_confirmed }}
         uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
