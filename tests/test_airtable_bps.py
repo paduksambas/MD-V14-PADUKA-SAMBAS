@@ -282,6 +282,25 @@ class AirtableBpsSyncTests(unittest.TestCase):
         self.assertEqual(result["rejected"], 1)
         self.assertEqual(payload, {"observations": []})
 
+    def test_checked_in_airtable_dashboard_fallback_snapshot_keeps_pending_rows(self):
+        root = Path(__file__).resolve().parents[1]
+        snapshot = json.loads(
+            (root / "examples" / "airtable-bps-dashboard.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(snapshot["source"], "Airtable")
+        self.assertEqual(snapshot["status"], "pending_validation")
+        self.assertEqual(snapshot["valid_count"], 0)
+        self.assertEqual(snapshot["pending_validation_count"], 2)
+        self.assertEqual(snapshot["observations"], [])
+        self.assertEqual(
+            {item["indicator_code"] for item in snapshot["pending_observations"]},
+            {"163", "168"},
+        )
+        self.assertEqual(
+            {item["validation_status"] for item in snapshot["pending_observations"]},
+            {"Belum ditinjau"},
+        )
+
     def test_api_error_message_does_not_expose_token(self):
         token = "DO_NOT_PRINT_THIS_SECRET"
         with patch.object(airtable_bps.urllib.request, "urlopen", side_effect=airtable_bps.urllib.error.HTTPError(
