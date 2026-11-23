@@ -37,19 +37,8 @@ jobs:
           test -s public/index.html
           test "$(find public -type f | wc -l)" -eq 1
           test "$(find public -type f -name '*.json' | wc -l)" -eq 0
-      - name: Verify Pages administration credential
-        env:
-          PAGES_TOKEN: ${{ secrets.PAGES_TOKEN }}
-        run: |
-          if [ -z "$PAGES_TOKEN" ]; then
-            echo "::error title=Missing PAGES_TOKEN::Add a repository Actions secret named PAGES_TOKEN. It must be a fine-grained PAT for this repository with Administration: write, Pages: write, and Contents: read."
-            exit 1
-          fi
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-        with:
-          token: ${{ secrets.PAGES_TOKEN }}
-          enablement: true
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
