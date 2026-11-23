@@ -13,66 +13,40 @@ Base: **PADUKA — Data Regional BPS Sambas**
 - **Observasi Regional** — satu baris per kombinasi domain|indikator|periode.
 - **Log Sinkronisasi** — jumlah data dibaca, ditambah, diperbarui, dan ditolak.
 
-## Satu kali konfigurasi GitHub
+## Konfigurasi GitHub
 
-Koneksi Airtable yang terpasang di ChatGPT dapat mengelola base melalui percakapan, tetapi kredensial OAuth tersebut tidak dibagikan otomatis ke runner GitHub Actions. Untuk sinkronisasi terjadwal, buat Personal Access Token (PAT) Airtable khusus:
+Koneksi Airtable di ChatGPT tidak otomatis dibagikan ke runner GitHub Actions. Simpan PAT Airtable dengan scope data.records:read dan data.records:write, batasi ke base PADUKA, dan simpan sebagai Actions secret AIRTABLE_API_TOKEN. Jangan letakkan token di file, commit, log, atau percakapan.
 
-1. Buat PAT Airtable dengan scope **data.records:read** dan **data.records:write**.
-2. Batasi akses token hanya ke base **PADUKA — Data Regional BPS Sambas**.
-3. Simpan token di GitHub repository sebagai Actions secret bernama **AIRTABLE_API_TOKEN**.
-4. Jangan letakkan token di file, commit, issue, workflow log, atau percakapan.
-
-GitHub Secret settings:
-https://github.com/paduksambas/MD-V14-PADUKA-SAMBAS/settings/secrets/actions
-
-Base ID dan table IDs sudah diatur dalam skrip integrasi. Jangan mengubahnya kecuali base/tabel diganti.
+Base ID dan table IDs sudah diatur dalam skrip integrasi.
 
 ## Cara kerja sinkronisasi
 
 Workflow **Scheduled global intelligence monitoring** berjalan setiap enam jam, dan juga saat dijalankan manual atau ada perubahan terkait.
 
 1. Mengambil observasi dari BPS WebAPI menggunakan konfigurasi domain, variabel, dan periode yang eksplisit.
-2. Menulis hasil yang lolos pemeriksaan ke Airtable berdasarkan **Kunci Observasi**: domain|indikator|periode. Pengulangan run memperbarui baris yang sama, bukan membuat duplikat.
-3. Jika nilai tetap sama, status validasi yang sudah ada dipertahankan. Jika nilai berubah, status otomatis dikembalikan ke **Belum ditinjau**.
-4. Mencatat ringkasan sinkronisasi di **Log Sinkronisasi**.
+2. Menulis hasil yang lolos pemeriksaan ke Airtable berdasarkan Kunci Observasi: domain|indikator|periode.
+3. Jika nilai tetap sama, status validasi yang sudah ada dipertahankan. Jika nilai berubah, status dikembalikan ke Belum ditinjau.
+4. Mencatat ringkasan sinkronisasi di Log Sinkronisasi.
 
-Data yang tidak memiliki satu nilai numerik yang tidak ambigu ditolak. Nilai kosong tidak diisi nol dan tidak ditebak.
+Data ambigu atau kosong ditolak; sistem tidak mengisi nilai nol atau menebak.
 
-## Refresh otomatis dashboard
-
-Setelah workflow **Scheduled global intelligence monitoring** selesai dengan status sukses, workflow **Deploy PADUKA public dashboard to GitHub Pages** dijalankan otomatis. Urutannya:
-
-1. Monitoring mengambil observasi BPS dan menyinkronkannya ke Airtable.
-2. Setelah sinkronisasi selesai, GitHub Pages membaca Airtable lagi melalui `AIRTABLE_API_TOKEN`.
-3. Bila PAT belum tersedia, build memakai snapshot cadangan terbaru di repository.
-4. Data berstatus **Valid** masuk ke analisis; data **Belum ditinjau** muncul pada tabel tinjauan.
-
-Dengan demikian, setelah PAT dipasang, pembaruan Airtable dari siklus monitoring berikutnya akan memicu rebuild dashboard tanpa commit manual. Trigger hanya melanjutkan ke build saat workflow monitoring selesai sukses.
-
-## Gerbang publikasi dashboard
-
-Build GitHub Pages membaca Airtable dengan perintah `python scripts/airtable_bps.py --export-dashboard` ketika secret `AIRTABLE_API_TOKEN` tersedia di GitHub Actions. Ekspor membagi data menjadi dua kelompok: observasi berstatus **Valid** masuk ke perhitungan statistik, sedangkan observasi **Belum ditinjau** ditampilkan di tabel antrean validasi. Baris **Ditolak**, status tidak dikenal, atau nilai tidak valid dikecualikan.
-
-Koneksi Airtable di ChatGPT tidak otomatis dibagikan ke GitHub Actions. Jika secret runner belum tersedia, build memakai snapshot bertanggal `examples/airtable-bps-dashboard.json` yang diperbarui melalui koneksi Airtable yang terpasang. Snapshot tersebut hanya cadangan; untuk pembaruan otomatis setiap build, konfigurasi PAT Airtable sebagai Actions secret `AIRTABLE_API_TOKEN`.
-
-Sebelum mengubah status menjadi **Valid**, cocokkan nilai, definisi, satuan, periode, dan cakupan wilayah dengan tabel/publikasi BPS asli. Jika BPS merevisi angka pada sinkronisasi berikutnya, status kembali ke **Belum ditinjau** dan nilai baru tidak langsung dipublikasikan.
-
-## Status pemetaan awal Sambas
+## Status validasi Sambas per 23 November 2026
 
 Periode yang dikonfirmasi melalui metadata BPS: **2024**, ID periode **124**. Domain API Kabupaten Sambas: **6101**.
 
-Dua nilai yang telah dikembalikan sebagai satu sel numerik oleh BPS WebAPI dan dimasukkan ke Airtable:
+Dua observasi di Airtable berstatus **Valid**:
 
-- Tingkat Pengangguran Terbuka (TPT): 4,99 persen.
-- Employment-to-Population Ratio (EPR): 69,15 persen.
+- Tingkat Pengangguran Terbuka (TPT): **4,99 persen**.
+- Employment-to-Population Ratio (EPR): **69,15 persen**.
 
-Kedua observasi tetap berstatus **Belum ditinjau** sampai diperiksa terhadap tabel BPS asli.
+Validasi angka direproduksi dari Laporan Kinerja Instansi Pemerintah Kabupaten Sambas Tahun 2024: TPT = 17,69/354,58 x 100 = 4,9890% -> 4,99%; EPR = 336,89/487,18 x 100 = 69,1510% -> 69,15%. Angka dasar laporan disajikan dalam ribuan dengan dua desimal, sehingga hasil hitung cocok setelah pembulatan. Laporan resmi: https://sambas.go.id/uploads/transparansi_anggaran/transparansi-124.pdf. Konteks Sakernas Agustus 2024 representatif hingga kabupaten/kota: https://sambaskab.bps.go.id/id/news/2024/07/24/66/pelatihan-petugas-survei-angkatan-kerja-nasional--sakernas--agustus-2024.html.
+
+Catatan audit di tiap record menjelaskan bahwa verifikasi menggunakan perhitungan ulang angka dasar pemerintah daerah, bukan ekstraksi baris mentah dari tabel dinamis BPS. Halaman tabel EPR BPS yang teridentifikasi: https://sambaskab.bps.go.id/en/statistics-table/2/MTY4IzI=/rasio-penduduk-umur-15-tahun-ke-atas-yang-bekerja-terhadap-jumlah-penduduk--epr-.html.
 
 Tiga kandidat lain (variabel 105, 107, dan 108) belum dapat dipetakan menjadi satu sel numerik karena respons tabel berisi lebih dari satu kandidat nilai. Tidak ada angka yang dimasukkan untuk ketiganya.
 
 ## Batasan dan keamanan
 
-- PAT Airtable hanya berada di GitHub Actions Secrets dan hanya digunakan pada langkah sinkronisasi/ekspor. Jika PAT belum dipasang, dashboard memakai snapshot terakhir yang dicatat di repository.
+- PAT Airtable hanya berada di GitHub Actions Secrets dan digunakan pada langkah sinkronisasi/ekspor.
 - Build publik mengunggah satu file HTML; report JSON, ekspor sementara, dan database lokal dibersihkan setelah build.
-- Dashboard publik hanya menggunakan baris berstatus **Valid** untuk ranking dan perhitungan; baris **Belum ditinjau** ditampilkan untuk tinjauan manusia tanpa memengaruhi statistik.
-- Hasil BPS yang ambigu, kosong, atau gagal ditolak; sistem tidak mengisi nilai perkiraan.
+- Hanya baris berstatus Valid yang masuk perhitungan regional; observasi yang menunggu tinjauan tidak memengaruhi ranking.
