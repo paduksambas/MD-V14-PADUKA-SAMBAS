@@ -40,6 +40,10 @@ jobs:
           test -n "$CF_ACCESS_APP_ID" || { echo "Missing Cloudflare Access application ID." >&2; exit 1; }
           test -n "$ACCESS_URL" || { echo "Missing PADUKA Access URL." >&2; exit 1; }
           test -n "$OWNER_EMAIL" || { echo "Missing PADUKA owner email." >&2; exit 1; }
+          if ! [[ "$CF_PROJECT_NAME" =~ ^[a-z0-9][a-z0-9-]{0,57}$ ]]; then
+            echo "Invalid Cloudflare Pages project name; expected 1-58 lowercase letters, digits, or hyphens." >&2
+            exit 1
+          fi
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
