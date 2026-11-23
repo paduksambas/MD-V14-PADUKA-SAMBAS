@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/monitoring.yml'
       - 'examples/feeds.sample.json'
+      - 'examples/airtable-bps-dashboard.json'
       - 'mdv14/knowledge_graph.py'
       - 'mdv14/analyst_report.py'
       - 'mdv14/command_center.py'
