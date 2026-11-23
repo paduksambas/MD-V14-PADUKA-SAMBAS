@@ -16,7 +16,7 @@ This public Pages deployment is separate from the private scheduled monitoring w
 - A deployment occurs only when an authorized maintainer explicitly sets `deploy_now=true` after the Cloudflare Access owner-only policy check passes.
 - The Cloudflare Wrangler Action is pinned to an immutable commit SHA; Dependabot remains configured to monitor GitHub Actions dependencies.
 - The configured Pages project name and Access URL are validated before deployment. No secrets are printed in workflow summaries.
-- The private deployment is separate from the public GitHub Pages snapshot. Never place confidential data in the public dashboard inputs or repository.
+- The private deployment is separate from the public GitHub Pages snapshot. Never place confidential data in the public dashboard inputs or repository. See [the Cloudflare private deployment checklist](docs/PRIVATE-CLOUDFLARE-DEPLOYMENT.md) before the first deployment.
 
 ## Build 4.5 Dashboard Quick Navigation
 The offline dashboard now provides responsive quick-navigation links to WIB/status, Command Center, report overview, monitoring, trend review, economy/markets, and Indonesia/regional panels. This is a navigation/layout improvement; it adds no data feeds and does not change report freshness or hosting/privacy configuration. See docs/BUILD-4.5-DASHBOARD-QUICK-NAVIGATION.md.
