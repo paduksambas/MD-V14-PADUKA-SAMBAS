@@ -10,6 +10,14 @@ This public Pages deployment is separate from the private scheduled monitoring w
 
 ---
 
+## Build 4.6 Cloudflare private deployment safeguards
+
+- The Cloudflare Pages private deployment workflow is manual and defaults to verification-only mode.
+- A deployment occurs only when an authorized maintainer explicitly sets `deploy_now=true` after the Cloudflare Access owner-only policy check passes.
+- The Cloudflare Wrangler Action is pinned to an immutable commit SHA; Dependabot remains configured to monitor GitHub Actions dependencies.
+- The configured Pages project name and Access URL are validated before deployment. No secrets are printed in workflow summaries.
+- The private deployment is separate from the public GitHub Pages snapshot. Never place confidential data in the public dashboard inputs or repository.
+
 ## Build 4.5 Dashboard Quick Navigation
 The offline dashboard now provides responsive quick-navigation links to WIB/status, Command Center, report overview, monitoring, trend review, economy/markets, and Indonesia/regional panels. This is a navigation/layout improvement; it adds no data feeds and does not change report freshness or hosting/privacy configuration. See docs/BUILD-4.5-DASHBOARD-QUICK-NAVIGATION.md.
 
@@ -30,7 +38,7 @@ python -m mdv14 --feeds examples/feeds.sample.json \
   --economic-countries ID,US,CN
 ```
 
-The HTML is self-contained and can be opened on a computer, tablet, or phone after transferring the file securely. Do not place private reports in a public repository or public hosting service. A remotely accessible password-protected dashboard requires a private repository/hosting arrangement and explicit access-control configuration; it is not enabled by this build.
+The HTML is self-contained and can be opened on a computer, tablet, or phone after transferring the file securely. Do not place private reports in a public repository or public hosting service. A separate Cloudflare Pages private-deployment workflow is available at `.github/workflows/paduka-private-deploy.yml`. It is independent of public GitHub Pages and checks the configured Cloudflare Access owner-only policy before any deployment. Manual runs default to preflight-only; publishing requires the explicit `deploy_now=true` input. A successful code review does not prove that repository secrets are present: an authorized maintainer must run the preflight and confirm it passes.
 
 The scheduled GitHub Actions collection remains every six hours. Build 4.3 further suppresses routine CLI metrics from public logs, uses a generic workflow summary, and disables persistent Actions cache storage. A live clock does not mean the underlying sources are real-time. Source statuses are displayed as reported by their adapters; missing or unconfigured providers are not presented as current data.
 ## Build 4.1 BPS Public Export Import (No API Key)
