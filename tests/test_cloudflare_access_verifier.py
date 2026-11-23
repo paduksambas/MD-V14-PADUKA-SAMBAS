@@ -76,6 +76,26 @@ class CloudflareAccessVerifierTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.run_verifier(app, access_url="https://private.example.com/dashboard?share=1")
 
+    def test_access_url_custom_port_is_rejected(self):
+        app = app_with_policy()
+        with self.assertRaises(SystemExit):
+            self.run_verifier(app, access_url="https://private.example.com:8443/dashboard")
+
+    def test_access_app_custom_port_is_rejected(self):
+        app = app_with_policy(domain="private.example.com:8443")
+        with self.assertRaises(SystemExit):
+            self.run_verifier(app)
+
+    def test_multiple_owner_allow_policies_are_rejected(self):
+        app = app_with_policy()
+        app["policies"].append({
+            "decision": "allow",
+            "include": [{"email": {"email": OWNER}}],
+            "exclude": [],
+        })
+        with self.assertRaises(SystemExit):
+            self.run_verifier(app)
+
     def test_email_rule_with_extra_condition_is_rejected(self):
         app = app_with_policy(include=[{"email": {"email": OWNER, "domain": "example.com"}}])
         with self.assertRaises(SystemExit):
