@@ -207,6 +207,65 @@ class AirtableBpsSyncTests(unittest.TestCase):
         self.assertEqual(payload["observations"][0]["value"], 4.99)
         self.assertEqual(payload["observations"][0]["indicator_code"], "163")
 
+    def test_dashboard_export_separates_valid_and_pending_rows(self):
+        records = [
+            airtable_record("recValid", {
+                "Status Validasi": "Valid", "Kode Domain BPS": "6101",
+                "Nama Wilayah": "Kabupaten Sambas", "Level Wilayah": "regency_city",
+                "Kode Indikator": "163", "Nama Indikator": "Tingkat Pengangguran Terbuka (TPT)",
+                "Periode": "2024", "Nilai": 4.99, "Satuan": "Persen",
+                "Sumber": "BPS WebAPI", "Tanggal Diambil": "2026-11-23",
+            }),
+            airtable_record("recPending", {
+                "Status Validasi": "Belum ditinjau", "Kode Domain BPS": "6101",
+                "Nama Wilayah": "Kabupaten Sambas", "Level Wilayah": "regency_city",
+                "Kode Indikator": "168", "Nama Indikator": "EPR",
+                "Periode": "2024", "Nilai": 69.15, "Satuan": "Persen",
+                "Sumber": "BPS WebAPI", "Tanggal Diambil": "2026-11-23",
+            }),
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "dashboard.json"
+            with patch.object(airtable_bps, "_list_all_records", return_value=records):
+                result = airtable_bps.export_dashboard_snapshot("fake-token", output)
+            payload = json.loads(output.read_text(encoding="utf-8"))
+
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["records_read"], 2)
+        self.assertEqual(result["exported"], 1)
+        self.assertEqual(result["pending_validation"], 1)
+        self.assertEqual(payload["source"], "Airtable")
+        self.assertEqual(payload["observations"][0]["indicator_code"], "163")
+        self.assertEqual(payload["pending_observations"][0]["indicator_code"], "168")
+        self.assertEqual(payload["pending_observations"][0]["value"], 69.15)
+        self.assertEqual(payload["pending_observations"][0]["validation_status"], "Belum ditinjau")
+
+    def test_dashboard_export_reports_pending_validation_when_no_rows_are_valid(self):
+        records = [
+            airtable_record("recPending1", {
+                "Status Validasi": "Belum ditinjau", "Kode Domain BPS": "6101",
+                "Nama Wilayah": "Kabupaten Sambas", "Level Wilayah": "regency_city",
+                "Kode Indikator": "163", "Nama Indikator": "TPT",
+                "Periode": "2024", "Nilai": 4.99,
+            }),
+            airtable_record("recPending2", {
+                "Status Validasi": "Belum ditinjau", "Kode Domain BPS": "6101",
+                "Nama Wilayah": "Kabupaten Sambas", "Level Wilayah": "regency_city",
+                "Kode Indikator": "168", "Nama Indikator": "EPR",
+                "Periode": "2024", "Nilai": 69.15,
+            }),
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "dashboard.json"
+            with patch.object(airtable_bps, "_list_all_records", return_value=records):
+                result = airtable_bps.export_dashboard_snapshot("fake-token", output)
+            payload = json.loads(output.read_text(encoding="utf-8"))
+
+        self.assertEqual(result["status"], "pending_validation")
+        self.assertEqual(payload["status"], "pending_validation")
+        self.assertEqual(payload["observations"], [])
+        self.assertEqual(len(payload["pending_observations"]), 2)
+
     def test_export_skips_valid_rows_with_invalid_values(self):
         records = [airtable_record("recInvalid", {
             "Status Validasi": "Valid", "Kode Domain BPS": "6101",

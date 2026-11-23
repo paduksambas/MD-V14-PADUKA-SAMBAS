@@ -15,14 +15,8 @@ REPORT="$(mktemp -t mdv14-public-report-XXXXXX.json)"
 AIRTABLE_EXPORT="$(mktemp -t mdv14-airtable-bps-XXXXXX.json)"
 trap 'rm -f "$REPORT" "$AIRTABLE_EXPORT"' EXIT
 
-AIRTABLE_ARGS=()
-if [[ -n "${AIRTABLE_API_TOKEN:-}" ]]; then
-  python scripts/airtable_bps.py --export-valid "$AIRTABLE_EXPORT"
-  AIRTABLE_ARGS+=(--regional-data "$AIRTABLE_EXPORT")
-else
-  printf '{"observations": []}\n' > "$AIRTABLE_EXPORT"
-  echo "Airtable BPS export skipped: AIRTABLE_API_TOKEN is not configured."
-fi
+AIRTABLE_ARGS=(--regional-data "$AIRTABLE_EXPORT")
+python scripts/airtable_bps.py --export-dashboard "$AIRTABLE_EXPORT"
 
 python -m mdv14 \
   --feeds examples/feeds.sample.json \

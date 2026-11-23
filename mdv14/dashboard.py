@@ -195,6 +195,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         ("commodity_data", "Komoditas"),
         ("economic_data", "World Bank"),
         ("regional_intelligence", "Data regional BPS"),
+        ("airtable_regional_data", "Airtable BPS"),
         ("bps_regional_tables", "Konektor tabel BPS"),
         ("bps_public_export", "Impor ekspor BPS"),
         ("fred_market_data", "FRED"),

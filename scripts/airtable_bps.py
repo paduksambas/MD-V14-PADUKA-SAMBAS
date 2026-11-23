@@ -275,6 +275,89 @@ def export_validated_observations(
     return {"exported": len(observations), "rejected": rejected, "status": "available" if observations else "no_validated_records"}
 
 
+def export_dashboard_snapshot(
+    token: str,
+    output_path: str | Path,
+    *,
+    base_id: str = DEFAULT_BASE_ID,
+) -> dict[str, Any]:
+    """Export valid rows and a separate human-review queue for the dashboard."""
+    records = _list_all_records(token, base_id, OBSERVATIONS_TABLE_ID)
+    observations: list[dict[str, Any]] = []
+    pending_observations: list[dict[str, Any]] = []
+    rejected = 0
+
+    for row in records:
+        fields = row.get("fields") or {}
+        validation = str(fields.get("Status Validasi") or "").strip()
+        if validation not in {VALID_STATUS, PENDING_STATUS}:
+            rejected += 1
+            continue
+        value = _valid_number(fields.get("Nilai"))
+        required = (
+            fields.get("Kode Domain BPS"), fields.get("Nama Wilayah"),
+            fields.get("Level Wilayah"), fields.get("Kode Indikator"),
+            fields.get("Nama Indikator"), fields.get("Periode"),
+        )
+        if value is None or any(not str(part or "").strip() for part in required):
+            rejected += 1
+            continue
+        item = {
+            "region_code": str(fields["Kode Domain BPS"]),
+            "region_name": str(fields["Nama Wilayah"]),
+            "level": str(fields["Level Wilayah"]),
+            "province_code": str(fields.get("Kode Provinsi") or ""),
+            "indicator_code": str(fields["Kode Indikator"]),
+            "indicator_name": str(fields["Nama Indikator"]),
+            "period": str(fields["Periode"]),
+            "value": value,
+            "unit": str(fields.get("Satuan") or ""),
+            "source": str(fields.get("Sumber") or "BPS WebAPI"),
+            "source_url": str(fields.get("URL Sumber") or "https://webapi.bps.go.id/documentation/"),
+            "date_collected": str(fields.get("Tanggal Diambil") or ""),
+            "validation_status": validation,
+        }
+        if validation == VALID_STATUS:
+            observations.append(item)
+        else:
+            pending_observations.append(item)
+
+    valid_count = len(observations)
+    pending_count = len(pending_observations)
+    if valid_count and (pending_count or rejected):
+        status = "partial"
+    elif valid_count:
+        status = "available"
+    elif pending_count:
+        status = "pending_validation"
+    else:
+        status = "no_data"
+
+    payload = {
+        "source": "Airtable",
+        "base_name": "PADUKA — Data Regional BPS Sambas",
+        "table_name": "Observasi Regional",
+        "snapshot_date": date.today().isoformat(),
+        "status": status,
+        "records_read": len(records),
+        "valid_count": valid_count,
+        "pending_validation_count": pending_count,
+        "rejected_count": rejected,
+        "observations": observations,
+        "pending_observations": pending_observations,
+    }
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return {
+        "status": status,
+        "records_read": len(records),
+        "exported": valid_count,
+        "pending_validation": pending_count,
+        "rejected": rejected,
+    }
+
+
 def _write_sync_log(
     token: str,
     result: dict[str, Any],
@@ -315,16 +398,27 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Sync PADUKA BPS observations with Airtable.")
     parser.add_argument("--sync-report", help="Path to the private monitoring JSON report to sync to Airtable.")
     parser.add_argument("--export-valid", help="Write only Airtable records with Status Validasi=Valid to a JSON file.")
+    parser.add_argument("--export-dashboard", help="Write validated Airtable rows plus a pending-review queue for dashboard rendering.")
     args = parser.parse_args(argv)
-    if bool(args.sync_report) == bool(args.export_valid):
-        parser.error("choose exactly one of --sync-report or --export-valid")
+    if sum(bool(value) for value in (args.sync_report, args.export_valid, args.export_dashboard)) != 1:
+        parser.error("choose exactly one of --sync-report, --export-valid or --export-dashboard")
 
     token = os.environ.get("AIRTABLE_API_TOKEN", "").strip()
     base_id = os.environ.get("AIRTABLE_BASE_ID", DEFAULT_BASE_ID)
     if not token:
-        if args.export_valid:
-            Path(args.export_valid).parent.mkdir(parents=True, exist_ok=True)
-            Path(args.export_valid).write_text('{"observations": []}\n', encoding="utf-8")
+        output_path = args.export_dashboard or args.export_valid
+        if output_path:
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+            if args.export_dashboard:
+                empty = {
+                    "source": "Airtable", "base_name": "PADUKA — Data Regional BPS Sambas",
+                    "table_name": "Observasi Regional", "status": "not_configured",
+                    "records_read": 0, "valid_count": 0, "pending_validation_count": 0,
+                    "rejected_count": 0, "observations": [], "pending_observations": [],
+                }
+                Path(output_path).write_text(json.dumps(empty, ensure_ascii=False) + "\n", encoding="utf-8")
+            else:
+                Path(output_path).write_text('{"observations": []}\n', encoding="utf-8")
         print(json.dumps({"status": "skipped", "reason": "AIRTABLE_API_TOKEN is not configured"}))
         return 0
 
@@ -339,8 +433,11 @@ def main(argv: list[str] | None = None) -> int:
             except (RuntimeError, ValueError):
                 result["log_written"] = False
             print(json.dumps(result, ensure_ascii=False))
-        else:
+        elif args.export_valid:
             result = export_validated_observations(token, args.export_valid, base_id=base_id)
+            print(json.dumps(result, ensure_ascii=False))
+        else:
+            result = export_dashboard_snapshot(token, args.export_dashboard, base_id=base_id)
             print(json.dumps(result, ensure_ascii=False))
         return 0
     except (OSError, json.JSONDecodeError, RuntimeError, ValueError) as exc:

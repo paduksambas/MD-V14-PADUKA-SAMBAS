@@ -2,7 +2,7 @@
 
 ## Tujuan
 
-Airtable menjadi penyimpanan terpusat untuk observasi statistik regional BPS Sambas. GitHub Actions mengambil data dari BPS WebAPI, lalu menyinkronkannya ke Airtable. Dashboard publik hanya membaca baris yang sudah disetujui dengan status **Valid**.
+Airtable menjadi penyimpanan terpusat untuk observasi statistik regional BPS Sambas. GitHub Actions mengambil data dari BPS WebAPI, lalu menyinkronkannya ke Airtable. Dashboard publik mengambil baris Airtable melalui PAT khusus. Baris **Valid** masuk ke analisis regional; baris **Belum ditinjau** ditampilkan pada antrean tinjauan terpisah dan tidak masuk ke ranking atau perhitungan disparitas.
 
 ## Base dan tabel
 
@@ -40,7 +40,7 @@ Data yang tidak memiliki satu nilai numerik yang tidak ambigu ditolak. Nilai kos
 
 ## Gerbang publikasi dashboard
 
-Build GitHub Pages membaca Airtable dan mengekspor **hanya** observasi dengan status **Valid**. Baris **Belum ditinjau** atau **Ditolak** tidak ikut ke dashboard publik.
+Build GitHub Pages membaca Airtable dengan perintah `python scripts/airtable_bps.py --export-dashboard`. Ekspor membagi data menjadi dua kelompok: observasi berstatus **Valid** masuk ke perhitungan statistik, sedangkan observasi **Belum ditinjau** ditampilkan di tabel antrean validasi. Baris **Ditolak**, status tidak dikenal, atau nilai tidak valid dikecualikan.
 
 Sebelum mengubah status menjadi **Valid**, cocokkan nilai, definisi, satuan, periode, dan cakupan wilayah dengan tabel/publikasi BPS asli. Jika BPS merevisi angka pada sinkronisasi berikutnya, status kembali ke **Belum ditinjau** dan nilai baru tidak langsung dipublikasikan.
 
@@ -61,5 +61,5 @@ Tiga kandidat lain (variabel 105, 107, dan 108) belum dapat dipetakan menjadi sa
 
 - PAT Airtable hanya berada di GitHub Actions Secrets dan hanya digunakan pada langkah sinkronisasi/ekspor.
 - Build publik mengunggah satu file HTML; report JSON, ekspor sementara, dan database lokal dibersihkan setelah build.
-- Dashboard publik hanya menerima baris Airtable yang sudah ditandai **Valid**.
+- Dashboard publik hanya menggunakan baris berstatus **Valid** untuk ranking dan perhitungan; baris **Belum ditinjau** ditampilkan untuk tinjauan manusia tanpa memengaruhi statistik.
 - Hasil BPS yang ambigu, kosong, atau gagal ditolak; sistem tidak mengisi nilai perkiraan.

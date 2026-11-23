@@ -133,6 +133,24 @@ def main() -> int:
     combined_regional_input = {"observations": existing_rows + bps_table_result.get("observations", []) + public_export_result.get("observations", [])}
     report["bps_regional_tables"] = bps_table_result
     report["regional_intelligence"] = build_regional_intelligence(combined_regional_input, bps_catalog)
+    airtable_source = regional_input if isinstance(regional_input, dict) and regional_input.get("source") == "Airtable" else {}
+    pending_airtable = airtable_source.get("pending_observations", [])
+    pending_airtable = pending_airtable if isinstance(pending_airtable, list) else []
+    report["airtable_regional_data"] = {
+        key: airtable_source.get(key) for key in (
+            "source", "base_name", "table_name", "snapshot_date", "status",
+            "records_read", "valid_count", "pending_validation_count", "rejected_count",
+        )
+    }
+    report["regional_intelligence"]["airtable"] = {
+        key: airtable_source.get(key) for key in (
+            "source", "base_name", "table_name", "snapshot_date", "status",
+            "records_read", "valid_count", "pending_validation_count", "rejected_count",
+        )
+    }
+    report["regional_intelligence"]["airtable"]["pending_observations"] = pending_airtable
+    if report["regional_intelligence"].get("observation_count", 0) == 0 and pending_airtable:
+        report["regional_intelligence"]["status"] = "pending_validation"
     report["regional_intelligence"]["public_export"] = {key: public_export_result.get(key) for key in ("status", "file_name", "file_sha256", "source_url", "format", "rows_read", "observation_count", "rejected_rows")}
     try:
         report["fred_market_data"] = fetch_fred_market_data(
