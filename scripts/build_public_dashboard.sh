@@ -20,7 +20,7 @@ if [[ -n "${AIRTABLE_API_TOKEN:-}" ]]; then
   python scripts/airtable_bps.py --export-valid "$AIRTABLE_EXPORT"
   AIRTABLE_ARGS+=(--regional-data "$AIRTABLE_EXPORT")
 else
-  printf '{"observations": []}\\n' > "$AIRTABLE_EXPORT"
+  printf '{"observations": []}\n' > "$AIRTABLE_EXPORT"
   echo "Airtable BPS export skipped: AIRTABLE_API_TOKEN is not configured."
 fi
 
