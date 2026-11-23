@@ -142,7 +142,11 @@ jobs:
                           response_message = str(period_payload.get("message") or period_payload.get("error") or "").replace(key, "[REDACTED]")[:160] if isinstance(period_payload, dict) else ""
                           data_block = period_payload.get("data") if isinstance(period_payload, dict) else None
                           data_keys = sorted(str(item) for item in data_block[0].keys())[:20] if isinstance(data_block, list) and data_block and isinstance(data_block[0], dict) else []
-                          print("- " + title + " | period metadata not parsed; status " + response_status + " | response keys " + ",".join(response_keys) + " | data keys " + ",".join(data_keys) + " | message " + response_message)
+                          sample_rows = data_block[1] if isinstance(data_block, list) and len(data_block) > 1 and isinstance(data_block[1], list) else []
+                          sample_keys = sorted(str(item) for item in sample_rows[0].keys())[:30] if sample_rows and isinstance(sample_rows[0], dict) else []
+                          safe_fields = ("th_id", "period_id", "id", "th", "name", "title", "label", "year", "period", "tahun", "id_tahun", "period_name", "th_name")
+                          sample_fields = {str(k): str(v)[:80] for k, v in sample_rows[0].items() if str(k).lower() in safe_fields} if sample_rows and isinstance(sample_rows[0], dict) else {}
+                          print("- " + title + " | period metadata not parsed; status " + response_status + " | response keys " + ",".join(response_keys) + " | data keys " + ",".join(data_keys) + " | row keys " + ",".join(sample_keys) + " | sample fields " + json.dumps(sample_fields, ensure_ascii=False) + " | message " + response_message)
                   except Exception as period_exc:
                       print("- " + title + " | period lookup unavailable (" + type(period_exc).__name__ + ")")
               if not variables:
