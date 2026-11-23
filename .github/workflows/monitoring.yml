@@ -191,6 +191,19 @@ jobs:
               world_bank = report.get("economic_data", {})
               print("- BPS catalog: {} | domains: {}".format(bps.get("status", "unknown"), bps.get("region_count", 0)))
               print("- BPS tables: {} | requests: {} | observations: {} | failed: {}".format(tables.get("status", "unknown"), tables.get("request_count", 0), len(tables.get("observations", [])), tables.get("requests_failed", 0)))
+              observations = tables.get("observations", [])
+              print("\\n## Public BPS Sambas regional observations")
+              if observations:
+                  print("| Wilayah | Indikator | Periode | Nilai | Satuan |")
+                  print("|---|---|---:|---:|---|")
+                  for item in observations:
+                      print("| {} | {} | {} | {} | {} |".format(
+                          item.get("region_name", "—"), item.get("indicator_name", "—"),
+                          item.get("period", "—"), item.get("value", "—"), item.get("unit", "—")
+                      ))
+                  print("- Source: https://webapi.bps.go.id/documentation/")
+              else:
+                  print("- No BPS regional table observations returned in this run.")
               print("- FRED: {} | requests: {} | succeeded: {} | failed: {} | observations: {}".format(fred.get("status", "unknown"), fred.get("request_count", 0), fred.get("requests_succeeded", 0), fred.get("requests_failed", 0), fred.get("observation_count", 0)))
               print("- World Bank: {} | requests: {} | succeeded: {} | failed: {} | observations: {}".format(world_bank.get("status", "unknown"), world_bank.get("request_count", 0), world_bank.get("requests_succeeded", 0), world_bank.get("requests_failed", 0), world_bank.get("observation_count", 0)))
               print("\n## Build 1.9 live-data readiness")
@@ -204,7 +217,7 @@ jobs:
         run: |
           {
             echo "# MD V14 scheduled run"
-            echo "- Workflow execution completed; only aggregate provider-health metrics (status and counts) are published above. Detailed reports, raw observations, dashboards, and SQLite history remain private and are not uploaded."
+            echo "- Workflow execution completed; the summary publishes aggregate provider-health metrics and only the explicitly requested public BPS regional observations. RSS records, full reports, dashboards, and SQLite history remain transient and are not uploaded."
             echo "- Reports and dashboards remain transient on the runner and are not uploaded as artifacts."
             echo "- No persistent trend-history cache is created by this workflow."
           } >> "$GITHUB_STEP_SUMMARY"
