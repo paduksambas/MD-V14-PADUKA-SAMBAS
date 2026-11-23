@@ -175,18 +175,47 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     graph = report.get("knowledge_graph") or {}
     graph_nodes = graph.get("nodes", [])
     graph_edges = graph.get("edges", [])
-    graph_node_rows = "".join(
-        "<tr><td>" + _cell(item.get("label")) + "</td><td>" + _cell(item.get("type")) + "</td><td>" + _cell(", ".join(item.get("evidence_sources", []))) + "</td></tr>"
+    graph_type_labels = {
+        "company": "Perusahaan",
+        "country": "Negara",
+        "intergovernmental_organization": "Organisasi antarpemerintah",
+        "supranational": "Organisasi supranasional",
+        "organization": "Organisasi",
+        "person": "Orang",
+        "event": "Peristiwa",
+        "topic": "Topik",
+        "explicit_entity": "Entitas dari metadata",
+    }
+    graph_evidence_labels = {
+        "title_or_summary_alias": "Ditemukan dalam judul/ringkasan berita",
+        "explicit_metadata": "Dicantumkan dalam metadata sumber",
+        "source_record": "Berasal dari rekaman sumber",
+    }
+    graph_relation_labels = {
+        "mentions_entity": "Menyebut entitas",
+        "tagged_with_topic": "Diberi topik",
+        "declared_country": "Negara yang dicantumkan",
+        "shared_entity": "Entitas yang sama terdeteksi",
+        "shared_topic": "Topik yang sama terdeteksi",
+        "same_declared_country": "Negara yang sama dicantumkan",
+    }
+    graph_node_labels = {
+        str(item.get("id")): f"{item.get('label', '')} ({graph_type_labels.get(str(item.get('type') or ''), str(item.get('type') or 'Entitas').replace('_', ' ').capitalize())})"
         for item in graph_nodes
-    ) or "<tr><td colspan=\"3\">No recognized entities or graph nodes.</td></tr>"
+        if item.get("id")
+    }
+    graph_node_rows = "".join(
+        "<tr><td>" + _cell(item.get("label")) + "</td><td>" + _cell(graph_type_labels.get(str(item.get("type") or ""), str(item.get("type") or "Belum diklasifikasikan").replace("_", " ").capitalize())) + "</td><td>" + _cell(", ".join(graph_evidence_labels.get(str(source), str(source).replace("_", " ").capitalize()) for source in item.get("evidence_sources", []))) + "</td></tr>"
+        for item in graph_nodes
+    ) or "<tr><td colspan=\"3\">Belum ada entitas atau simpul yang terdeteksi.</td></tr>"
     graph_edge_rows = "".join(
-        "<tr><td>" + _cell(item.get("relation")) + "</td><td>" + _cell(item.get("source")) + "</td><td>" + _cell(item.get("target")) + "</td><td>" + _cell(", ".join(item.get("supporting_record_ids", []))) + "</td></tr>"
+        "<tr><td>" + _cell(graph_relation_labels.get(str(item.get("relation") or ""), str(item.get("relation") or "").replace("_", " ").capitalize())) + "</td><td>" + _cell(graph_node_labels.get(str(item.get("source")), str(item.get("source") or ""))) + "</td><td>" + _cell(graph_node_labels.get(str(item.get("target")), str(item.get("target") or ""))) + "</td><td>" + _cell(", ".join(str(record_id) for record_id in item.get("supporting_record_ids", []))) + "</td></tr>"
         for item in graph_edges
-    ) or "<tr><td colspan=\"4\">No graph relationships identified.</td></tr>"
+    ) or "<tr><td colspan=\"4\">Belum ada hubungan antarsimpul yang teridentifikasi.</td></tr>"
     graph_cards = "".join([
-        metric("Graph nodes", graph.get("nodes_total", 0), "Entity, event, topic and country nodes"),
-        metric("Graph edges", graph.get("edges_total", 0), "Discovery relationships"),
-        metric("Records with entities", graph.get("records_with_recognized_entities", 0), "Curated aliases or explicit metadata"),
+        metric("Jumlah simpul", graph.get("nodes_total", 0), "Entitas, peristiwa, topik, dan negara"),
+        metric("Hubungan terpetakan", graph.get("edges_total", 0), "Petunjuk keterkaitan untuk ditinjau"),
+        metric("Berita dengan entitas terdeteksi", graph.get("records_with_recognized_entities", 0), "Alias terkurasi atau metadata eksplisit"),
     ])
     monitoring = report.get("monitoring") or {}
     generated_at = monitoring.get("generated_at") or (report.get("command_center") or {}).get("generated_at") or ""
@@ -436,10 +465,10 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <section class="grid" id="overview">{cards}</section>
 <section class="panel" id="monitoring"><h2>Live monitoring · latest collection cycle</h2><div class="grid">{monitor_cards}</div><p class="muted">Cycle timestamp: {_cell(monitoring.get("generated_at", "Not available"))}. Feed health is collection status, not content verification. Scheduled runs execute only when the repository workflow runs.</p></section>
 <section class="panel"><h2>Multilingual source coverage</h2><div class="grid">{language_cards}</div><div class="table-wrap"><table><thead><tr><th>Declared language</th><th class="num">Records</th></tr></thead><tbody>{language_rows}</tbody></table></div><p class="muted">Language labels are supplied metadata. The bilingual research matcher is a limited lexical aid, not translation or automatic language detection.</p></section>
-<section class="panel"><h2>Cross-language knowledge graph</h2><div class="grid">{graph_cards}</div>
-<h3>Recognized nodes</h3><div class="table-wrap"><table><thead><tr><th>Node</th><th>Type</th><th>Evidence basis</th></tr></thead><tbody>{graph_node_rows}</tbody></table></div>
-<h3>Relationships for analyst review</h3><div class="table-wrap"><table><thead><tr><th>Relationship</th><th>Source node</th><th>Target node</th><th>Supporting records</th></tr></thead><tbody>{graph_edge_rows}</tbody></table></div>
-<p class="muted">Curated alias matches and shared metadata are discovery cues only. They do not establish factual truth, causality, influence, or source independence.</p></section>
+<section class="panel"><h2>Graf pengetahuan lintas bahasa</h2><div class="grid">{graph_cards}</div>
+<h3>Entitas dan istilah yang terdeteksi</h3><div class="table-wrap"><table><thead><tr><th>Entitas</th><th>Jenis</th><th>Dasar pengenalan</th></tr></thead><tbody>{graph_node_rows}</tbody></table></div>
+<h3>Hubungan untuk ditinjau</h3><div class="table-wrap"><table><thead><tr><th>Jenis hubungan</th><th>Simpul pertama</th><th>Simpul kedua</th><th>ID rekaman pendukung</th></tr></thead><tbody>{graph_edge_rows}</tbody></table></div>
+<p class="muted">Pengenalan entitas dilakukan otomatis melalui pencocokan nama dan metadata. Nama yang terdeteksi hanya menunjukkan bahwa istilah tersebut muncul pada sumber; hal ini bukan verifikasi kebenaran isi berita. Hubungan dalam grafik juga tidak membuktikan sebab-akibat, pengaruh, atau independensi sumber. Setiap temuan tetap memerlukan pemeriksaan manusia.</p></section>
 <section class="panel"><h2>Analyst strategic report</h2><div class="grid">{analyst_cards}</div>
 <p>{_cell(analyst.get("executive_summary") or "No analyst report available.")}</p>
 <h3>Key findings for review</h3><div class="table-wrap"><table><thead><tr><th>Priority</th><th>Finding</th><th>Source</th><th>Country</th><th>Signal ID</th></tr></thead><tbody>{''.join(analyst_findings)}</tbody></table></div>

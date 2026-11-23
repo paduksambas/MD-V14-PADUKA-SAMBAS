@@ -9,7 +9,7 @@ class DashboardTests(unittest.TestCase):
         report = {
             "daily_brief": {"date": "2026-11-21"},
             "language_intelligence": {"records_with_declared_language": 2, "records_with_unknown_language": 1, "language_counts": {"English": 1, "Indonesian": 1}},
-            "knowledge_graph": {"nodes_total": 2, "edges_total": 1, "records_with_recognized_entities": 1, "nodes": [{"label": "Indonesia", "type": "country", "evidence_sources": ["title_or_summary_alias"]}], "edges": [{"relation": "mentions_entity", "source": "event:1", "target": "entity:indonesia", "supporting_record_ids": ["1"]}]},
+            "knowledge_graph": {"nodes_total": 2, "edges_total": 1, "records_with_recognized_entities": 1, "nodes": [{"label": "Indonesia", "type": "country", "evidence_sources": ["title_or_summary_alias"]}, {"label": "NVIDIA", "type": "company", "evidence_sources": ["title_or_summary_alias"]}], "edges": [{"relation": "mentions_entity", "source": "event:1", "target": "entity:indonesia", "supporting_record_ids": ["1"]}]},
             "analyst_report": {"executive_summary": "Analyst summary for review", "key_findings": [{"review_priority": "high", "title": "Indonesia energy review", "source": "Desk", "country": "Indonesia", "signal_id": "s-1"}], "metadata_coverage": {"records_with_incomplete_evidence_metadata": 1}, "uncertainties_and_gaps": ["Primary source not reviewed"], "recommended_human_actions": [{"priority": "high", "action": "Verify original source"}]},
             "monitoring": {"cycle_status": "healthy", "generated_at": "2026-11-21T10:00:00Z", "feeds_succeeded": 2, "feeds_attempted": 2, "signals_collected": 3, "signals_published_within_window": 2, "signals_with_unknown_published_at": 1},
             "strategic_decision": {"review_queue": [{"priority_band": "high", "title": "Priority event", "priority_score": 82.5, "warning_level": "elevated", "source": "Desk", "url": "https://example.com/event"}]},
@@ -53,9 +53,15 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Multilingual source coverage", html)
         self.assertIn("Indonesian", html)
         self.assertIn("Strategic decision review queue", html)
-        self.assertIn("Cross-language knowledge graph", html)
+        self.assertIn("Graf pengetahuan lintas bahasa", html)
+        self.assertIn("Entitas dan istilah yang terdeteksi", html)
+        self.assertIn("Dasar pengenalan", html)
+        self.assertIn("Perusahaan", html)
+        self.assertIn("Ditemukan dalam judul/ringkasan berita", html)
+        self.assertIn("Menyebut entitas", html)
+        self.assertIn("bukan verifikasi kebenaran isi berita", html)
         self.assertIn("Indonesia", html)
-        self.assertIn("mentions_entity", html)
+        self.assertIn("Menyebut entitas", html)
         self.assertIn("Analyst strategic report", html)
         self.assertIn("Analyst summary for review", html)
         self.assertIn("Verify original source", html)
