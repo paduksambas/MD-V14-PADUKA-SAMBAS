@@ -63,6 +63,62 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("https://example.com/event", html)
 
 
+    def test_public_homepage_surfaces_sambas_indicators_in_plain_language(self):
+        report = {
+            "daily_brief": {"date": "2026-11-23"},
+            "monitoring": {"generated_at": "2026-11-23T10:00:00Z"},
+            "regional_intelligence": {
+                "region_profiles": [
+                    {
+                        "region_name": "Kabupaten Sambas",
+                        "indicator_name": "Tingkat Pengangguran Terbuka (TPT)",
+                        "latest_period": "2024",
+                        "latest_value": 4.99,
+                        "unit": "Persen",
+                        "source_url": "https://sambaskab.bps.go.id/id/pressrelease/example.html",
+                    },
+                    {
+                        "region_name": "Kabupaten Sambas",
+                        "indicator_name": "Rasio Penduduk Umur 15 Tahun ke Atas yang Bekerja (EPR)",
+                        "latest_period": "2024",
+                        "latest_value": 69.15,
+                        "unit": "Persen",
+                        "source_url": "https://sambas.go.id/uploads/example.pdf",
+                    },
+                    {
+                        "region_name": "Kabupaten Bengkayang",
+                        "indicator_name": "Indicator outside Sambas",
+                        "latest_period": "2024",
+                        "latest_value": 10,
+                        "unit": "Persen",
+                        "source_url": "https://bps.go.id/example.html",
+                    },
+                    {
+                        "region_name": "Kabupaten Sambas",
+                        "indicator_name": "Untrusted source test",
+                        "latest_period": "2023",
+                        "latest_value": 1,
+                        "unit": "Persen",
+                        "source_url": "https://sambaskab.bps.go.id.evil.example/fake.html",
+                    },
+                ],
+                "airtable": {"pending_validation_count": 1},
+            },
+        }
+        html = build_dashboard_html(report)
+        self.assertIn("Kenali kondisi Kabupaten Sambas melalui data.", html)
+        self.assertIn("Ringkasan untuk publik", html)
+        self.assertIn("Sorotan data Kabupaten Sambas", html)
+        self.assertIn("Indikator Sambas", html)
+        self.assertIn("4,99%", html)
+        self.assertIn("69,15%", html)
+        self.assertIn("href=\"https://sambaskab.bps.go.id/id/pressrelease/example.html\"", html)
+        self.assertIn("href=\"https://sambas.go.id/uploads/example.pdf\"", html)
+        self.assertNotIn("href=\"https://sambaskab.bps.go.id.evil.example/fake.html\"", html)
+        self.assertNotIn("Indicator outside Sambas", html)
+        self.assertIn('id="technical-detail"', html)
+        self.assertIn("Jelajahi informasi", html)
+
     def test_dashboard_renders_regional_intelligence_panel(self):
         report = {
             "signals": [],
@@ -203,7 +259,7 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Global Economic Intelligence &amp; Strategic Market Impact", html)
         self.assertIn("Official Economic Indicators", html)
         self.assertIn("World Bank Indicators API", html)
-        self.assertIn("<li><span>World Bank</span><b class='status-value'>available</b></li>", html)
+        self.assertIn("<li><span>World Bank</span><b class='status-value'>tersedia</b></li>", html)
         self.assertIn("Indonesia", html)
         self.assertIn("Traceable economic signal review queue", html)
         self.assertIn("Energy supply and infrastructure", html)
