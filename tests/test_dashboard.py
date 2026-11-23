@@ -259,7 +259,7 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Global Economic Intelligence &amp; Strategic Market Impact", html)
         self.assertIn("Official Economic Indicators", html)
         self.assertIn("World Bank Indicators API", html)
-        self.assertIn(" <li><span>World Bank</span><b class='status-value'>tersedia</b></li>", html)
+        self.assertIn("<li><span>World Bank</span><b class='status-value'>tersedia</b></li>", html)
         self.assertIn("Indonesia", html)
         self.assertIn("Traceable economic signal review queue", html)
         self.assertIn("Energy supply and infrastructure", html)
