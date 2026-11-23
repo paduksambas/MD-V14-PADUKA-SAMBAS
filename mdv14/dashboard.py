@@ -344,11 +344,15 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     )
     source_domains = set()
     for item in sambas_profiles:
-        parsed_url = urlparse(str(item.get("source_url") or ""))
-        if parsed_url.hostname:
-            source_domains.add(parsed_url.hostname.lower())
+        try:
+            parsed_url = urlparse(str(item.get("source_url") or ""))
+        except ValueError:
+            continue
+        host = (parsed_url.hostname or "").lower()
+        if parsed_url.scheme == "https" and (host == "go.id" or host.endswith(".go.id")):
+            source_domains.add(host)
     airtable_summary = regional_data.get("airtable") if isinstance(regional_data.get("airtable"), dict) else {}
-    pending_public_count = int(airtable_summary.get("pending_validation_count", 0) or 0)
+    pending_public_count = _safe_count(airtable_summary.get("pending_validation_count", 0))
     public_summary_cards = "".join([
         metric("Indikator Sambas", len(sambas_profiles), "Indikator daerah yang termuat"),
         metric("Periode terbaru", latest_sambas_period, "Mengikuti periode masing-masing data"),
