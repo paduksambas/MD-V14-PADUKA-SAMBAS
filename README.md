@@ -1,3 +1,15 @@
+# MD V14 — Public Dashboard Notice
+
+**Public dashboard:** https://paduksambas.github.io/MD-V14-PADUKA-SAMBAS/
+
+The repository now deploys a **public static snapshot** to GitHub Pages through `.github/workflows/pages-deploy.yml`. The deployment contains only `public/index.html`; report JSON, SQLite history, API keys, and raw collection outputs are not uploaded. Anyone with the URL can view the dashboard, so publish only information intended for public release.
+
+The page is rebuilt when dashboard code/feed configuration changes or when the Pages workflow is manually run. A successful deployment does not mean data are streaming live: the visible values reflect the latest completed collection performed during that build. The WIB clock is live in the browser; the report data are not.
+
+This public Pages deployment is separate from the private scheduled monitoring workflow, which keeps its detailed reports and database transient on the GitHub Actions runner.
+
+---
+
 ## Build 4.5 Dashboard Quick Navigation
 The offline dashboard now provides responsive quick-navigation links to WIB/status, Command Center, report overview, monitoring, trend review, economy/markets, and Indonesia/regional panels. This is a navigation/layout improvement; it adds no data feeds and does not change report freshness or hosting/privacy configuration. See docs/BUILD-4.5-DASHBOARD-QUICK-NAVIGATION.md.
 
@@ -175,4 +187,4 @@ Feed collection requires configured feeds and an internet connection. Distinct d
 
 ## Public Dashboard Deployment
 
-For the intentionally public Cloudflare Pages dashboard (no Cloudflare Access/Zero Trust), follow [`docs/PUBLIC-DASHBOARD-DEPLOYMENT.md`](docs/PUBLIC-DASHBOARD-DEPLOYMENT.md). The validated build script is `bash scripts/build_public_dashboard.sh`; publish directory: `public`.
+For the intentionally public GitHub Pages dashboard, the deployment workflow is `.github/workflows/pages-deploy.yml`. The validated build script is `bash scripts/build_public_dashboard.sh`; publish directory: `public`. Do not describe this GitHub Pages site as a private/local dashboard.
