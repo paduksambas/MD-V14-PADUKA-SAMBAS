@@ -137,7 +137,12 @@ jobs:
                           for period_id, period_name in found_periods[:8]:
                               print("- " + title + " | period " + period_name + " | period ID " + period_id)
                       else:
-                          print("- " + title + " | period metadata not parsed; top-level type " + type(period_payload).__name__)
+                          response_keys = sorted(str(item) for item in period_payload.keys())[:20] if isinstance(period_payload, dict) else []
+                          response_status = str(period_payload.get("status") or period_payload.get("status_code") or "unknown") if isinstance(period_payload, dict) else "unknown"
+                          response_message = str(period_payload.get("message") or period_payload.get("error") or "").replace(key, "[REDACTED]")[:160] if isinstance(period_payload, dict) else ""
+                          data_block = period_payload.get("data") if isinstance(period_payload, dict) else None
+                          data_keys = sorted(str(item) for item in data_block[0].keys())[:20] if isinstance(data_block, list) and data_block and isinstance(data_block[0], dict) else []
+                          print("- " + title + " | period metadata not parsed; status " + response_status + " | response keys " + ",".join(response_keys) + " | data keys " + ",".join(data_keys) + " | message " + response_message)
                   except Exception as period_exc:
                       print("- " + title + " | period lookup unavailable (" + type(period_exc).__name__ + ")")
               if not variables:
