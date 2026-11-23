@@ -37,6 +37,7 @@ on:
       - 'tests/test_economic_data.py'
       - 'mdv14/dashboard.py'
       - 'mdv14/pipeline.py'
+      - 'scripts/airtable_bps.py'
   workflow_dispatch:
   schedule:
     - cron: "17 */6 * * *"
@@ -173,6 +174,17 @@ jobs:
             --economic-start-year 2020 \
             $(if [ -f examples/bps-regional-tables.json ]; then printf '%s' '--bps-tables-config examples/bps-regional-tables.json'; fi) \
             >/dev/null
+      - name: Sync BPS observations to Airtable
+        if: success()
+        env:
+          AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          export PADUKA_SYNC_STARTED_AT="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          python scripts/airtable_bps.py --sync-report build/latest-report.json | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Publish privacy-safe provider status
         if: always()
         run: |
