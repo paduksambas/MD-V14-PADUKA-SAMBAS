@@ -14,7 +14,10 @@ on:
       - 'mdv14/economic_data.py'
       - 'mdv14/indonesia_intelligence.py'
       - 'mdv14/regional_intelligence.py'
+      - 'mdv14/airtable_regional.py'
       - 'tests/test_regional_intelligence.py'
+      - 'tests/test_airtable_regional.py'
+      - 'examples/airtable-bps-regional.json'
       - 'docs/BUILD-3.9-INDONESIA-REGIONAL-INTELLIGENCE.md'
       - 'examples/regional-data.sample.json'
       - 'examples/bps-regional-tables.sample.json'
@@ -171,6 +174,7 @@ jobs:
             --dashboard build/monitoring-dashboard.html \
             --economic-countries ID,US,CN \
             --economic-start-year 2020 \
+            --airtable-regional-data examples/airtable-bps-regional.json \
             $(if [ -f examples/bps-regional-tables.json ]; then printf '%s' '--bps-tables-config examples/bps-regional-tables.json'; fi) \
             >/dev/null
       - name: Publish privacy-safe provider status
