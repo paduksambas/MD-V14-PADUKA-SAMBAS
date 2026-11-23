@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Validate deployment secrets
         env:
           ACCESS_GATE_CONFIRMED: ${{ secrets.PADUKA_ACCESS_PROTECTION_CONFIRMED }}
