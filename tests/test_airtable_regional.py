@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mdv14.airtable_regional import load_airtable_regional_snapshot
+from mdv14.airtable_regional import load_airtable_regional_snapshot, apply_airtable_validation_status
 from mdv14.regional_intelligence import build_regional_intelligence, render_regional_intelligence_html
 
 
@@ -69,6 +69,18 @@ class AirtableRegionalSnapshotTests(unittest.TestCase):
         self.assertIn("Belum ditinjau", html)
         self.assertIn("tidak dipakai dalam ranking", html.lower())
         self.assertIn("No comparable regional indicator observations loaded.", html)
+
+    def test_regional_source_status_is_pending_when_only_airtable_review_rows_exist(self):
+        regional = {"status": "available", "observation_count": 0}
+        airtable = {"pending_validation_count": 2}
+        result = apply_airtable_validation_status(regional, airtable)
+        self.assertEqual(result["status"], "pending_validation")
+
+    def test_regional_source_status_stays_available_with_valid_observations(self):
+        regional = {"status": "available", "observation_count": 1}
+        airtable = {"pending_validation_count": 2}
+        result = apply_airtable_validation_status(regional, airtable)
+        self.assertEqual(result["status"], "available")
 
     def test_unknown_validation_state_is_not_accepted(self):
         payload = {
