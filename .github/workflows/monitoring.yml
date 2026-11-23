@@ -176,7 +176,7 @@ jobs:
       - name: Publish privacy-safe provider status
         if: always()
         run: |
-          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          python - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
           import json
           from pathlib import Path
           path = Path("build/latest-report.json")
@@ -191,6 +191,9 @@ jobs:
               world_bank = report.get("economic_data", {})
               print("- BPS catalog: {} | domains: {}".format(bps.get("status", "unknown"), bps.get("region_count", 0)))
               print("- BPS tables: {} | requests: {} | observations: {} | failed: {}".format(tables.get("status", "unknown"), tables.get("request_count", 0), len(tables.get("observations", [])), tables.get("requests_failed", 0)))
+              for error in tables.get("errors", [])[:10]:
+                  if isinstance(error, dict):
+                      print("- BPS request issue: item {} | {}".format(error.get("item", "unknown"), error.get("error", "unclassified")))
               observations = tables.get("observations", [])
               print("\\n## Public BPS Sambas regional observations")
               if observations:
@@ -212,10 +215,6 @@ jobs:
               print("- Next stage readiness: {}".format("READY" if fred.get("observation_count", 0) > 0 and len(tables.get("observations", [])) > 0 else "BLOCKED"))
               print("- No API keys, raw data, reports, dashboards, or databases are published.")
           PY
-      - name: Echo public provider summary for audit
-        if: always()
-        run: |
-          cat "$GITHUB_STEP_SUMMARY"
       - name: Add privacy-safe workflow summary
         if: always()
         run: |
