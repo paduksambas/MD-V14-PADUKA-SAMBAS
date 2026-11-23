@@ -254,6 +254,30 @@ def render_regional_intelligence_html(data: dict[str, Any]) -> str:
     coverage = data.get("regions_with_indicator_data") if isinstance(data.get("regions_with_indicator_data"), dict) else {}
     catalog = data.get("bps_region_catalog") if isinstance(data.get("bps_region_catalog"), dict) else {}
     public_export = data.get("public_export") if isinstance(data.get("public_export"), dict) else {}
+    airtable = data.get("airtable") if isinstance(data.get("airtable"), dict) else {}
+    pending_observations = airtable.get("pending_observations", [])
+    pending_observations = pending_observations if isinstance(pending_observations, list) else []
+    pending_rows = "".join(
+        f"<tr><td>{esc(item.get('region_name'))}</td><td>{esc(item.get('indicator_name'))} ({esc(item.get('indicator_code'))})</td>"
+        f"<td>{esc(item.get('period'))}</td><td class='num'>{esc(item.get('value'))} {esc(item.get('unit'))}</td>"
+        f"<td>{esc(item.get('validation_status'))}</td><td>{esc(item.get('date_collected'))}</td></tr>"
+        for item in pending_observations if isinstance(item, dict)
+    ) or "<tr><td colspan='6'>Tidak ada observasi yang menunggu validasi.</td></tr>"
+    airtable_review_html = ""
+    if airtable.get("records_read", 0):
+        airtable_review_html = (
+            f"<h3>Observasi Airtable · {esc(airtable.get('base_name') or 'PADUKA')}</h3>"
+            f"<p class='muted'>Snapshot {esc(airtable.get('snapshot_date') or 'tanggal tidak tersedia')} · "
+            f"{esc(airtable.get('records_read', 0))} record dibaca · "
+            f"{esc(airtable.get('valid_count', 0))} valid · "
+            f"{esc(airtable.get('pending_validation_count', 0))} menunggu validasi · "
+            f"{esc(airtable.get('rejected_count', 0))} ditolak/tidak terbaca.</p>"
+            "<div class='table-wrap'><table><thead><tr><th>Wilayah</th><th>Indikator</th><th>Periode</th>"
+            "<th>Nilai</th><th>Status validasi</th><th>Tanggal diambil</th></tr></thead>"
+            f"<tbody>{pending_rows}</tbody></table></div>"
+            "<p class='notice'>Observasi berstatus Belum ditinjau atau Menunggu validasi ditampilkan untuk ditinjau manusia, "
+            "tetapi tidak dipakai dalam ranking, peringkat, atau perhitungan disparitas sampai Status Validasi di Airtable menjadi Valid.</p>"
+        )
     return (
         '<section class="panel" id="indonesia-regional-intelligence"><h2>Indonesia Regional Intelligence · Build 4.1</h2>'
         f'<div class="grid"><article class="metric"><div class="muted">Indicator observations</div><strong>{esc(data.get("observation_count", 0))}</strong><small>Explicit regional records</small></article>'
@@ -262,6 +286,7 @@ def render_regional_intelligence_html(data: dict[str, Any]) -> str:
         f'<article class="metric"><div class="muted">BPS region catalog</div><strong>{esc(catalog.get("region_count", 0))}</strong><small>{esc(catalog.get("status", "not configured"))}</small></article></div>'
         f'<h3>Comparable regional rankings</h3><div class="table-wrap"><table><thead><tr><th>Level</th><th>Indicator</th><th>Period</th><th>Rank</th><th>Region</th><th>Value</th></tr></thead><tbody>{ranking_body}</tbody></table></div>'
         f'<h3>Regional spread (minimum to maximum)</h3><div class="table-wrap"><table><thead><tr><th>Level</th><th>Indicator</th><th>Period</th><th>Minimum</th><th>Maximum</th><th>Range</th></tr></thead><tbody>{spread_body}</tbody></table></div>'
+        f'{airtable_review_html}'
         f'<p class="muted">BPS public export: {esc(public_export.get("status", "not configured"))}; {esc(public_export.get("observation_count", 0))} observations; {esc(public_export.get("rejected_rows", 0))} rejected. File: {esc(public_export.get("file_name", "not supplied"))}. SHA-256: {esc(public_export.get("file_sha256", "not available"))}</p>'
         '<p class="muted">Source: <a href="https://webapi.bps.go.id/documentation/" target="_blank" rel="noopener noreferrer">BPS WebAPI documentation</a> (API key required for API catalog/table requests) and <a href="https://www.bps.go.id/id/query-builder" target="_blank" rel="noopener noreferrer">BPS public table exports</a> (no API key for downloaded public files).</p>'
         '<p class="notice">Rankings compare like-for-like indicator, period and administrative level only. BPS domain discovery is not the same as loading regional statistics. No national-to-regional downscaling, causal inference, forecasts or policy advice.</p></section>'
