@@ -16,7 +16,15 @@ AIRTABLE_EXPORT="$(mktemp -t mdv14-airtable-bps-XXXXXX.json)"
 trap 'rm -f "$REPORT" "$AIRTABLE_EXPORT"' EXIT
 
 AIRTABLE_ARGS=(--regional-data "$AIRTABLE_EXPORT")
-python scripts/airtable_bps.py --export-dashboard "$AIRTABLE_EXPORT"
+if [[ -n "${AIRTABLE_API_TOKEN:-}" ]]; then
+  python scripts/airtable_bps.py --export-dashboard "$AIRTABLE_EXPORT"
+else
+  # The connected ChatGPT Airtable app is not available inside GitHub Actions.
+  # Use the last reviewed Airtable snapshot as a safe fallback; refresh it from
+  # Airtable when the repository PAT is not configured.
+  cp examples/airtable-bps-dashboard.json "$AIRTABLE_EXPORT"
+  echo "Airtable API token not configured in GitHub Actions; using the dated Airtable snapshot."
+fi
 
 python -m mdv14 \
   --feeds examples/feeds.sample.json \
