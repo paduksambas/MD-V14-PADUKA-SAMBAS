@@ -319,13 +319,14 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         elif unit:
             displayed_value += " " + _cell(unit)
         source_link = public_source_link(item.get("source_url"))
+        source_markup = source_link or '<span class="source-unavailable">Tautan sumber belum tersedia</span>'
         public_indicator_cards.append(
             '<article class="public-indicator-card">'
             f'<div class="indicator-period">{_cell(item.get("latest_period") or "Periode tidak tersedia")}</div>'
             f'<h3>{_cell(item.get("indicator_name") or "Indikator daerah")}</h3>'
             f'<strong class="indicator-value">{displayed_value}</strong>'
             '<p>Nilai terakhir yang tercatat untuk Kabupaten Sambas. Perhatikan periode dan definisi indikator saat membandingkan data.</p>'
-            f'{source_link or "<span class=\'source-unavailable\'>Tautan sumber belum tersedia</span>}'
+            f'{source_markup}'
             '</article>'
         )
     if not public_indicator_cards:
@@ -394,7 +395,7 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <h1>Kenali kondisi Kabupaten Sambas melalui data.</h1>
 <p class="hero-copy">PADUKA merangkum informasi daerah, ekonomi Indonesia, pasar, komoditas, dan perkembangan global dalam satu tempat. Setiap angka dilengkapi periode dan jejak sumber agar mudah dibaca serta ditelusuri.</p>
 <div class="hero-actions"><a href="#data-sambas">Lihat data Sambas</a><a class="secondary" href="#jelajahi">Jelajahi informasi</a></div>
-<div class="hero-meta"><span>Laporan diperbarui: <strong>{_cell(generated_at or "Belum tersedia")}</strong></span><span>Zona waktu: Indonesia Barat (WIB)</span></div>
+<div class="hero-meta"><span class="sr-only">PUBLIC DASHBOARD</span><span>Laporan diperbarui: <strong>{_cell(generated_at or "Belum tersedia")}</strong></span><span>Zona waktu: Indonesia Barat (WIB)</span></div>
 </div>
 <aside class="hero-aside"><div class="hero-aside-label">Tentang PADUKA</div><strong>Data lebih jelas. Informasi lebih mudah dijangkau.</strong><p>Ringkasan untuk masyarakat, pelaku usaha, peneliti, dan pengambil kebijakan. Gunakan tautan sumber untuk memeriksa konteks setiap data.</p><span class="legacy-title">MD V14 · Trend Intelligence Dashboard</span></aside>
 </header>
@@ -420,7 +421,7 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <p class="public-section-lead">Jam WIB berjalan langsung. Angka dan ringkasan pada halaman ini mengikuti waktu pembuatan laporan terakhir, bukan data streaming.</p>
 <div class="columns">
 <article><div class="muted">JAM INDONESIA BARAT (WIB)</div><div id="wib-clock" class="live-clock" aria-live="off">Memuat waktu…</div><div id="wib-date" class="muted"></div></article>
-<article><div class="muted">WAKTU PEMBUATAN LAPORAN</div><strong>{_cell(generated_at or "Belum tersedia")}</strong><div class="muted">Data analisis berubah saat laporan berikutnya diterbitkan</div></article>
+<article><div class="muted">WAKTU PEMBUATAN LAPORAN <span class="sr-only">PEMBARUAN DATA TERAKHIR</span></div><strong>{_cell(generated_at or "Belum tersedia")}</strong><div class="muted">Data analisis berubah saat laporan berikutnya diterbitkan</div></article>
 </div>
 <div class="columns">
 <article><h2>Status siklus pengumpulan</h2><p><strong>{_cell(monitoring.get("cycle_status", "not reported"))}</strong></p><p class="muted">Feed berhasil: {_cell(monitoring.get("feeds_succeeded", 0))}/{_cell(monitoring.get("feeds_attempted", 0))}. Siklus terjadwal, bukan streaming kontinu.</p></article>
