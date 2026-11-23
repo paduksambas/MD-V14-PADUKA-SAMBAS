@@ -175,6 +175,7 @@ def sync_bps_observations(
     updates: list[dict[str, Any]] = []
     unchanged = 0
     rejected = 0
+    seen_input_keys: set[str] = set()
     for item in observations:
         if not isinstance(item, dict):
             rejected += 1
@@ -188,14 +189,28 @@ def sync_bps_observations(
         except ValueError:
             rejected += 1
             continue
+        if key in seen_input_keys:
+            rejected += 1
+            continue
+        seen_input_keys.add(key)
         old = existing.get(key)
         if old:
             old_fields = old.get("fields") or {}
             old_value = _valid_number(old_fields.get("Nilai"))
             same_value = old_value is not None and math.isclose(old_value, value, rel_tol=1e-9, abs_tol=1e-9)
+            comparable_fields = (
+                "Kode Domain BPS", "Nama Wilayah", "Level Wilayah",
+                "Kode Variabel BPS", "Kode Indikator", "Nama Indikator",
+                "Periode", "Satuan",
+            )
+            same_metadata = all(
+                str(old_fields.get(field) or "").strip() == str(base_fields.get(field) or "").strip()
+                for field in comparable_fields
+            )
+            unchanged_observation = same_value and same_metadata
             old_status = str(old_fields.get("Status Validasi") or PENDING_STATUS)
-            base_fields["Status Validasi"] = old_status if same_value else PENDING_STATUS
-            if same_value:
+            base_fields["Status Validasi"] = old_status if unchanged_observation else PENDING_STATUS
+            if unchanged_observation:
                 unchanged += 1
             updates.append({"id": old["id"], "fields": base_fields})
         else:
