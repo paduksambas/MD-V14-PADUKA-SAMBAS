@@ -8,6 +8,7 @@ on:
       - 'scripts/airtable_bps.py'
       - 'mdv14/**'
       - 'examples/feeds.sample.json'
+      - 'examples/airtable-bps-dashboard.json'
       - '.github/workflows/pages-deploy.yml'
   workflow_dispatch:
 
