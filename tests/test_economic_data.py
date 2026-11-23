@@ -22,6 +22,7 @@ class EconomicDataTests(unittest.TestCase):
         self.assertEqual(result["observations"][0]["country_code"], "ID")
         self.assertEqual(result["observations"][0]["value"], 5.05)
         self.assertEqual(result["requests_succeeded"], 1)
+        self.assertEqual(result["status"], "available")
         self.assertIn("api.worldbank.org", result["observations"][0]["source_url"])
 
     @patch("mdv14.economic_data._fetch_json")
@@ -31,8 +32,29 @@ class EconomicDataTests(unittest.TestCase):
                                              indicators=["FP.CPI.TOTL.ZG"])
         self.assertEqual(result["observation_count"], 0)
         self.assertEqual(result["requests_failed"], 1)
+        self.assertEqual(result["status"], "unavailable")
         self.assertEqual(result["observations"], [])
         self.assertEqual(result["errors"][0]["status"], "unavailable")
+
+    @patch("mdv14.economic_data._fetch_json")
+    def test_reports_partial_when_some_indicator_requests_fail(self, fetch):
+        fetch.side_effect = [
+            [{"total": 1}, [{
+                "country": {"value": "Indonesia"},
+                "indicator": {"value": "GDP growth"},
+                "date": "2023",
+                "value": 5.05,
+            }]],
+            OSError("temporary API failure"),
+        ]
+        result = fetch_world_bank_indicators(
+            "ID", start_year=2023, end_year=2023,
+            indicators=["NY.GDP.MKTP.KD.ZG", "FP.CPI.TOTL.ZG"],
+        )
+        self.assertEqual(result["status"], "partial")
+        self.assertEqual(result["requests_succeeded"], 1)
+        self.assertEqual(result["requests_failed"], 1)
+        self.assertEqual(result["observation_count"], 1)
 
     def test_country_and_year_validation(self):
         self.assertEqual(_parse_countries("id,US,ID"), ["ID", "US"])
@@ -60,6 +82,7 @@ class EconomicDataTests(unittest.TestCase):
         result = fetch_world_bank_indicators("ID", start_year=2023, end_year=2023,
                                              indicators=["NY.GDP.MKTP.KD.ZG"])
         self.assertEqual(result["observation_count"], 0)
+        self.assertEqual(result["status"], "no_data")
 
 
 if __name__ == "__main__":
