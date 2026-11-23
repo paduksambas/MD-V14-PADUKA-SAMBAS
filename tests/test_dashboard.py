@@ -169,7 +169,7 @@ class DashboardTests(unittest.TestCase):
         report = {
             "signals": [],
             "economic_data": {"build": "3.3", "provider": "World Bank Indicators API",
-                "countries_requested": ["ID"], "year_range": {"start": 2023, "end": 2024},
+                "status": "available", "countries_requested": ["ID"], "year_range": {"start": 2023, "end": 2024},
                 "observation_count": 1, "requests_succeeded": 1, "requests_failed": 0,
                 "observations": [{"country": "Indonesia", "country_code": "ID", "indicator": "GDP growth",
                     "year": "2023", "value": 5.05, "unit": "%", "source": "World Bank"}], "errors": []},
@@ -203,6 +203,7 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Global Economic Intelligence &amp; Strategic Market Impact", html)
         self.assertIn("Official Economic Indicators", html)
         self.assertIn("World Bank Indicators API", html)
+        self.assertIn("<li><span>World Bank</span><b class='status-value'>available</b></li>", html)
         self.assertIn("Indonesia", html)
         self.assertIn("Traceable economic signal review queue", html)
         self.assertIn("Energy supply and infrastructure", html)

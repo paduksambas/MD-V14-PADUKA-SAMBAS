@@ -196,6 +196,7 @@ def main() -> int:
         "economic_signals_classified": report.get("economic_intelligence", {}).get("signals_assessed", 0),
         "economic_sectors_represented": report.get("economic_intelligence", {}).get("sector_count", 0),
         "economic_data_build": report.get("economic_data", {}).get("build"),
+        "economic_data_status": report.get("economic_data", {}).get("status"),
         "economic_data_observations": report.get("economic_data", {}).get("observation_count", 0),
         "economic_data_requests_succeeded": report.get("economic_data", {}).get("requests_succeeded", 0),
         "economic_data_requests_failed": report.get("economic_data", {}).get("requests_failed", 0),
