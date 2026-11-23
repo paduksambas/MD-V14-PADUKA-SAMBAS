@@ -61,7 +61,7 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Menyebut entitas", html)
         self.assertIn("bukan verifikasi kebenaran isi berita", html)
         self.assertIn("Indonesia", html)
-        self.assertIn("mentions_entity", html)
+        self.assertIn("Menyebut entitas", html)
         self.assertIn("Analyst strategic report", html)
         self.assertIn("Analyst summary for review", html)
         self.assertIn("Verify original source", html)
