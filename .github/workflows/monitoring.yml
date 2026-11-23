@@ -191,9 +191,11 @@ jobs:
               report = json.loads(path.read_text(encoding="utf-8"))
               bps = report.get("regional_intelligence", {}).get("bps_region_catalog", {})
               tables = report.get("bps_regional_tables", {})
+              airtable = report.get("airtable_regional_data", {})
               fred = report.get("fred_market_data", {})
               world_bank = report.get("economic_data", {})
               print("- BPS catalog: {} | domains: {}".format(bps.get("status", "unknown"), bps.get("region_count", 0)))
+              print("- Airtable BPS: {} | records: {} | valid: {} | pending validation: {} | rejected: {}".format(airtable.get("status", "unknown"), airtable.get("records_read", 0), airtable.get("valid_count", 0), airtable.get("pending_validation_count", 0), airtable.get("rejected_count", 0)))
               print("- BPS tables: {} | requests: {} | observations: {} | failed: {}".format(tables.get("status", "unknown"), tables.get("request_count", 0), len(tables.get("observations", [])), tables.get("requests_failed", 0)))
               for error in tables.get("errors", [])[:10]:
                   if isinstance(error, dict):
