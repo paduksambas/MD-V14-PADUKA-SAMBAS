@@ -19,7 +19,8 @@ python -m mdv14 \
   --output "$REPORT" \
   --dashboard "$OUTPUT_DIR/index.html" \
   --economic-countries ID,US,CN \
-  --economic-start-year 2020
+  --economic-start-year 2020 \
+  --airtable-regional-data examples/airtable-bps-regional.json
 
 test -s "$OUTPUT_DIR/index.html"
 # Keep report JSON and databases out of the publishable directory.
