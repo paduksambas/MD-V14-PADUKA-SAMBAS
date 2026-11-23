@@ -349,6 +349,17 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Energi dan biaya produksi", html)
         self.assertIn("Qualitative monitoring channel", html)
 
+    def test_public_dashboard_groups_long_content_into_compact_accordions(self):
+        html = build_dashboard_html({})
+        self.assertEqual(html.count('<details class="content-accordion"'), 5)
+        self.assertIn("Pembaruan &amp; kualitas data", html)
+        self.assertIn("Analisis &amp; tinjauan", html)
+        self.assertIn("Data wilayah, ekonomi &amp; pasar", html)
+        self.assertIn("Tren dan perkembangan global", html)
+        self.assertIn("Catatan teknis &amp; sistem", html)
+        self.assertIn('target.closest("details.content-accordion")', html)
+        self.assertIn("quick-nav", html)
+
     def test_empty_report_renders(self):
         html = build_dashboard_html({"signals": [], "daily_brief": {}})
         self.assertIn("No trend signals", html)
