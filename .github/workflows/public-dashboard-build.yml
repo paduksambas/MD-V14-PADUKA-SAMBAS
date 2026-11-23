@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/build_public_dashboard.sh'
+      - 'scripts/airtable_bps.py'
       - 'mdv14/**'
       - 'examples/feeds.sample.json'
       - '.github/workflows/public-dashboard-build.yml'
