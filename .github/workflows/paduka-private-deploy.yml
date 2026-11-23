@@ -58,7 +58,7 @@ jobs:
           PADUKA_OWNER_EMAIL: ${{ secrets.PADUKA_OWNER_EMAIL }}
         run: python scripts/verify_cloudflare_access.py
       - name: Deploy behind verified Cloudflare Access
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
