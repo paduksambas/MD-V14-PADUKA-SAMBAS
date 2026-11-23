@@ -212,6 +212,10 @@ jobs:
               print("- Next stage readiness: {}".format("READY" if fred.get("observation_count", 0) > 0 and len(tables.get("observations", [])) > 0 else "BLOCKED"))
               print("- No API keys, raw data, reports, dashboards, or databases are published.")
           PY
+      - name: Echo public provider summary for audit
+        if: always()
+        run: |
+          cat "$GITHUB_STEP_SUMMARY"
       - name: Add privacy-safe workflow summary
         if: always()
         run: |
