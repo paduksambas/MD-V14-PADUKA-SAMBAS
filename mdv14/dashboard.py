@@ -418,6 +418,26 @@ main{{max-width:1240px;margin:auto;padding:24px 24px 64px}}header{{margin-bottom
 .metric,.panel{{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(20,55,42,.035)}}.metric strong{{display:block;font-size:1.8rem;line-height:1.2;margin:6px 0}}.metric small{{display:block;line-height:1.45}}
 .columns{{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}}@media(max-width:700px){{.columns{{grid-template-columns:1fr}}}}
 table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:left;padding:11px 9px;border-bottom:1px solid var(--line);vertical-align:top}}th{{color:#40574e;font-weight:700;background:#f7faf8}}.num{{font-variant-numeric:tabular-nums;text-align:right}}.table-wrap{{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}}ul{{list-style:none;padding:0;margin:0}}li{{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid var(--line)}}.bar-track{{height:9px;min-width:100px;background:#e3ece7;border-radius:99px;overflow:hidden}}.bar-fill{{display:block;height:100%;background:var(--accent);border-radius:99px}}.map-wrap{{background:#f7faf8;border:1px solid var(--line);border-radius:12px;overflow:hidden}}.world-plot{{display:block;width:100%;height:auto;max-height:480px}}.map-bg{{fill:#edf4f0}}.map-gridline{{stroke:#c8d9d0;stroke-width:1;stroke-dasharray:3 5}}.country-marker{{cursor:pointer;outline:none}}.country-marker circle,.legend-dot{{stroke:#fff;stroke-width:1.5;fill:#08765b}}.country-marker.priority-high circle,.legend-dot.priority-high{{fill:#bd4444}}.country-marker.priority-medium circle,.legend-dot.priority-medium{{fill:#b7791f}}.country-marker.priority-routine circle,.legend-dot.priority-routine{{fill:#08765b}}.country-marker:focus circle,.country-marker:hover circle{{stroke:#172b24;stroke-width:3}}.map-legend,.country-picker{{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}}.map-legend span{{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.85rem}}.legend-dot{{display:inline-block;width:11px;height:11px;border-radius:50%}}.country-select{{background:#fff;border:1px solid var(--line);border-radius:8px;color:var(--text);padding:8px 10px;cursor:pointer}}.country-select[aria-pressed=true]{{border-color:var(--accent);outline:1px solid var(--accent)}}.country-detail{{padding:14px;border:1px solid var(--line);border-radius:10px;background:#fff}}.country-detail[hidden]{{display:none}}.notice{{border-left:3px solid var(--accent);padding:12px 15px;background:var(--accent-soft);border-radius:7px;color:#35564a;margin-top:18px}}footer{{margin-top:22px;color:var(--muted);font-size:.88rem;border-top:1px solid var(--line);padding-top:18px}}.control-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0}}.control-card{{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}}.control-card h3{{margin:0 0 8px;font-size:1rem}}.control-card p{{margin:0;color:var(--muted)}}.control-status{{display:inline-block;padding:4px 9px;border:1px solid var(--line);border-radius:999px;font-size:.8rem;margin-bottom:8px}}.notification-list{{display:grid;gap:8px}}.notification-item{{padding:10px 12px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:5px}}.notification-item strong{{display:block}}.notification-item span{{color:var(--muted);font-size:.9rem}}.quick-nav{{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 24px;padding:8px 0}}.quick-nav a{{display:inline-block;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;color:#24473b;text-decoration:none;font-size:.9rem;font-weight:650}}.quick-nav a:hover,.quick-nav a:focus{{border-color:var(--accent);outline:1px solid var(--accent);background:var(--accent-soft)}}.live-clock{{font-size:clamp(2rem,6vw,3.2rem);font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:.03em;color:var(--navy)}}.status-value{{text-transform:capitalize;color:var(--accent)}}
+.quick-nav{{display:flex;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;position:sticky;top:8px;z-index:8;background:rgba(243,247,245,.94);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:999px;padding:7px;margin:12px 0 20px;scrollbar-width:none}}
+.quick-nav::-webkit-scrollbar{{display:none}}
+.accordion-intro{{margin:18px 0 10px;color:var(--muted);font-size:.92rem}}
+.content-accordion{{margin:12px 0;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(20,55,42,.035)}}
+.content-accordion>summary{{display:flex;align-items:center;gap:13px;cursor:pointer;list-style:none;padding:17px 19px;min-height:76px;background:linear-gradient(110deg,#fff 0%,#f7fbf8 100%);}}
+.content-accordion>summary::-webkit-details-marker{{display:none}}
+.content-accordion>summary:hover{{background:var(--accent-soft)}}
+.accordion-symbol{{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border-radius:12px;background:var(--accent-soft);color:#145b45;font-size:1.25rem;font-weight:800}}
+.accordion-copy{{display:grid;gap:3px;min-width:0}}
+.accordion-copy strong{{font-size:1rem;color:var(--text);line-height:1.3}}
+.accordion-copy small{{font-size:.84rem;color:var(--muted);font-weight:450;line-height:1.35}}
+.accordion-toggle{{margin-left:auto;flex:0 0 28px;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);position:relative;background:#fff}}
+.accordion-toggle:before,.accordion-toggle:after{{content:"";position:absolute;left:8px;right:8px;top:13px;height:2px;background:var(--accent);border-radius:2px}}
+.accordion-toggle:after{{transform:rotate(90deg);transition:transform .18s ease}}
+.content-accordion[open]>summary{{border-bottom:1px solid var(--line);background:#f7fbf8}}
+.content-accordion[open] .accordion-toggle:after{{transform:rotate(0)}}
+.accordion-body{{padding:2px 14px 14px}}
+.accordion-body>.panel,.accordion-body>.columns,.accordion-body>.grid{{margin-top:14px}}
+.accordion-body>.panel:last-child{{margin-bottom:0}}
+@media(max-width:520px){{.content-accordion>summary{{padding:14px 13px;gap:10px;min-height:70px}}.accordion-symbol{{flex-basis:36px;width:36px;height:36px}}.accordion-copy small{{font-size:.78rem}}.accordion-body{{padding:1px 9px 10px}}.quick-nav{{margin-left:-2px;margin-right:-2px}}}}
 .site-hero{{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(230px,.65fr);gap:30px;align-items:center;background:#e8f2ed;border:1px solid #d4e5dc;border-radius:24px;padding:clamp(24px,5vw,54px);margin:0 0 18px;position:relative;overflow:hidden}}.site-topline{{display:flex;align-items:center;gap:12px;margin-bottom:28px;color:#1e4e3e;font-weight:800;letter-spacing:.04em}}.brand-mark{{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:#0f6049;color:#fff;font-size:1.2rem;letter-spacing:0}}.brand-name{{font-size:1rem;line-height:1.2}}.brand-subtitle{{display:block;color:#526d61;font-size:.78rem;font-weight:550;letter-spacing:0;margin-top:3px}}.hero-eyebrow{{font-size:.8rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#17664e;margin-bottom:12px}}.hero-copy{{font-size:1.08rem;max-width:680px;color:#3d5d50;margin:0 0 22px}}.hero-actions{{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0}}.hero-actions a{{display:inline-block;text-decoration:none;padding:11px 17px;border-radius:999px;font-weight:750;background:#0b684f;color:#fff}}.hero-actions a.secondary{{background:#fff;color:#174c3c;border:1px solid #c9ddd2}}.hero-meta{{display:flex;flex-wrap:wrap;gap:9px 18px;color:#4b6759;font-size:.88rem}}.hero-aside{{background:#fff;border:1px solid #d3e2d9;border-radius:18px;padding:23px;box-shadow:0 10px 26px rgba(23,73,54,.06)}}.hero-aside-label{{font-size:.76rem;color:#527466;letter-spacing:.1em;text-transform:uppercase;font-weight:800}}.hero-aside strong{{display:block;color:#12372e;font-size:1.5rem;line-height:1.25;margin:12px 0}}.hero-aside p{{color:#4b6759;font-size:.92rem}}.legacy-title{{font-size:.78rem;color:#6d8177}}.public-section{{margin:22px 0}}.public-section-lead{{max-width:780px;color:var(--muted);margin:-6px 0 16px}}.public-indicator-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:16px 0}}.public-indicator-card{{background:#fff;border:1px solid var(--line);border-radius:16px;padding:19px;box-shadow:0 2px 10px rgba(20,55,42,.035)}}.indicator-period{{display:inline-block;padding:4px 9px;border-radius:999px;background:var(--accent-soft);color:#145b45;font-size:.78rem;font-weight:750}}.public-indicator-card h3{{margin:12px 0 6px;min-height:2.5em;font-size:1rem}}.indicator-value{{display:block;font-size:2.15rem;line-height:1.2;color:#0d5e48;font-variant-numeric:tabular-nums;margin:8px 0}}.public-indicator-card p{{font-size:.9rem;color:var(--muted);min-height:4.2em}}.source-link{{font-weight:750;text-decoration:none;border-bottom:1px solid #9cc9b5;padding-bottom:2px}}.source-unavailable{{font-size:.85rem;color:var(--muted)}}.public-empty{{padding:22px;border:1px dashed #a9c7b8;border-radius:16px;background:#fbfdfb}}.public-empty p{{color:var(--muted);margin:8px 0}}.explore-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}}.explore-card{{display:block;padding:17px;background:#fff;border:1px solid var(--line);border-radius:14px;color:var(--text);text-decoration:none}}.explore-card:hover{{border-color:var(--accent);background:var(--accent-soft)}}.explore-card strong{{display:block;color:#125840;margin-bottom:5px}}.explore-card span{{display:block;color:var(--muted);font-size:.9rem}}.section-note{{font-size:.9rem;color:var(--muted)}}.sr-only{{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}}
 @media(max-width:800px){{.site-hero{{grid-template-columns:1fr}}.hero-aside{{max-width:none}}}}
 @media(max-width:520px){{main{{padding:14px 12px 36px}}.metric,.panel{{padding:14px;border-radius:12px}}.grid{{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px}}.metric strong{{font-size:1.45rem}}.quick-nav{{gap:6px}}.quick-nav a{{padding:7px 10px;font-size:.82rem}}table{{font-size:.84rem}}th,td{{padding:8px 7px}}.live-clock{{font-size:clamp(1.8rem,10vw,2.6rem)}}.site-hero{{padding:22px 18px;border-radius:18px;gap:18px}}.site-topline{{margin-bottom:20px}}.hero-actions a{{width:100%;text-align:center}}.public-indicator-grid{{grid-template-columns:1fr}}.indicator-value{{font-size:1.9rem}}}}</style></head><body><main>
@@ -449,6 +469,10 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <a class="explore-card" href="#global-overview"><strong>Tren dan isu global</strong><span>Perkembangan lintas negara, topik, dan sumber berita.</span></a>
 <a class="explore-card" href="#metodologi"><strong>Sumber dan cara membaca</strong><span>Asal informasi, keterbatasan, dan penjelasan indikator.</span></a>
 </div></section>
+<p class="accordion-intro">Pilih topik di bawah untuk membuka rincian. Bagian yang belum dibuka tetap ringkas agar informasi utama mudah ditemukan.</p>
+<details class="content-accordion" id="pembaruan-section">
+<summary><span class="accordion-symbol" aria-hidden="true">↻</span><span class="accordion-copy"><strong>Pembaruan &amp; kualitas data</strong><small>Waktu laporan, status sumber, cakupan bahasa, dan pengenalan entitas</small></span><span class="accordion-toggle" aria-hidden="true"></span></summary>
+<div class="accordion-body">
 <section class="panel" id="live-status">
 <h2>Pembaruan data dan status sumber</h2>
 <p class="public-section-lead">Jam WIB berjalan langsung. Angka dan ringkasan pada halaman ini mengikuti waktu pembuatan laporan terakhir, bukan data streaming.</p>
@@ -469,6 +493,13 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <h3>Entitas dan istilah yang terdeteksi</h3><div class="table-wrap"><table><thead><tr><th>Entitas</th><th>Jenis</th><th>Dasar pengenalan</th></tr></thead><tbody>{graph_node_rows}</tbody></table></div>
 <h3>Hubungan untuk ditinjau</h3><div class="table-wrap"><table><thead><tr><th>Jenis hubungan</th><th>Simpul pertama</th><th>Simpul kedua</th><th>ID rekaman pendukung</th></tr></thead><tbody>{graph_edge_rows}</tbody></table></div>
 <p class="muted">Pengenalan entitas dilakukan otomatis melalui pencocokan nama dan metadata. Nama yang terdeteksi hanya menunjukkan bahwa istilah tersebut muncul pada sumber; hal ini bukan verifikasi kebenaran isi berita. Hubungan dalam grafik juga tidak membuktikan sebab-akibat, pengaruh, atau independensi sumber. Setiap temuan tetap memerlukan pemeriksaan manusia.</p></section>
+
+</div>
+</details>
+
+<details class="content-accordion" id="analisis-section">
+<summary><span class="accordion-symbol" aria-hidden="true">▤</span><span class="accordion-copy"><strong>Analisis &amp; tinjauan</strong><small>Ringkasan analisis, antrean pemeriksaan, dan peringatan</small></span><span class="accordion-toggle" aria-hidden="true"></span></summary>
+<div class="accordion-body">
 <section class="panel"><h2>Analyst strategic report</h2><div class="grid">{analyst_cards}</div>
 <p>{_cell(analyst.get("executive_summary") or "No analyst report available.")}</p>
 <h3>Key findings for review</h3><div class="table-wrap"><table><thead><tr><th>Priority</th><th>Finding</th><th>Source</th><th>Country</th><th>Signal ID</th></tr></thead><tbody>{''.join(analyst_findings)}</tbody></table></div>
@@ -480,6 +511,12 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <article class="panel"><h2>Warning distribution</h2><ul>{warnings}</ul></article>
 <article class="panel"><h2>Source metadata status</h2><ul>{source_summary}</ul></article>
 </section>
+</div>
+</details>
+
+<details class="content-accordion" id="data-section">
+<summary><span class="accordion-symbol" aria-hidden="true">◉</span><span class="accordion-copy"><strong>Data wilayah, ekonomi &amp; pasar</strong><small>Peta wilayah, indikator Indonesia, kurs, komoditas, dan pasar</small></span><span class="accordion-toggle" aria-hidden="true"></span></summary>
+<div class="accordion-body">
 {country_explorer_html}
 <section id="economy">{economic_intelligence_html}
 {world_bank_html}
@@ -491,6 +528,13 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <section id="regional">{indonesia_economic_html}
 {regional_intelligence_html}</section>
 
+
+</div>
+</details>
+
+<details class="content-accordion" id="tren-section">
+<summary><span class="accordion-symbol" aria-hidden="true">◎</span><span class="accordion-copy"><strong>Tren dan perkembangan global</strong><small>Aktivitas negara, topik, tren meningkat, dan jejak sumber</small></span><span class="accordion-toggle" aria-hidden="true"></span></summary>
+<div class="accordion-body">
 <section class="panel" id="global-overview"><h2>Gambaran tren global <span class="sr-only">Global intelligence overview</span></h2><div class="grid">{global_cards}</div></section>
 <section class="columns">
 <article class="panel"><h2>Country activity</h2><div class="table-wrap"><table><thead><tr><th>Country</th><th class="num">Signals</th><th class="num">Avg. score</th><th>Score profile</th></tr></thead><tbody>{country_rows}</tbody></table></div></article>
@@ -501,6 +545,13 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <section class="panel" id="metodologi"><h2>Sumber informasi dan jejak data <span class="sr-only">Source intelligence &amp; provenance</span></h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Source</th><th>Domain</th><th>Metadata status</th><th class="num">Checks</th><th>Reliability verdict</th></tr></thead><tbody>{''.join(source_rows)}</tbody></table></div></section>
 <section class="panel"><h2>Category distribution</h2><div class="table-wrap"><table><thead><tr><th>Category</th><th class="num">Signals</th></tr></thead><tbody>{category_rows}</tbody></table></div></section>
 <section class="panel"><h2>Advanced trend intelligence</h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Category</th><th class="num">Score</th><th>Warning</th><th>History</th><th class="num">Momentum</th><th class="num">Acceleration</th><th>Anomaly review</th><th>Confidence</th><th>Source</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div></section>
+
+</div>
+</details>
+
+<details class="content-accordion" id="teknis-section">
+<summary><span class="accordion-symbol" aria-hidden="true">⚙</span><span class="accordion-copy"><strong>Catatan teknis &amp; sistem</strong><small>Metodologi, kontrol operasional, dan batasan analisis</small></span><span class="accordion-toggle" aria-hidden="true"></span></summary>
+<div class="accordion-body">
 <section class="panel" id="technical-detail"><h2>Informasi teknis dan analisis lanjutan</h2><p class="public-section-lead">Bagian ini memuat status operasional, antrean peninjauan, dan ringkasan analitis. Istilah prioritas dan peringatan merupakan alat bantu peninjauan, bukan penilaian risiko otomatis.</p></section>
 <section class="panel" id="control-center"><h2>PADUKA Control Center</h2><p class="muted">Pusat kontrol laporan dan status build berdasarkan data report saat ini. Notifikasi di bawah adalah aturan pemantauan; belum terhubung ke push alert.</p><div class="control-grid"><article class="control-card"><h3>Build 1.9 · Integrasi FRED &amp; BPS</h3><span class="control-status">Validasi berjalan</span><p>Target bukti: observasi FRED, tabel BPS Sambas live, metadata/period/unit, dan tes lulus.</p></article><article class="control-card"><h3>Monitoring sumber</h3><span class="control-status">{_cell(monitoring.get("cycle_status", "not reported"))}</span><p>Feed sukses: {_cell(monitoring.get("feeds_succeeded", 0))}/{_cell(monitoring.get("feeds_attempted", 0))}. Status berdasarkan laporan yang dibuat.</p></article><article class="control-card"><h3>Riwayat &amp; tindakan</h3><span class="control-status">Laporan lokal</span><p>Gunakan timestamp laporan, status sumber, dan hasil tes workflow untuk menilai perubahan. Dashboard tidak mengubah repository.</p></article></div><h3>Daftar pemberitahuan / aturan</h3><div class="notification-list"><div class="notification-item"><strong>Gangguan sumber data</strong><span>Periksa jika FRED/BPS gagal, observasi kosong, atau status stale pada laporan berikutnya.</span></div><div class="notification-item"><strong>Build siap ditinjau</strong><span>Periksa jika semua bukti integrasi dan tes Build 1.9 sudah valid.</span></div><div class="notification-item"><strong>Perubahan repository</strong><span>Gunakan GitHub commit dan workflow sebagai bukti perubahan, bukan indikator visual dashboard semata.</span></div></div></section><section class="panel" id="command-center"><h2>Global Strategic Intelligence Command Center · Build 3.0</h2>
 <div class="grid">{command_metrics}</div>
@@ -509,6 +560,9 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <h3>Priority review queue</h3><div class="table-wrap"><table><thead><tr><th>Priority</th><th>Signal</th><th>Country</th><th>Source</th><th>Signal ID</th></tr></thead><tbody>{command_queue_rows}</tbody></table></div>
 <h3>Decision gates</h3><ul>{decision_gate_rows}</ul></section>
 <p class="notice">Source checks describe supplied metadata and provenance fields only. They do not rate source reputation or verify claims. Reliability and editorial independence are not assessed automatically. Momentum and acceleration are descriptive; anomaly flags require human review. No indicator is a probability or guaranteed forecast.</p>
+
+</div>
+</details>
 <footer>PADUKA Sambas menyajikan ringkasan informasi berbasis sumber yang tercantum. Data diperbarui ketika laporan baru diterbitkan; periksa periode, satuan, metode, dan sumber asli sebelum mengutip atau mengambil keputusan. <span class="sr-only">Dipublikasikan sebagai dashboard statis MD V14 Trend Intelligence Dashboard.</span></footer>
 </main><script>
 (function () {{
@@ -523,6 +577,19 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
   }}
   updateWibClock();
   window.setInterval(updateWibClock, 1000);
+  document.querySelectorAll('.quick-nav a[href^="#"], .explore-card[href^="#"], .hero-actions a[href^="#"]').forEach((link) => {{
+    link.addEventListener("click", () => {{
+      const targetId = link.getAttribute("href").slice(1);
+      const target = document.getElementById(targetId);
+      const accordion = target ? target.closest("details.content-accordion") : null;
+      if (accordion) accordion.open = true;
+    }});
+  }});
+  if (window.location.hash) {{
+    const initialTarget = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+    const initialAccordion = initialTarget ? initialTarget.closest("details.content-accordion") : null;
+    if (initialAccordion) initialAccordion.open = true;
+  }}
   const reportUpdated = document.querySelector(".hero-meta strong");
   if (reportUpdated) {{
     const parsed = Date.parse(reportUpdated.textContent.trim());
