@@ -1,0 +1,45 @@
+name: Public website uptime check
+
+on:
+  schedule:
+    - cron: "17,47 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-website-uptime
+  cancel-in-progress: true
+
+jobs:
+  check-pages:
+    name: Check public Pages endpoints
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check primary website
+        env:
+          URL: https://paduksambas.github.io/
+        run: |
+          set -euo pipefail
+          body="$(mktemp)"
+          trap 'rm -f "$body"' EXIT
+          status="$(curl --silent --show-error --location --retry 3 --retry-delay 5 --max-time 30 --output "$body" --write-out '%{http_code}' "$URL")"
+          test "$status" = "200"
+          grep -qi '<title>MD V14' "$body"
+          grep -qi 'MD-V14-PADUKA-SAMBAS' "$body"
+          echo "Primary site returned HTTP $status and expected dashboard embed."
+
+      - name: Check dashboard project site
+        env:
+          URL: https://paduksambas.github.io/MD-V14-PADUKA-SAMBAS/
+        run: |
+          set -euo pipefail
+          body="$(mktemp)"
+          trap 'rm -f "$body"' EXIT
+          status="$(curl --silent --show-error --location --retry 3 --retry-delay 5 --max-time 30 --output "$body" --write-out '%{http_code}' "$URL")"
+          test "$status" = "200"
+          grep -qi 'PUBLIC DASHBOARD' "$body"
+          grep -qi 'Trend Intelligence Dashboard' "$body"
+          echo "Project dashboard returned HTTP $status and expected public dashboard content."
