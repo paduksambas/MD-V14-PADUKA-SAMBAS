@@ -138,15 +138,23 @@ def fetch_world_bank_indicators(
                 requests.append({"country_code": country, "indicator_code": indicator,
                                   "status": "unavailable", "observations_received": 0})
     observations.sort(key=lambda item: (item["country_code"], item["indicator_code"], item["year"]))
+    successful_requests = sum(item["status"] == "ok" for item in requests)
+    if observations:
+        overall_status = "available" if not errors else "partial"
+    elif errors:
+        overall_status = "unavailable"
+    else:
+        overall_status = "no_data"
     return {
         "build": "3.3",
         "provider": "World Bank Indicators API",
         "provider_url": "https://api.worldbank.org/v2",
+        "status": overall_status,
         "countries_requested": codes,
         "year_range": {"start": start, "end": end},
         "indicators_requested": selected,
         "request_count": len(requests),
-        "requests_succeeded": sum(item["status"] == "ok" for item in requests),
+        "requests_succeeded": successful_requests,
         "requests_failed": len(errors),
         "observation_count": len(observations),
         "observations": observations,
