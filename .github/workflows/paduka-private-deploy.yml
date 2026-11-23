@@ -2,6 +2,12 @@ name: PADUKA private dashboard deploy (manual)
 
 on:
   workflow_dispatch:
+    inputs:
+      deploy_now:
+        description: "Deploy to Cloudflare Pages only after the Access verification succeeds."
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -34,6 +40,10 @@ jobs:
           test -n "$CF_ACCESS_APP_ID" || { echo "Missing Cloudflare Access application ID." >&2; exit 1; }
           test -n "$ACCESS_URL" || { echo "Missing PADUKA Access URL." >&2; exit 1; }
           test -n "$OWNER_EMAIL" || { echo "Missing PADUKA owner email." >&2; exit 1; }
+          if ! [[ "$CF_PROJECT_NAME" =~ ^[a-z0-9][a-z0-9-]{0,57}$ ]]; then
+            echo "Invalid Cloudflare Pages project name; expected 1-58 lowercase letters, digits, or hyphens." >&2
+            exit 1
+          fi
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
@@ -43,12 +53,17 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           BPS_API_KEY: ${{ secrets.BPS_API_KEY }}
         run: |
+          rm -rf build
           mkdir -p build
+          PRIVATE_REPORT="$(mktemp -t mdv14-private-report-XXXXXX.json)"
+          trap 'rm -f "$PRIVATE_REPORT"' EXIT
           python -m mdv14 --feeds examples/feeds.sample.json \
-            --output build/latest-report.json \
+            --output "$PRIVATE_REPORT" \
             --dashboard build/index.html \
             --economic-countries ID,US,CN
           test -s build/index.html
+          test "$(find build -type f | wc -l)" -eq 1
+          test "$(find build -type f ! -name 'index.html' | wc -l)" -eq 0
       - name: Verify Cloudflare Access owner-only policy before deployment
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -57,8 +72,16 @@ jobs:
           PADUKA_ACCESS_URL: ${{ secrets.PADUKA_ACCESS_URL }}
           PADUKA_OWNER_EMAIL: ${{ secrets.PADUKA_OWNER_EMAIL }}
         run: python scripts/verify_cloudflare_access.py
+      - name: Confirm preflight-only mode
+        if: ${{ !inputs.deploy_now }}
+        run: |
+          echo "Cloudflare Access verification passed for PADUKA_ACCESS_URL."
+          echo "No deployment was requested."
+          echo "Before deploying, ensure the project's pages.dev and preview URLs are disabled or separately protected by owner-only Access."
+
       - name: Deploy behind verified Cloudflare Access
-        uses: cloudflare/wrangler-action@v4
+        if: ${{ inputs.deploy_now }}
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
