@@ -9,6 +9,11 @@ on:
       - 'mdv14/**'
       - 'examples/feeds.sample.json'
       - 'examples/airtable-bps-dashboard.json'
+      - 'examples/bps-public-export.json'
+      - 'data/bps-public-export.csv'
+      - 'data/bps-public-export.xlsx'
+      - 'data/bps-public-export.json'
+      - 'data/README.md'
       - '.github/workflows/pages-deploy.yml'
   workflow_dispatch:
   # Rebuild the dashboard after the six-hourly BPS → Airtable monitoring cycle.
