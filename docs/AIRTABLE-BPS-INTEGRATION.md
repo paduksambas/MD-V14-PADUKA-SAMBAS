@@ -38,6 +38,17 @@ Workflow **Scheduled global intelligence monitoring** berjalan setiap enam jam, 
 
 Data yang tidak memiliki satu nilai numerik yang tidak ambigu ditolak. Nilai kosong tidak diisi nol dan tidak ditebak.
 
+## Refresh otomatis dashboard
+
+Setelah workflow **Scheduled global intelligence monitoring** selesai dengan status sukses, workflow **Deploy PADUKA public dashboard to GitHub Pages** dijalankan otomatis. Urutannya:
+
+1. Monitoring mengambil observasi BPS dan menyinkronkannya ke Airtable.
+2. Setelah sinkronisasi selesai, GitHub Pages membaca Airtable lagi melalui `AIRTABLE_API_TOKEN`.
+3. Bila PAT belum tersedia, build memakai snapshot cadangan terbaru di repository.
+4. Data berstatus **Valid** masuk ke analisis; data **Belum ditinjau** muncul pada tabel tinjauan.
+
+Dengan demikian, setelah PAT dipasang, pembaruan Airtable dari siklus monitoring berikutnya akan memicu rebuild dashboard tanpa commit manual. Trigger hanya melanjutkan ke build saat workflow monitoring selesai sukses.
+
 ## Gerbang publikasi dashboard
 
 Build GitHub Pages membaca Airtable dengan perintah `python scripts/airtable_bps.py --export-dashboard` ketika secret `AIRTABLE_API_TOKEN` tersedia di GitHub Actions. Ekspor membagi data menjadi dua kelompok: observasi berstatus **Valid** masuk ke perhitungan statistik, sedangkan observasi **Belum ditinjau** ditampilkan di tabel antrean validasi. Baris **Ditolak**, status tidak dikenal, atau nilai tidak valid dikecualikan.

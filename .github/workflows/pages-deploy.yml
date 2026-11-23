@@ -11,6 +11,11 @@ on:
       - 'examples/airtable-bps-dashboard.json'
       - '.github/workflows/pages-deploy.yml'
   workflow_dispatch:
+  # Rebuild the dashboard after the six-hourly BPS → Airtable monitoring cycle.
+  workflow_run:
+    workflows: ["Scheduled global intelligence monitoring"]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
@@ -23,6 +28,7 @@ concurrency:
 
 jobs:
   build:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
