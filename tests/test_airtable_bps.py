@@ -56,7 +56,15 @@ class AirtableBpsSyncTests(unittest.TestCase):
         report = {"bps_regional_tables": {"observations": [observation()]}}
         existing = airtable_record("recExisting", {
             "Kunci Observasi": "6101|163|2024",
+            "Kode Domain BPS": "6101",
+            "Nama Wilayah": "Kabupaten Sambas",
+            "Level Wilayah": "regency_city",
+            "Kode Variabel BPS": "163",
+            "Kode Indikator": "163",
+            "Nama Indikator": "Tingkat Pengangguran Terbuka (TPT)",
+            "Periode": "2024",
             "Nilai": 4.99,
+            "Satuan": "Persen",
             "Status Validasi": "Valid",
         })
         with patch.object(airtable_bps, "_list_all_records", return_value=[existing]), patch.object(
@@ -74,7 +82,15 @@ class AirtableBpsSyncTests(unittest.TestCase):
         report = {"bps_regional_tables": {"observations": [observation(value=5.1)]}}
         existing = airtable_record("recExisting", {
             "Kunci Observasi": "6101|163|2024",
+            "Kode Domain BPS": "6101",
+            "Nama Wilayah": "Kabupaten Sambas",
+            "Level Wilayah": "regency_city",
+            "Kode Variabel BPS": "163",
+            "Kode Indikator": "163",
+            "Nama Indikator": "Tingkat Pengangguran Terbuka (TPT)",
+            "Periode": "2024",
             "Nilai": 4.99,
+            "Satuan": "Persen",
             "Status Validasi": "Valid",
         })
         with patch.object(airtable_bps, "_list_all_records", return_value=[existing]), patch.object(
@@ -87,6 +103,43 @@ class AirtableBpsSyncTests(unittest.TestCase):
         patch_fields = api.call_args.kwargs["payload"]["records"][0]["fields"]
         self.assertEqual(patch_fields["Nilai"], 5.1)
         self.assertEqual(patch_fields["Status Validasi"], "Belum ditinjau")
+
+    def test_sync_resets_validation_if_indicator_metadata_changes(self):
+        changed = observation()
+        changed["unit"] = "Jiwa"
+        report = {"bps_regional_tables": {"observations": [changed]}}
+        existing = airtable_record("recExisting", {
+            "Kunci Observasi": "6101|163|2024",
+            "Kode Domain BPS": "6101",
+            "Nama Wilayah": "Kabupaten Sambas",
+            "Level Wilayah": "regency_city",
+            "Kode Variabel BPS": "163",
+            "Kode Indikator": "163",
+            "Nama Indikator": "Tingkat Pengangguran Terbuka (TPT)",
+            "Periode": "2024",
+            "Nilai": 4.99,
+            "Satuan": "Persen",
+            "Status Validasi": "Valid",
+        })
+        with patch.object(airtable_bps, "_list_all_records", return_value=[existing]), patch.object(
+            airtable_bps, "_api_request", return_value={"records": [{"id": "recExisting"}]}
+        ) as api:
+            result = airtable_bps.sync_bps_observations(report, "fake-token")
+        self.assertEqual(result["updated"], 1)
+        self.assertEqual(result["unchanged"], 0)
+        patch_fields = api.call_args.kwargs["payload"]["records"][0]["fields"]
+        self.assertEqual(patch_fields["Status Validasi"], "Belum ditinjau")
+
+    def test_sync_rejects_duplicate_keys_within_one_bps_response(self):
+        report = {"bps_regional_tables": {"observations": [observation(), observation()]}}
+        with patch.object(airtable_bps, "_list_all_records", return_value=[]), patch.object(
+            airtable_bps, "_api_request", return_value={"records": [{"id": "recCreated"}]}
+        ) as api:
+            result = airtable_bps.sync_bps_observations(report, "fake-token")
+        self.assertEqual(result["created"], 1)
+        self.assertEqual(result["rejected"], 1)
+        self.assertEqual(result["status"], "partial")
+        api.assert_called_once()
 
     def test_sync_rejects_non_numeric_values_instead_of_zero_filling(self):
         report = {"bps_regional_tables": {"observations": [
