@@ -120,6 +120,26 @@ jobs:
               print("- Candidate indicators found: " + str(len(candidates)))
               for var_id, title, unit in candidates[:25]:
                   print("- " + title + " | variable ID " + var_id + " | unit " + unit)
+              print("\\n## BPS Sambas period metadata")
+              for var_id, title, unit in candidates[:10]:
+                  try:
+                      period_payload = get("/list/model/th/domain/" + urllib.parse.quote(domain_id, safe="") + "/var/" + urllib.parse.quote(var_id, safe="") + "/key/" + urllib.parse.quote(key, safe=""))
+                      found_periods = []
+                      for row in walk(period_payload):
+                          if not isinstance(row, dict):
+                              continue
+                          period_id = row.get("th_id") or row.get("period_id") or row.get("id")
+                          period_name = row.get("th_name") or row.get("period_name") or row.get("title") or row.get("name")
+                          if period_id is not None and period_name is not None:
+                              found_periods.append((str(period_id), str(period_name)))
+                      found_periods = list(dict.fromkeys(found_periods))
+                      if found_periods:
+                          for period_id, period_name in found_periods[:8]:
+                              print("- " + title + " | period " + period_name + " | period ID " + period_id)
+                      else:
+                          print("- " + title + " | period metadata not parsed; top-level type " + type(period_payload).__name__)
+                  except Exception as period_exc:
+                      print("- " + title + " | period lookup unavailable (" + type(period_exc).__name__ + ")")
               if not variables:
                   print("- Discovery status: METADATA_EMPTY (domain confirmed, variable response not parsed)")
               elif candidates:
