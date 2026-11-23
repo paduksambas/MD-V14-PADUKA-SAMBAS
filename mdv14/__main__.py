@@ -20,6 +20,7 @@ from .public_assets import fetch_public_asset_data
 from .commodity_data import fetch_world_bank_commodity_data
 from .indonesia_intelligence import build_indonesia_economic_intelligence
 from .regional_intelligence import build_regional_intelligence, fetch_bps_region_catalog, fetch_bps_regional_tables, load_bps_public_export
+from .airtable_regional import load_airtable_regional_snapshot
 
 
 def main() -> int:
@@ -40,6 +41,7 @@ def main() -> int:
     parser.add_argument("--market-end-date", default=None, help="Last public-market observation date (default: today).")
     parser.add_argument("--enable-public-assets", action="store_true", help="Opt in to Stooq daily equity/commodity history; disabled by default because the free endpoint may rate-limit automated runners.")
     parser.add_argument("--regional-data", default=None, help="Optional normalized JSON export of BPS provincial/regency indicator observations.")
+    parser.add_argument("--airtable-regional-data", default=None, help="Optional JSON snapshot exported from Airtable's Observasi Regional table.")
     parser.add_argument("--bps-api-key-env", default="BPS_API_KEY", help="Environment variable holding optional BPS WebAPI key (default: BPS_API_KEY).")
     parser.add_argument("--bps-tables-config", default=None, help="Optional JSON configuration of bounded BPS domain/variable/period requests.")
     parser.add_argument("--bps-public-export", default=None, help="Optional public BPS export file (.csv, .xlsx or .json); no API key required.")
@@ -105,6 +107,17 @@ def main() -> int:
                 regional_input = json.load(handle)
         except (OSError, json.JSONDecodeError) as exc:
             parser.error(f"cannot read --regional-data: {exc}")
+    airtable_result = {
+        "provider": "Airtable", "status": "not_configured", "records_read": 0,
+        "valid_count": 0, "pending_validation_count": 0, "rejected_count": 0,
+        "observations": [], "pending_observations": [], "errors": [],
+    }
+    if args.airtable_regional_data:
+        try:
+            airtable_result = load_airtable_regional_snapshot(args.airtable_regional_data)
+        except (OSError, json.JSONDecodeError, ValueError) as exc:
+            parser.error(f"cannot load --airtable-regional-data: {exc}")
+
     bps_key = os.environ.get(args.bps_api_key_env)
     bps_catalog = fetch_bps_region_catalog(bps_key)
     bps_table_result = {"build": "4.0", "status": "not_configured", "request_count": 0,
@@ -130,9 +143,30 @@ def main() -> int:
     existing_rows = regional_input.get("observations", []) if isinstance(regional_input, dict) else regional_input
     if not isinstance(existing_rows, list):
         parser.error("--regional-data must contain an observations array or JSON array")
-    combined_regional_input = {"observations": existing_rows + bps_table_result.get("observations", []) + public_export_result.get("observations", [])}
+    combined_regional_input = {
+        "observations": existing_rows
+        + airtable_result.get("observations", [])
+        + bps_table_result.get("observations", [])
+        + public_export_result.get("observations", [])
+    }
+    report["airtable_regional_data"] = {
+        key: airtable_result.get(key) for key in (
+            "provider", "base_name", "table_name", "snapshot_date", "status",
+            "records_read", "valid_count", "pending_validation_count", "rejected_count",
+        )
+    }
     report["bps_regional_tables"] = bps_table_result
     report["regional_intelligence"] = build_regional_intelligence(combined_regional_input, bps_catalog)
+    report["regional_intelligence"]["airtable"] = {
+        key: airtable_result.get(key) for key in (
+            "provider", "base_name", "table_name", "snapshot_date", "status",
+            "records_read", "valid_count", "pending_validation_count", "rejected_count",
+            "pending_observations",
+        )
+    }
+    if (report["regional_intelligence"].get("status") == "no_data"
+            and airtable_result.get("pending_validation_count", 0) > 0):
+        report["regional_intelligence"]["status"] = "pending_validation"
     report["regional_intelligence"]["public_export"] = {key: public_export_result.get(key) for key in ("status", "file_name", "file_sha256", "source_url", "format", "rows_read", "observation_count", "rejected_rows")}
     try:
         report["fred_market_data"] = fetch_fred_market_data(
