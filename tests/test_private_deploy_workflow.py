@@ -19,6 +19,12 @@ class PrivateDeployWorkflowSafetyTests(unittest.TestCase):
     def test_deployment_requires_explicit_opt_in(self):
         self.assertIn("if: ${{ inputs.deploy_now }}", self.workflow)
 
+    def test_validation_reports_missing_secret_names_without_values(self):
+        self.assertIn('missing=()', self.workflow)
+        self.assertIn('missing+=("CLOUDFLARE_API_TOKEN")', self.workflow)
+        self.assertIn('::error title=Missing deployment secrets::', self.workflow)
+        self.assertNotIn('echo "$CF_API_TOKEN"', self.workflow)
+
     def test_cloudflare_action_is_pinned_to_full_commit_sha(self):
         self.assertIn(
             "uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4",
