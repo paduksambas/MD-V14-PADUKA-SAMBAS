@@ -1,0 +1,59 @@
+{
+  "tables": [
+    {
+      "domain_id": "6101",
+      "region_name": "Kabupaten Sambas",
+      "level": "regency_city",
+      "indicator_code": "105",
+      "indicator_name": "Penduduk Berumur 15 Tahun ke Atas yang Bekerja Selama Seminggu yang Lalu",
+      "variable_id": "105",
+      "period_id": "124",
+      "period": "2024",
+      "unit": "Jiwa"
+    },
+    {
+      "domain_id": "6101",
+      "region_name": "Kabupaten Sambas",
+      "level": "regency_city",
+      "indicator_code": "107",
+      "indicator_name": "Tenaga Kerja yang Mencari Pekerjaan menurut Tingkat Pendidikan",
+      "variable_id": "107",
+      "period_id": "124",
+      "period": "2024",
+      "unit": "Jiwa"
+    },
+    {
+      "domain_id": "6101",
+      "region_name": "Kabupaten Sambas",
+      "level": "regency_city",
+      "indicator_code": "108",
+      "indicator_name": "Penempatan Tenaga Kerja Indonesia Asal Kabupaten Sambas Menurut Negara Tujuan",
+      "variable_id": "108",
+      "period_id": "124",
+      "period": "2024",
+      "unit": "Jiwa"
+    },
+    {
+      "domain_id": "6101",
+      "region_name": "Kabupaten Sambas",
+      "level": "regency_city",
+      "indicator_code": "163",
+      "indicator_name": "Tingkat Pengangguran Terbuka (TPT)",
+      "variable_id": "163",
+      "period_id": "124",
+      "period": "2024",
+      "unit": "Persen"
+    },
+    {
+      "domain_id": "6101",
+      "region_name": "Kabupaten Sambas",
+      "level": "regency_city",
+      "indicator_code": "168",
+      "indicator_name": "Rasio Penduduk Umur 15 Tahun ke Atas yang Bekerja Terhadap Jumlah Penduduk (EPR)",
+      "variable_id": "168",
+      "period_id": "124",
+      "period": "2024",
+      "unit": "Persen"
+    }
+  ]
+}
