@@ -53,12 +53,17 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           BPS_API_KEY: ${{ secrets.BPS_API_KEY }}
         run: |
+          rm -rf build
           mkdir -p build
+          PRIVATE_REPORT="$(mktemp -t mdv14-private-report-XXXXXX.json)"
+          trap 'rm -f "$PRIVATE_REPORT"' EXIT
           python -m mdv14 --feeds examples/feeds.sample.json \
-            --output build/latest-report.json \
+            --output "$PRIVATE_REPORT" \
             --dashboard build/index.html \
             --economic-countries ID,US,CN
           test -s build/index.html
+          test "$(find build -type f | wc -l)" -eq 1
+          test "$(find build -type f ! -name 'index.html' | wc -l)" -eq 0
       - name: Verify Cloudflare Access owner-only policy before deployment
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -69,7 +74,10 @@ jobs:
         run: python scripts/verify_cloudflare_access.py
       - name: Confirm preflight-only mode
         if: ${{ !inputs.deploy_now }}
-        run: echo "Cloudflare Access verification passed. No deployment was requested."
+        run: |
+          echo "Cloudflare Access verification passed for PADUKA_ACCESS_URL."
+          echo "No deployment was requested."
+          echo "Before deploying, ensure the project's pages.dev and preview URLs are disabled or separately protected by owner-only Access."
 
       - name: Deploy behind verified Cloudflare Access
         if: ${{ inputs.deploy_now }}
