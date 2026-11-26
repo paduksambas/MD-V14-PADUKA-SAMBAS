@@ -1,5 +1,143 @@
 [
   {
+    "id": "antara-terkini",
+    "name": "ANTARA News Terkini",
+    "publisher": "ANTARA",
+    "url": "https://www.antaranews.com/rss/terkini.xml",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "Indonesia",
+      "National",
+      "Breaking",
+      "Politics"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "antara-ekonomi",
+    "name": "ANTARA News Ekonomi",
+    "publisher": "ANTARA",
+    "url": "https://www.antaranews.com/rss/ekonomi.xml",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "Indonesia",
+      "Economy",
+      "Business",
+      "Finance"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "antara-bola",
+    "name": "ANTARA News Sepak Bola",
+    "publisher": "ANTARA",
+    "url": "https://www.antaranews.com/rss/sepak-bola.xml",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "Indonesia",
+      "Sports",
+      "Football"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "cnn-nasional",
+    "name": "CNN Indonesia Nasional",
+    "publisher": "CNN Indonesia",
+    "url": "https://www.cnnindonesia.com/nasional/rss",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "Indonesia",
+      "National",
+      "Politics"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "cnn-ekonomi",
+    "name": "CNN Indonesia Ekonomi",
+    "publisher": "CNN Indonesia",
+    "url": "https://www.cnnindonesia.com/ekonomi/rss",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "Indonesia",
+      "Economy",
+      "Business"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "detik-news",
+    "name": "Detikcom News",
+    "publisher": "detikcom",
+    "url": "https://news.detik.com/rss",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "Indonesia",
+      "National",
+      "Trending"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "detik-finance",
+    "name": "Detikcom Finance",
+    "publisher": "detikcom",
+    "url": "https://finance.detik.com/rss",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "Indonesia",
+      "Economy",
+      "Markets"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "detik-sport",
+    "name": "Detikcom Sepakbola",
+    "publisher": "detikcom",
+    "url": "https://sepakbola.detik.com/rss",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "Indonesia",
+      "Sports",
+      "Football"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "cna-indonesia",
+    "name": "CNA Indonesia",
+    "publisher": "CNA",
+    "url": "https://www.cna.id/api/v1/rss-outbound-feed?_format=xml",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "Indonesia",
+      "Asia",
+      "World",
+      "Business"
+    ],
+    "enabled": true
+  },
+  {
     "id": "bbc-world",
     "name": "BBC World",
     "publisher": "BBC",
@@ -24,38 +162,6 @@
     "topics": [
       "World",
       "Politics"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "antara-indonesia",
-    "name": "ANTARA News Terkini",
-    "publisher": "ANTARA",
-    "url": "https://www.antaranews.com/rss/terkini.xml",
-    "country": "Indonesia",
-    "language": "id",
-    "source_type": "news",
-    "topics": [
-      "Indonesia",
-      "National",
-      "Politics",
-      "Economy"
-    ],
-    "enabled": true
-  },
-  {
-    "id": "cna-indonesia",
-    "name": "CNA Indonesia",
-    "publisher": "CNA",
-    "url": "https://www.cna.id/api/v1/rss-outbound-feed?_format=xml",
-    "country": "Indonesia",
-    "language": "id",
-    "source_type": "news",
-    "topics": [
-      "Indonesia",
-      "Asia",
-      "World",
-      "Business"
     ],
     "enabled": true
   }
