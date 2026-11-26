@@ -46,6 +46,12 @@ else
   echo "BPS public export import not configured; no downloaded BPS export file found in data/."
 fi
 
+BPS_TABLE_ARGS=()
+if [[ -f "examples/bps-regional-tables.json" && -n "$(printenv BPS_API_KEY 2>/dev/null || true)" ]]; then
+  BPS_TABLE_ARGS=(--bps-tables-config "examples/bps-regional-tables.json")
+  echo "BPS regional tables config enabled"
+fi
+
 python -m mdv14 \
   --feeds examples/feeds.sample.json \
   --output "$REPORT" \
@@ -53,6 +59,7 @@ python -m mdv14 \
   --economic-countries ID,US,CN \
   --economic-start-year 2020 \
   "${AIRTABLE_ARGS[@]}" \
+  "${BPS_TABLE_ARGS[@]}" \
   "${BPS_PUBLIC_ARGS[@]}"
 
 test -s "$OUTPUT_DIR/index.html"

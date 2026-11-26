@@ -46,6 +46,8 @@ jobs:
       - name: Build public dashboard
         env:
           AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          BPS_API_KEY: ${{ secrets.BPS_API_KEY }}
         run: bash scripts/build_public_dashboard.sh
       - name: Verify public artifact
         run: |

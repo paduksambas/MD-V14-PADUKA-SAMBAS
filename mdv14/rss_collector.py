@@ -156,7 +156,19 @@ def fetch_feed(
             feed_url,
             headers={"User-Agent": USER_AGENT, "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml"},
         )
-        opener = urllib.request.build_opener(_NoRedirect)
+        handlers: list[Any] = [_NoRedirect]
+        try:
+            import ssl
+            ctx = ssl.create_default_context()
+            try:
+                import certifi
+                ctx.load_verify_locations(certifi.where())
+            except Exception:
+                pass
+            handlers.append(urllib.request.HTTPSHandler(context=ctx))
+        except Exception:
+            pass
+        opener = urllib.request.build_opener(*handlers)
         with opener.open(request, timeout=timeout) as response:
             body = response.read(max_bytes + 1)
             if len(body) > max_bytes:
