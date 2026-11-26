@@ -1,10 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "https://paduksambas.github.io/MD-V14-PADUKA-SAMBAS/$1"
+      "src": "/(.*)",
+      "dest": "https://paduksambas.github.io/MD-V14-PADUKA-SAMBAS/$1"
     }
   ]
 }
