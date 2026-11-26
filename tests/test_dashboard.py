@@ -36,10 +36,10 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Technology", html)
         self.assertIn("rising", html)
         self.assertIn("Momentum", html)
-        self.assertIn("Acceleration", html)
+        self.assertIn("Akselerasi", html)
         self.assertIn("moderate", html)
-        self.assertIn("Needs source review", html)
-        self.assertIn("Live monitoring", html)
+        self.assertIn("Perlu tinjauan sumber", html)
+        self.assertIn("Pemantauan langsung", html)
         self.assertIn("healthy", html)
         self.assertIn("PUBLIC DASHBOARD", html)
         self.assertIn('<html lang="id">', html)
@@ -50,9 +50,9 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("Asia/Jakarta", html)
         self.assertIn("PEMBARUAN DATA TERAKHIR", html)
         self.assertIn("Status sumber data", html)
-        self.assertIn("Multilingual source coverage", html)
+        self.assertIn("Cakupan sumber multibahasa", html)
         self.assertIn("Indonesian", html)
-        self.assertIn("Strategic decision review queue", html)
+        self.assertIn("Antrean tinjauan keputusan strategis", html)
         self.assertIn("Graf pengetahuan lintas bahasa", html)
         self.assertIn("Entitas dan istilah yang terdeteksi", html)
         self.assertIn("Dasar pengenalan", html)
@@ -62,7 +62,7 @@ class DashboardTests(unittest.TestCase):
         self.assertIn("bukan verifikasi kebenaran isi berita", html)
         self.assertIn("Indonesia", html)
         self.assertIn("Menyebut entitas", html)
-        self.assertIn("Analyst strategic report", html)
+        self.assertIn("Laporan strategis analis", html)
         self.assertIn("Analyst summary for review", html)
         self.assertIn("Verify original source", html)
         self.assertIn("Priority event", html)
@@ -181,14 +181,14 @@ class DashboardTests(unittest.TestCase):
         }
         html = build_dashboard_html(report)
         self.assertIn("Global intelligence overview", html)
-        self.assertIn("Country activity", html)
-        self.assertIn("Topic activity", html)
+        self.assertIn("Aktivitas negara", html)
+        self.assertIn("Aktivitas topik", html)
         self.assertIn("Japan", html)
         self.assertIn("Energy", html)
         self.assertIn("Battery investment", html)
-        self.assertIn("Related-event discovery", html)
+        self.assertIn("Kandidat keterkaitan peristiwa", html)
         self.assertIn("shared_explicit_topics", html)
-        self.assertIn("not evidence of causality", html)
+        self.assertIn("bukan bukti hubungan sebab-akibat", html)
 
     def test_global_dashboard_escapes_untrusted_labels(self):
         report = {
@@ -362,7 +362,7 @@ class DashboardTests(unittest.TestCase):
 
     def test_empty_report_renders(self):
         html = build_dashboard_html({"signals": [], "daily_brief": {}})
-        self.assertIn("No trend signals", html)
+        self.assertIn("Tidak ada sinyal tren", html)
 
 
 if __name__ == "__main__":

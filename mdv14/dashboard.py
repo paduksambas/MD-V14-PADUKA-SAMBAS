@@ -59,14 +59,14 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
             "<tr>"
             f"<td>{_cell(item.get('title'))}</td>"
             f"<td>{_cell(item.get('source'))}</td>"
-            f"<td>{_cell(assessment.get('source_domain') or 'unknown')}</td>"
-            f"<td>{_cell(assessment.get('status', 'not assessed'))}</td>"
+            f"<td>{_cell(assessment.get('source_domain') or 'tidak diketahui')}</td>"
+            f"<td>{_cell(assessment.get('status', 'belum dinilai'))}</td>"
             f"<td class='num'>{_cell(str(assessment.get('metadata_checks_passed', '—')) + '/' + str(assessment.get('metadata_checks_total', '—')))}</td>"
-            "<td>Not assessed</td>"
+            "<td>Belum dinilai</td>"
             "</tr>"
         )
     if not source_rows:
-        source_rows.append("<tr><td colspan='6'>No source records to assess.</td></tr>")
+        source_rows.append("<tr><td colspan='6'>Tidak ada catatan sumber untuk dinilai.</td></tr>")
 
     rows = []
     for item in sorted(signals, key=lambda x: _score(x.get("score")), reverse=True):
@@ -74,28 +74,28 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         warning = item.get("warning") or {}
         advanced = item.get("advanced_intelligence") or {}
         anomaly = advanced.get("anomaly") or {}
-        anomaly_label = "Unusual change — review" if anomaly.get("detected") else anomaly.get("status", "not assessed")
+        anomaly_label = "Perubahan tidak lazim — perlu ditinjau" if anomaly.get("detected") else anomaly.get("status", "belum dinilai")
         rows.append(
             "<tr>"
             f"<td>{_cell(item.get('title'))}</td>"
             f"<td>{_cell(item.get('category'))}</td>"
             f"<td class='num'>{_cell(item.get('score', 0))}</td>"
-            f"<td>{_cell(warning.get('level', 'unknown'))}</td>"
-            f"<td>{_cell(hist.get('direction', 'no history'))}</td>"
+            f"<td>{_cell(warning.get('level', 'tidak diketahui'))}</td>"
+            f"<td>{_cell(hist.get('direction', 'belum ada riwayat'))}</td>"
             f"<td class='num'>{_cell(advanced.get('momentum', '—'))}</td>"
             f"<td class='num'>{_cell(advanced.get('acceleration', '—'))}</td>"
             f"<td>{_cell(anomaly_label)}</td>"
-            f"<td>{_cell(advanced.get('confidence', 'not assessed'))}</td>"
-            f"<td>{_cell(item.get('source') or 'Source review needed')}</td>"
+            f"<td>{_cell(advanced.get('confidence', 'belum dinilai'))}</td>"
+            f"<td>{_cell(item.get('source') or 'Perlu tinjauan sumber')}</td>"
             "</tr>"
         )
     if not rows:
-        rows.append("<tr><td colspan='10'>No trend signals in this report.</td></tr>")
+        rows.append("<tr><td colspan='10'>Tidak ada sinyal tren dalam laporan ini.</td></tr>")
 
     category_rows = "".join(
         f"<tr><td>{_cell(name)}</td><td class='num'>{count}</td></tr>"
         for name, count in sorted(categories.items(), key=lambda pair: (-pair[1], pair[0].casefold()))
-    ) or "<tr><td colspan='2'>No category data.</td></tr>"
+    ) or "<tr><td colspan='2'>Tidak ada data kategori.</td></tr>"
 
     def metric(label: str, value: Any, note: str = "") -> str:
         return (f"<article class='metric'><div class='muted'>{_cell(label)}</div>"
@@ -124,10 +124,10 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
                 "<tr>"
                 f"<td>{name}</td><td class='num'>{count}</td>"
                 f"<td class='num'>{average:.1f}</td>"
-                f"<td><div class='bar-track' role='img' aria-label='Average score {average:.1f} out of 100'>"
+                f"<td><div class='bar-track' role='img' aria-label='Skor rata-rata {average:.1f} dari 100'>"
                 f"<span class='bar-fill' style='width:{width:.1f}%'></span></div></td></tr>"
             )
-        return "".join(rendered) or "<tr><td colspan='4'>No global intelligence data available.</td></tr>"
+        return "".join(rendered) or "<tr><td colspan='4'>Data intelijen global tidak tersedia.</td></tr>"
 
     country_rows = group_rows(intelligence.get("country_analysis", []))
     topic_rows = group_rows(intelligence.get("topic_analysis", []))
@@ -137,14 +137,14 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         rising_rows.append(
             "<tr>"
             f"<td>{_cell(item.get('title'))}</td>"
-            f"<td>{_cell(item.get('country', 'unknown'))}</td>"
+            f"<td>{_cell(item.get('country', 'tidak diketahui'))}</td>"
             f"<td>{_cell(', '.join(item.get('topics', [])))}</td>"
             f"<td class='num'>{_cell(item.get('score'))}</td>"
             f"<td class='num'>{_cell(item.get('momentum'))}</td>"
             "</tr>"
         )
     if not rising_rows:
-        rising_rows.append("<tr><td colspan='5'>No rising signals with sufficient history.</td></tr>")
+        rising_rows.append("<tr><td colspan='5'>Tidak ada sinyal tren naik dengan riwayat memadai.</td></tr>")
 
     relation_rows = []
     for item in intelligence.get("related_events", []):
@@ -152,25 +152,25 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         relation_rows.append(
             "<tr>"
             f"<td>{_cell(item.get('left_title'))}</td>"
-            f"<td>{_cell(item.get('left_country', 'unknown'))}</td>"
+            f"<td>{_cell(item.get('left_country', 'tidak diketahui'))}</td>"
             f"<td>{_cell(item.get('right_title'))}</td>"
-            f"<td>{_cell(item.get('right_country', 'unknown'))}</td>"
+            f"<td>{_cell(item.get('right_country', 'tidak diketahui'))}</td>"
             f"<td>{_cell(basis)}</td>"
             "</tr>"
         )
     if not relation_rows:
-        relation_rows.append("<tr><td colspan='5'>No related-event candidates identified.</td></tr>")
+        relation_rows.append("<tr><td colspan='5'>Tidak ada kandidat keterkaitan peristiwa yang teridentifikasi.</td></tr>")
 
     language_data = report.get("language_intelligence") or {}
     language_counts = language_data.get("language_counts", {})
     language_rows = "".join(
         f"<tr><td>{_cell(language)}</td><td class='num'>{_cell(count)}</td></tr>"
         for language, count in sorted(language_counts.items())
-    ) or "<tr><td colspan='2'>No declared language metadata.</td></tr>"
+    ) or "<tr><td colspan='2'>Tidak ada metadata bahasa terdata.</td></tr>"
     language_cards = "".join([
-        metric("Declared language", language_data.get("records_with_declared_language", 0), "Explicit metadata only"),
-        metric("Unknown language", language_data.get("records_with_unknown_language", 0), "Not inferred"),
-        metric("Languages represented", len(language_counts), "Declared labels"),
+        metric("Bahasa terdata", language_data.get("records_with_declared_language", 0), "Hanya metadata eksplisit"),
+        metric("Bahasa tidak dikenal", language_data.get("records_with_unknown_language", 0), "Tidak disimpulkan otomatis"),
+        metric("Ragam bahasa", len(language_counts), "Label bahasa terdata"),
     ])
     graph = report.get("knowledge_graph") or {}
     graph_nodes = graph.get("nodes", [])
@@ -246,9 +246,9 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     decision = report.get("strategic_decision") or {}
     review_rows = []
     for item in decision.get("review_queue", []):
-        review_rows.append("<tr>" + f"<td>{_cell(item.get('priority_band'))}</td><td>{_cell(item.get('title'))}</td><td class='num'>{_cell(item.get('priority_score'))}</td><td>{_cell(item.get('warning_level'))}</td><td>{_cell(item.get('source'))}</td><td>{_cell(item.get('url') or 'Unavailable')}</td>" + "</tr>")
+        review_rows.append("<tr>" + f"<td>{_cell(item.get('priority_band'))}</td><td>{_cell(item.get('title'))}</td><td class='num'>{_cell(item.get('priority_score'))}</td><td>{_cell(item.get('warning_level'))}</td><td>{_cell(item.get('source'))}</td><td>{_cell(item.get('url') or 'Tidak tersedia')}</td>" + "</tr>")
     if not review_rows:
-        review_rows.append("<tr><td colspan='6'>No records in the strategic review queue.</td></tr>")
+        review_rows.append("<tr><td colspan='6'>Tidak ada catatan dalam antrean tinjauan strategis.</td></tr>")
     analyst = report.get("analyst_report") or {}
     analyst_findings = []
     for item in analyst.get("key_findings", []):
@@ -259,52 +259,52 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
             _cell(item.get("signal_id")) + "</td></tr>"
         )
     if not analyst_findings:
-        analyst_findings.append("<tr><td colspan=\"5\">No analyst findings available.</td></tr>")
+        analyst_findings.append("<tr><td colspan=\"5\">Tidak ada temuan analis yang tersedia.</td></tr>")
     analyst_actions = "".join(
         "<li><span>" + _cell(item.get("priority")) + " — " + _cell(item.get("action")) + "</span></li>"
         for item in analyst.get("recommended_human_actions", [])
-    ) or "<li>No review actions available.</li>"
+    ) or "<li>Tidak ada tindakan tinjauan yang tersedia.</li>"
     analyst_uncertainties = "".join("<li>" + _cell(item) + "</li>" for item in analyst.get("uncertainties_and_gaps", []))
     analyst_cards = "".join([
-        metric("Analyst findings", len(analyst.get("key_findings", [])), "Traceable priority candidates"),
-        metric("Evidence gaps", (analyst.get("metadata_coverage") or {}).get("records_with_incomplete_evidence_metadata", 0), "Metadata only"),
-        metric("Uncertainties", len(analyst.get("uncertainties_and_gaps", [])), "Explicit caveats"),
+        metric("Temuan analis", len(analyst.get("key_findings", [])), "Kandidat prioritas yang dapat ditelusuri"),
+        metric("Celah bukti", (analyst.get("metadata_coverage") or {}).get("records_with_incomplete_evidence_metadata", 0), "Hanya metadata"),
+        metric("Ketidakpastian", len(analyst.get("uncertainties_and_gaps", [])), "Peringatan eksplisit"),
     ])
     command = report.get("command_center") or {}
     command_cycle = command.get("collection_cycle") or {}
     command_posture = command.get("strategic_posture") or {}
     command_coverage = command.get("coverage") or {}
     command_metrics = "".join([
-        metric("Operational state", command.get("operational_state", "not assessed"), "Configured feed cycle only"),
-        metric("Strategic posture", command_posture.get("status", "not assessed"), "Heuristic human-review cue"),
-        metric("Signals analyzed", command_coverage.get("signals_analyzed", len(signals)), "Current report"),
-        metric("Feeds succeeded", str(command_cycle.get("feeds_succeeded", 0)) + "/" + str(command_cycle.get("feeds_attempted", 0)), "Latest collection cycle"),
-        metric("High review priority", command_posture.get("high_review_priority", 0), "Not threat severity"),
-        metric("Evidence gaps", command_posture.get("evidence_review_required", reviewed), "Metadata completeness only"),
+        metric("Status operasional", command.get("operational_state", "belum dinilai"), "Hanya siklus umpan terkonfigurasi"),
+        metric("Postur strategis", command_posture.get("status", "belum dinilai"), "Petunjuk tinjauan manusia heuristik"),
+        metric("Sinyal dianalisis", command_coverage.get("signals_analyzed", len(signals)), "Laporan saat ini"),
+        metric("Umpan berhasil", str(command_cycle.get("feeds_succeeded", 0)) + "/" + str(command_cycle.get("feeds_attempted", 0)), "Siklus pengumpulan terakhir"),
+        metric("Prioritas tinjauan tinggi", command_posture.get("high_review_priority", 0), "Bukan tingkat keparahan ancaman"),
+        metric("Celah bukti", command_posture.get("evidence_review_required", reviewed), "Hanya kelengkapan metadata"),
     ])
     command_queue_rows = "".join(
         "<tr><td>" + _cell(item.get("priority_band")) + "</td><td>" + _cell(item.get("title")) +
         "</td><td>" + _cell(item.get("country")) + "</td><td>" + _cell(item.get("source")) +
         "</td><td>" + _cell(item.get("signal_id")) + "</td></tr>"
         for item in command.get("priority_review_queue", [])
-    ) or "<tr><td colspan=\"5\">No priority review items.</td></tr>"
+    ) or "<tr><td colspan=\"5\">Tidak ada item tinjauan prioritas.</td></tr>"
     decision_gate_rows = "".join("<li>" + _cell(item) + "</li>" for item in command.get("decision_gates", []))
     if not decision_gate_rows:
-        decision_gate_rows = "<li>Human review required before action.</li>"
+        decision_gate_rows = "<li>Diperlukan tinjauan manusia sebelum tindakan diambil.</li>"
     monitor_cards = "".join([
-        metric("Monitoring cycle", monitoring.get("cycle_status", "not configured"), "Latest collection cycle"),
-        metric("Feeds healthy", f"{monitoring.get('feeds_succeeded', 0)}/{monitoring.get('feeds_attempted', 0)}", "RSS/Atom endpoints"),
-        metric("Items collected", monitoring.get("signals_collected", len(signals)), "Records in this cycle"),
-        metric("Published in 24h", monitoring.get("signals_published_within_window", 0), "Parseable timestamps only"),
-        metric("Unknown publish time", monitoring.get("signals_with_unknown_published_at", 0), "Missing or invalid timestamp"),
+        metric("Siklus pemantauan", monitoring.get("cycle_status", "belum dikonfigurasi"), "Siklus pengumpulan terakhir"),
+        metric("Umpan berfungsi", f"{monitoring.get('feeds_succeeded', 0)}/{monitoring.get('feeds_attempted', 0)}", "Titik akhir RSS/Atom"),
+        metric("Item terkumpul", monitoring.get("signals_collected", len(signals)), "Catatan dalam siklus ini"),
+        metric("Terbit dalam 24 jam", monitoring.get("signals_published_within_window", 0), "Hanya stempel waktu valid"),
+        metric("Waktu terbit tidak diketahui", monitoring.get("signals_with_unknown_published_at", 0), "Stempel waktu hilang atau tidak valid"),
     ])
 
     global_cards = "".join([
-        metric("Signals analyzed", intelligence.get("signals_analyzed", 0), "Global intelligence input"),
-        metric("Countries represented", len(intelligence.get("country_analysis", [])), "Explicit metadata only"),
-        metric("Topics represented", len(intelligence.get("topic_analysis", [])), "Supplied topics/categories"),
-        metric("Rising signals", len(intelligence.get("rising_signals", [])), "Positive historical momentum"),
-        metric("Related-event candidates", len(intelligence.get("related_events", [])), "Not causal findings"),
+        metric("Sinyal dianalisis", intelligence.get("signals_analyzed", 0), "Input intelijen global"),
+        metric("Negara terwakili", len(intelligence.get("country_analysis", [])), "Hanya metadata eksplisit"),
+        metric("Topik terwakili", len(intelligence.get("topic_analysis", [])), "Topik/kategori yang disediakan"),
+        metric("Sinyal tren naik", len(intelligence.get("rising_signals", [])), "Momentum historis positif"),
+        metric("Kandidat keterkaitan peristiwa", len(intelligence.get("related_events", [])), "Bukan temuan sebab-akibat"),
     ])
     title = "PADUKA Sambas — Pusat Data dan Informasi Publik"
     date_label = brief.get("date", "Tanggal tidak tersedia")
@@ -389,14 +389,15 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
         metric("Menunggu pemeriksaan", pending_public_count, "Belum ditampilkan sebagai angka utama"),
     ])
     cards = "".join([
-        metric("Signals", len(signals), "In this report"),
-        metric("Average score", f"{avg_score:.1f}/100", "Supplied heuristic scores"),
-        metric("Needs source review", reviewed, "Metadata completeness only"),
-        metric("With history", len(history), "Persisted observations"),
-        metric("Source records assessed", sum(source_status_counts.values()), "Metadata checklist only"),
+        metric("Sinyal tren", len(signals), "Dalam laporan ini"),
+        metric("Skor rata-rata", f"{avg_score:.1f}/100", "Skor heuristik yang diberikan"),
+        metric("Perlu tinjauan sumber", reviewed, "Hanya kelengkapan metadata"),
+        metric("Memiliki riwayat", len(history), "Observasi tersimpan"),
+        metric("Catatan sumber dinilai", sum(source_status_counts.values()), "Hanya daftar periksa metadata"),
     ])
+    warning_labels = {"critical": "Kritis", "elevated": "Perhatian tinggi", "watch": "Pantauan", "normal": "Normal"}
     warnings = "".join(
-        f"<li><span>{_cell(level.title())}</span><b>{_cell(count)}</b></li>"
+        f"<li><span>{_cell(warning_labels.get(level, level.title()))}</span><b>{_cell(count)}</b></li>"
         for level, count in (("critical", warning_counts.get("critical", 0)),
                              ("elevated", warning_counts.get("elevated", 0)),
                              ("watch", warning_counts.get("watch", 0)),
@@ -405,7 +406,7 @@ def build_dashboard_html(report: dict[str, Any]) -> str:
     source_summary = "".join(
         f"<li><span>{_cell(status.replace('_', ' '))}</span><b>{_cell(count)}</b></li>"
         for status, count in sorted(source_status_counts.items())
-    ) or "<li>No source assessments</li>"
+    ) or "<li>Tidak ada penilaian sumber</li>"
     return f"""<!doctype html>
 <html lang="id"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -481,14 +482,14 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <article><div class="muted">WAKTU PEMBUATAN LAPORAN <span class="sr-only">PEMBARUAN DATA TERAKHIR</span></div><strong>{_cell(generated_at or "Belum tersedia")}</strong><div class="muted">Data analisis berubah saat laporan berikutnya diterbitkan</div></article>
 </div>
 <div class="columns">
-<article><h2>Status siklus pengumpulan</h2><p><strong>{_cell(monitoring.get("cycle_status", "not reported"))}</strong></p><p class="muted">Feed berhasil: {_cell(monitoring.get("feeds_succeeded", 0))}/{_cell(monitoring.get("feeds_attempted", 0))}. Siklus terjadwal, bukan streaming kontinu.</p></article>
+<article><h2>Status siklus pengumpulan</h2><p><strong>{_cell(monitoring.get("cycle_status", "belum dilaporkan"))}</strong></p><p class="muted">Umpan berhasil: {_cell(monitoring.get("feeds_succeeded", 0))}/{_cell(monitoring.get("feeds_attempted", 0))}. Siklus terjadwal, bukan streaming kontinu.</p></article>
 <article><h2>Status sumber data</h2><ul>{source_status_html}</ul></article>
 </div>
 <p class="notice">Informasi publik: dashboard ini dapat diakses siapa saja melalui internet. Jangan masukkan data pribadi, kredensial, atau laporan internal ke sumber yang dipublikasikan. Jam WIB berjalan langsung; isi analisis merupakan snapshot dari siklus pengumpulan terakhir dan berubah setelah dashboard dibangun ulang.</p>
 </section>
 <section class="grid" id="overview">{cards}</section>
-<section class="panel" id="monitoring"><h2>Live monitoring · latest collection cycle</h2><div class="grid">{monitor_cards}</div><p class="muted">Cycle timestamp: {_cell(monitoring.get("generated_at", "Not available"))}. Feed health is collection status, not content verification. Scheduled runs execute only when the repository workflow runs.</p></section>
-<section class="panel"><h2>Multilingual source coverage</h2><div class="grid">{language_cards}</div><div class="table-wrap"><table><thead><tr><th>Declared language</th><th class="num">Records</th></tr></thead><tbody>{language_rows}</tbody></table></div><p class="muted">Language labels are supplied metadata. The bilingual research matcher is a limited lexical aid, not translation or automatic language detection.</p></section>
+<section class="panel" id="monitoring"><h2>Pemantauan langsung · siklus pengumpulan terakhir</h2><div class="grid">{monitor_cards}</div><p class="muted">Stempel waktu siklus: {_cell(monitoring.get("generated_at", "Tidak tersedia"))}. Status kelancaran umpan menunjukkan keberhasilan pengumpulan teknis, bukan verifikasi isi konten. Eksekusi terjadwal hanya aktif saat alur kerja repositori berjalan.</p></section>
+<section class="panel"><h2>Cakupan sumber multibahasa</h2><div class="grid">{language_cards}</div><div class="table-wrap"><table><thead><tr><th>Bahasa terdata</th><th class="num">Jumlah rekaman</th></tr></thead><tbody>{language_rows}</tbody></table></div><p class="muted">Label bahasa merupakan metadata yang tersedia dari sumber. Pencocok riset dwibahasa adalah alat bantu leksikal terbatas, bukan penerjemahan atau deteksi bahasa otomatis.</p></section>
 <section class="panel"><h2>Graf pengetahuan lintas bahasa</h2><div class="grid">{graph_cards}</div>
 <h3>Entitas dan istilah yang terdeteksi</h3><div class="table-wrap"><table><thead><tr><th>Entitas</th><th>Jenis</th><th>Dasar pengenalan</th></tr></thead><tbody>{graph_node_rows}</tbody></table></div>
 <h3>Hubungan untuk ditinjau</h3><div class="table-wrap"><table><thead><tr><th>Jenis hubungan</th><th>Simpul pertama</th><th>Simpul kedua</th><th>ID rekaman pendukung</th></tr></thead><tbody>{graph_edge_rows}</tbody></table></div>
@@ -500,16 +501,16 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <details class="content-accordion" id="analisis-section">
 <summary><span class="accordion-symbol" aria-hidden="true">▤</span><span class="accordion-copy"><strong>Analisis &amp; tinjauan</strong><small>Ringkasan analisis, antrean pemeriksaan, dan peringatan</small></span><span class="accordion-toggle" aria-hidden="true"></span></summary>
 <div class="accordion-body">
-<section class="panel"><h2>Analyst strategic report</h2><div class="grid">{analyst_cards}</div>
-<p>{_cell(analyst.get("executive_summary") or "No analyst report available.")}</p>
-<h3>Key findings for review</h3><div class="table-wrap"><table><thead><tr><th>Priority</th><th>Finding</th><th>Source</th><th>Country</th><th>Signal ID</th></tr></thead><tbody>{''.join(analyst_findings)}</tbody></table></div>
-<h3>Uncertainties and evidence gaps</h3><ul>{analyst_uncertainties}</ul>
-<h3>Recommended human review actions</h3><ul>{analyst_actions}</ul>
-<p class="muted">Deterministic synthesis of supplied assessments, not generative AI or independent fact verification. Human approval is required.</p></section>
-<section class="panel" id="signals"><h2>Strategic decision review queue</h2><div class="table-wrap"><table><thead><tr><th>Priority</th><th>Signal</th><th class="num">Score</th><th>Warning</th><th>Source</th><th>Article URL</th></tr></thead><tbody>{''.join(review_rows)}</tbody></table></div><p class="muted">Priority is a human-review ordering cue, not event severity or probability.</p></section>
+<section class="panel"><h2>Laporan strategis analis</h2><div class="grid">{analyst_cards}</div>
+<p>{_cell(analyst.get("executive_summary") or "Laporan analis tidak tersedia.")}</p>
+<h3>Temuan utama untuk ditinjau</h3><div class="table-wrap"><table><thead><tr><th>Prioritas</th><th>Temuan</th><th>Sumber</th><th>Negara</th><th>ID Sinyal</th></tr></thead><tbody>{''.join(analyst_findings)}</tbody></table></div>
+<h3>Ketidakpastian dan celah bukti</h3><ul>{analyst_uncertainties}</ul>
+<h3>Rekomendasi tindakan tinjauan manusia</h3><ul>{analyst_actions}</ul>
+<p class="muted">Sintesis deterministik dari penilaian yang disediakan, bukan AI generatif atau verifikasi fakta independen. Persetujuan manusia tetap diperlukan.</p></section>
+<section class="panel" id="signals"><h2>Antrean tinjauan keputusan strategis</h2><div class="table-wrap"><table><thead><tr><th>Prioritas</th><th>Sinyal</th><th class="num">Skor</th><th>Peringatan</th><th>Sumber</th><th>Tautan artikel</th></tr></thead><tbody>{''.join(review_rows)}</tbody></table></div><p class="muted">Prioritas adalah petunjuk urutan peninjauan manusia, bukan tingkat keparahan atau probabilitas peristiwa.</p></section>
 <section class="columns">
-<article class="panel"><h2>Warning distribution</h2><ul>{warnings}</ul></article>
-<article class="panel"><h2>Source metadata status</h2><ul>{source_summary}</ul></article>
+<article class="panel"><h2>Distribusi tingkat peringatan</h2><ul>{warnings}</ul></article>
+<article class="panel"><h2>Status metadata sumber</h2><ul>{source_summary}</ul></article>
 </section>
 </div>
 </details>
@@ -537,14 +538,14 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <div class="accordion-body">
 <section class="panel" id="global-overview"><h2>Gambaran tren global <span class="sr-only">Global intelligence overview</span></h2><div class="grid">{global_cards}</div></section>
 <section class="columns">
-<article class="panel"><h2>Country activity</h2><div class="table-wrap"><table><thead><tr><th>Country</th><th class="num">Signals</th><th class="num">Avg. score</th><th>Score profile</th></tr></thead><tbody>{country_rows}</tbody></table></div></article>
-<article class="panel"><h2>Topic activity</h2><div class="table-wrap"><table><thead><tr><th>Topic</th><th class="num">Signals</th><th class="num">Avg. score</th><th>Score profile</th></tr></thead><tbody>{topic_rows}</tbody></table></div></article>
+<article class="panel"><h2>Aktivitas negara</h2><div class="table-wrap"><table><thead><tr><th>Negara</th><th class="num">Sinyal</th><th class="num">Skor rata-rata</th><th>Profil skor</th></tr></thead><tbody>{country_rows}</tbody></table></div></article>
+<article class="panel"><h2>Aktivitas topik</h2><div class="table-wrap"><table><thead><tr><th>Topik</th><th class="num">Sinyal</th><th class="num">Skor rata-rata</th><th>Profil skor</th></tr></thead><tbody>{topic_rows}</tbody></table></div></article>
 </section>
-<section class="panel"><h2>Rising signals</h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Country</th><th>Topics</th><th class="num">Score</th><th class="num">Momentum</th></tr></thead><tbody>{''.join(rising_rows)}</tbody></table></div></section>
-<section class="panel"><h2>Related-event discovery</h2><div class="table-wrap"><table><thead><tr><th>Event A</th><th>Country</th><th>Event B</th><th>Country</th><th>Relationship basis</th></tr></thead><tbody>{''.join(relation_rows)}</tbody></table></div><p class="muted">These are discovery candidates based on shared metadata or wording, not evidence of causality or independent corroboration.</p></section>
-<section class="panel" id="metodologi"><h2>Sumber informasi dan jejak data <span class="sr-only">Source intelligence &amp; provenance</span></h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Source</th><th>Domain</th><th>Metadata status</th><th class="num">Checks</th><th>Reliability verdict</th></tr></thead><tbody>{''.join(source_rows)}</tbody></table></div></section>
-<section class="panel"><h2>Category distribution</h2><div class="table-wrap"><table><thead><tr><th>Category</th><th class="num">Signals</th></tr></thead><tbody>{category_rows}</tbody></table></div></section>
-<section class="panel"><h2>Advanced trend intelligence</h2><div class="table-wrap"><table><thead><tr><th>Trend</th><th>Category</th><th class="num">Score</th><th>Warning</th><th>History</th><th class="num">Momentum</th><th class="num">Acceleration</th><th>Anomaly review</th><th>Confidence</th><th>Source</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div></section>
+<section class="panel"><h2>Sinyal tren naik</h2><div class="table-wrap"><table><thead><tr><th>Tren</th><th>Negara</th><th>Topik</th><th class="num">Skor</th><th class="num">Momentum</th></tr></thead><tbody>{''.join(rising_rows)}</tbody></table></div></section>
+<section class="panel"><h2>Kandidat keterkaitan peristiwa</h2><div class="table-wrap"><table><thead><tr><th>Peristiwa A</th><th>Negara</th><th>Peristiwa B</th><th>Negara</th><th>Dasar hubungan</th></tr></thead><tbody>{''.join(relation_rows)}</tbody></table></div><p class="muted">Kandidat keterkaitan didasarkan pada metadata atau kata kunci bersama, bukan bukti hubungan sebab-akibat atau konfirmasi independen.</p></section>
+<section class="panel" id="metodologi"><h2>Sumber informasi dan jejak data <span class="sr-only">Source intelligence &amp; provenance</span></h2><div class="table-wrap"><table><thead><tr><th>Tren</th><th>Sumber</th><th>Domain</th><th>Status metadata</th><th class="num">Pemeriksaan</th><th>Status keandalan <span class="sr-only">Reliability verdict</span></th></tr></thead><tbody>{''.join(source_rows)}</tbody></table></div></section>
+<section class="panel"><h2>Distribusi kategori</h2><div class="table-wrap"><table><thead><tr><th>Kategori</th><th class="num">Sinyal</th></tr></thead><tbody>{category_rows}</tbody></table></div></section>
+<section class="panel"><h2>Analisis lanjutan tren <span class="sr-only">Advanced trend intelligence</span></h2><div class="table-wrap"><table><thead><tr><th>Tren</th><th>Kategori</th><th class="num">Skor</th><th>Peringatan</th><th>Riwayat</th><th class="num">Momentum</th><th class="num">Akselerasi</th><th>Tinjauan anomali</th><th>Tingkat keyakinan</th><th>Sumber</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div></section>
 
 </div>
 </details>
@@ -553,13 +554,13 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <summary><span class="accordion-symbol" aria-hidden="true">⚙</span><span class="accordion-copy"><strong>Catatan teknis &amp; sistem</strong><small>Metodologi, kontrol operasional, dan batasan analisis</small></span><span class="accordion-toggle" aria-hidden="true"></span></summary>
 <div class="accordion-body">
 <section class="panel" id="technical-detail"><h2>Informasi teknis dan analisis lanjutan</h2><p class="public-section-lead">Bagian ini memuat status operasional, antrean peninjauan, dan ringkasan analitis. Istilah prioritas dan peringatan merupakan alat bantu peninjauan, bukan penilaian risiko otomatis.</p></section>
-<section class="panel" id="control-center"><h2>PADUKA Control Center</h2><p class="muted">Pusat kontrol laporan dan status build berdasarkan data report saat ini. Notifikasi di bawah adalah aturan pemantauan; belum terhubung ke push alert.</p><div class="control-grid"><article class="control-card"><h3>Build 1.9 · Integrasi FRED &amp; BPS</h3><span class="control-status">Validasi berjalan</span><p>Target bukti: observasi FRED, tabel BPS Sambas live, metadata/period/unit, dan tes lulus.</p></article><article class="control-card"><h3>Monitoring sumber</h3><span class="control-status">{_cell(monitoring.get("cycle_status", "not reported"))}</span><p>Feed sukses: {_cell(monitoring.get("feeds_succeeded", 0))}/{_cell(monitoring.get("feeds_attempted", 0))}. Status berdasarkan laporan yang dibuat.</p></article><article class="control-card"><h3>Riwayat &amp; tindakan</h3><span class="control-status">Laporan lokal</span><p>Gunakan timestamp laporan, status sumber, dan hasil tes workflow untuk menilai perubahan. Dashboard tidak mengubah repository.</p></article></div><h3>Daftar pemberitahuan / aturan</h3><div class="notification-list"><div class="notification-item"><strong>Gangguan sumber data</strong><span>Periksa jika FRED/BPS gagal, observasi kosong, atau status stale pada laporan berikutnya.</span></div><div class="notification-item"><strong>Build siap ditinjau</strong><span>Periksa jika semua bukti integrasi dan tes Build 1.9 sudah valid.</span></div><div class="notification-item"><strong>Perubahan repository</strong><span>Gunakan GitHub commit dan workflow sebagai bukti perubahan, bukan indikator visual dashboard semata.</span></div></div></section><section class="panel" id="command-center"><h2>Global Strategic Intelligence Command Center · Build 3.0</h2>
+<section class="panel" id="control-center"><h2>PADUKA Control Center</h2><p class="muted">Pusat kontrol laporan dan status build berdasarkan data report saat ini. Notifikasi di bawah adalah aturan pemantauan; belum terhubung ke push alert.</p><div class="control-grid"><article class="control-card"><h3>Build 1.9 · Integrasi FRED &amp; BPS</h3><span class="control-status">Validasi berjalan</span><p>Target bukti: observasi FRED, tabel BPS Sambas live, metadata/period/unit, dan tes lulus.</p></article><article class="control-card"><h3>Monitoring sumber</h3><span class="control-status">{_cell(monitoring.get("cycle_status", "belum dilaporkan"))}</span><p>Feed sukses: {_cell(monitoring.get("feeds_succeeded", 0))}/{_cell(monitoring.get("feeds_attempted", 0))}. Status berdasarkan laporan yang dibuat.</p></article><article class="control-card"><h3>Riwayat &amp; tindakan</h3><span class="control-status">Laporan lokal</span><p>Gunakan timestamp laporan, status sumber, dan hasil tes workflow untuk menilai perubahan. Dashboard tidak mengubah repository.</p></article></div><h3>Daftar pemberitahuan / aturan</h3><div class="notification-list"><div class="notification-item"><strong>Gangguan sumber data</strong><span>Periksa jika FRED/BPS gagal, observasi kosong, atau status stale pada laporan berikutnya.</span></div><div class="notification-item"><strong>Build siap ditinjau</strong><span>Periksa jika semua bukti integrasi dan tes Build 1.9 sudah valid.</span></div><div class="notification-item"><strong>Perubahan repository</strong><span>Gunakan GitHub commit dan workflow sebagai bukti perubahan, bukan indikator visual dashboard semata.</span></div></div></section><section class="panel" id="command-center"><h2>Pusat Komando Intelijen Strategis Global · Build 3.0 <span class="sr-only">Global Strategic Intelligence Command Center</span></h2>
 <div class="grid">{command_metrics}</div>
-<p><strong>{_cell(command_posture.get("status", "not assessed"))}</strong> — {_cell(command_posture.get("note", "No command-center assessment available."))}</p>
-<p class="muted">Collection: {_cell(command_cycle.get("status", "not configured"))}; generated: {_cell(command.get("generated_at", "not available"))}. This is a consolidated report view, not continuous monitoring or an autonomous risk rating.</p>
-<h3>Priority review queue</h3><div class="table-wrap"><table><thead><tr><th>Priority</th><th>Signal</th><th>Country</th><th>Source</th><th>Signal ID</th></tr></thead><tbody>{command_queue_rows}</tbody></table></div>
-<h3>Decision gates</h3><ul>{decision_gate_rows}</ul></section>
-<p class="notice">Source checks describe supplied metadata and provenance fields only. They do not rate source reputation or verify claims. Reliability and editorial independence are not assessed automatically. Momentum and acceleration are descriptive; anomaly flags require human review. No indicator is a probability or guaranteed forecast.</p>
+<p><strong>{_cell(command_posture.get("status", "belum dinilai"))}</strong> — {_cell(command_posture.get("note", "Penilaian pusat komando tidak tersedia."))}</p>
+<p class="muted">Pengumpulan: {_cell(command_cycle.get("status", "belum dikonfigurasi"))}; waktu dibuat: {_cell(command.get("generated_at", "tidak tersedia"))}. Ini adalah tampilan laporan terkonsolidasi, bukan pemantauan terus-menerus atau pemeringkatan risiko otonom.</p>
+<h3>Antrean tinjauan prioritas</h3><div class="table-wrap"><table><thead><tr><th>Prioritas</th><th>Sinyal</th><th>Negara</th><th>Sumber</th><th>ID Sinyal</th></tr></thead><tbody>{command_queue_rows}</tbody></table></div>
+<h3>Gerbang keputusan</h3><ul>{decision_gate_rows}</ul></section>
+<p class="notice">Pemeriksaan sumber hanya mendeskripsikan kolom metadata dan rekam jejak yang disediakan. Pemeriksaan ini tidak menilai reputasi sumber atau memverifikasi klaim kebenaran berita. Keandalan dan independensi redaksional tidak dinilai secara otomatis. Momentum dan akselerasi bersifat deskriptif; indikator anomali memerlukan tinjauan manusia. Tidak ada indikator yang merupakan probabilitas atau ramalan pasti.</p>
 
 </div>
 </details>
