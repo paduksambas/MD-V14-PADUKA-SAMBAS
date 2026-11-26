@@ -447,12 +447,12 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 <div class="hero-eyebrow">Portal informasi publik Kabupaten Sambas</div>
 <h1>Kenali kondisi Kabupaten Sambas melalui data.</h1>
 <p class="hero-copy">PADUKA merangkum informasi daerah, ekonomi Indonesia, pasar, komoditas, dan perkembangan global dalam satu tempat. Setiap angka dilengkapi periode dan jejak sumber agar mudah dibaca serta ditelusuri.</p>
-<div class="hero-actions"><a href="#data-sambas">Lihat data Sambas</a><a class="secondary" href="#jelajahi">Jelajahi informasi</a></div>
+<div class="hero-actions"><a href="#data-sambas">Lihat data Sambas</a><a class="secondary" href="#jelajahi">Jelajahi informasi</a><a class="secondary" href="https://padukasambas.blogspot.com" target="_blank" rel="noopener noreferrer" style="background:#e11d48;color:#fff;border-color:#e11d48;font-weight:700;">📰 Portal Berita Resmi</a></div>
 <div class="hero-meta"><span class="sr-only">PUBLIC DASHBOARD</span><span>Laporan diperbarui: <strong>{_cell(generated_at or "Belum tersedia")}</strong></span><span>Zona waktu: Indonesia Barat (WIB)</span></div>
 </div>
 <aside class="hero-aside"><div class="hero-aside-label">Tentang PADUKA</div><strong>Data lebih jelas. Informasi lebih mudah dijangkau.</strong><p>Ringkasan untuk masyarakat, pelaku usaha, peneliti, dan pengambil kebijakan. Gunakan tautan sumber untuk memeriksa konteks setiap data.</p><span class="legacy-title">MD V14 · Trend Intelligence Dashboard</span></aside>
 </header>
-<nav class="quick-nav" aria-label="Navigasi utama"><a href="#home">Beranda</a><a href="#data-sambas">Data Sambas</a><a href="#regional">Data Indonesia</a><a href="#economy">Ekonomi &amp; pasar</a><a href="#global-overview">Tren global</a><a href="#live-status">Pembaruan &amp; sumber</a><a href="#technical-detail">Catatan teknis</a></nav>
+<nav class="quick-nav" aria-label="Navigasi utama"><a href="#home">Beranda</a><a href="https://padukasambas.blogspot.com" target="_blank" rel="noopener noreferrer" style="background:#fff1f2;border-color:#fda4af;color:#e11d48;font-weight:700;">📰 Blog Berita</a><a href="#data-sambas">Data Sambas</a><a href="#regional">Data Indonesia</a><a href="#economy">Ekonomi &amp; pasar</a><a href="#global-overview">Tren global</a><a href="#live-status">Pembaruan &amp; sumber</a><a href="#technical-detail">Catatan teknis</a></nav>
 <section class="public-section" id="public-overview"><h2>Ringkasan untuk publik</h2>
 <p class="public-section-lead">Lihat cakupan data daerah yang tersedia, periode terakhir, sumber yang dicantumkan, dan data yang masih menunggu pemeriksaan.</p>
 <div class="grid">{public_summary_cards}</div></section>
@@ -563,7 +563,16 @@ table{{border-collapse:collapse;width:100%;font-size:.92rem}}th,td{{text-align:l
 
 </div>
 </details>
-<footer>PADUKA Sambas menyajikan ringkasan informasi berbasis sumber yang tercantum. Data diperbarui ketika laporan baru diterbitkan; periksa periode, satuan, metode, dan sumber asli sebelum mengutip atau mengambil keputusan. <span class="sr-only">Dipublikasikan sebagai dashboard statis MD V14 Trend Intelligence Dashboard.</span></footer>
+<footer>
+<div style="margin-bottom:14px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+  <strong>Jejaring Media Resmi Paduka Sambas:</strong>
+  <a href="https://padukasambas.blogspot.com" target="_blank" rel="noopener noreferrer" style="font-weight:700;color:#e11d48;">🌐 Blog Resmi</a> ·
+  <a href="https://www.facebook.com/paduka.sambas" target="_blank" rel="noopener noreferrer">Facebook</a> ·
+  <a href="https://www.instagram.com/paduka_sambas" target="_blank" rel="noopener noreferrer">Instagram</a> ·
+  <a href="https://www.youtube.com/@PadukaSambas" target="_blank" rel="noopener noreferrer">YouTube</a>
+</div>
+PADUKA Sambas menyajikan ringkasan informasi berbasis sumber yang tercantum. Data diperbarui ketika laporan baru diterbitkan; periksa periode, satuan, metode, dan sumber asli sebelum mengutip atau mengambil keputusan. <span class="sr-only">Dipublikasikan sebagai dashboard statis MD V14 Trend Intelligence Dashboard.</span>
+</footer>
 </main><script>
 (function () {{
   const clock = document.getElementById("wib-clock");

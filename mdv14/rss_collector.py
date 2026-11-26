@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import ipaddress
+import re
 import socket
 import urllib.error
 import urllib.request
@@ -108,10 +109,26 @@ def parse_feed(xml_bytes: bytes, feed_url: str, source_name: str = "") -> list[d
                 term = child.attrib.get("term", "").strip() or _text(child)
                 if term and term not in topics:
                     topics.append(term)
+
+        # Ekstraksi foto pers/gambar (media:content, media:thumbnail, enclosure, img src)
+        image_url = ""
+        for child in list(entry):
+            ctag = child.tag.rsplit("}", 1)[-1].lower()
+            if ctag in {"content", "thumbnail", "enclosure"}:
+                u = child.attrib.get("url", "").strip()
+                if u and _valid_article_url(u):
+                    image_url = u
+                    break
+        if not image_url and summary:
+            m = re.search(r'src=["\']([^"\']+\.(?:jpg|jpeg|png|webp)[^"\']*)["\']', summary, re.IGNORECASE)
+            if m and _valid_article_url(m.group(1)):
+                image_url = m.group(1)
+
         results.append({
             "title": title,
             "source": source_name.strip() or urlparse(feed_url).hostname or "RSS feed",
             "url": link,
+            "image_url": image_url,
             "summary": summary,
             "published_at": published,
             "author": author,
