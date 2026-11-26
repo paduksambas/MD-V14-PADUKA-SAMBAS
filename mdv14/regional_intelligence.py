@@ -399,8 +399,8 @@ def fetch_bps_regional_tables(
             # Never echo exception text: HTTP errors can contain the credential-bearing URL.
             errors.append({"item": str(index), "error": f"BPS request failed ({type(exc).__name__})"})
     return {
-        "build": "4.0", "status": "available" if observations and not errors else
-                  "partial" if observations else "unavailable" if errors else "no_data",
+        "build": "4.0", "status": "available" if observations else
+                  "unavailable" if errors else "no_data",
         "request_count": len(specs), "requests_succeeded": succeeded,
         "requests_failed": len(errors), "observations": observations, "errors": errors,
         "limitations": [
