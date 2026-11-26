@@ -41,7 +41,8 @@ on:
       - 'scripts/airtable_bps.py'
   workflow_dispatch:
   schedule:
-    - cron: "17 */6 * * *"
+    # Berjalan setiap 3 jam sekali
+    - cron: "17 */3 * * *"
 
 permissions:
   contents: read
