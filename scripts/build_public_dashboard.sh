@@ -7,6 +7,15 @@ cd "$ROOT"
 OUTPUT_DIR="public"
 mkdir -p "$OUTPUT_DIR"
 find "$OUTPUT_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+
+if [[ -n "${VERCEL:-}" ]]; then
+  echo "Vercel build detected. Fetching latest verified dashboard from GitHub Pages..."
+  if curl -fsSL "https://paduksambas.github.io/MD-V14-PADUKA-SAMBAS/" -o "$OUTPUT_DIR/index.html" && [[ -s "$OUTPUT_DIR/index.html" ]]; then
+    echo "Successfully mirrored live dashboard to $OUTPUT_DIR/index.html"
+    exit 0
+  fi
+  echo "Fallback to local build if mirror fetch failed."
+fi
 REPORT="$(mktemp -t mdv14-public-report-XXXXXX.json)"
 AIRTABLE_EXPORT="$(mktemp -t mdv14-airtable-bps-XXXXXX.json)"
 trap 'rm -f "$REPORT" "$AIRTABLE_EXPORT"' EXIT
