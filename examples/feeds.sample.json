@@ -170,7 +170,7 @@
     "name": "CNN Indonesia Internasional",
     "publisher": "CNN Indonesia",
     "url": "https://www.cnnindonesia.com/internasional/rss",
-    "country": "Global",
+    "country": "Indonesia",
     "language": "id",
     "source_type": "news",
     "topics": [
@@ -185,7 +185,7 @@
     "name": "ANTARA News Dunia",
     "publisher": "ANTARA",
     "url": "https://www.antaranews.com/rss/dunia.xml",
-    "country": "Global",
+    "country": "Indonesia",
     "language": "id",
     "source_type": "news",
     "topics": [
@@ -200,7 +200,7 @@
     "name": "Detikcom Internasional",
     "publisher": "detikcom",
     "url": "https://news.detik.com/internasional/rss",
-    "country": "Global",
+    "country": "Indonesia",
     "language": "id",
     "source_type": "news",
     "topics": [
