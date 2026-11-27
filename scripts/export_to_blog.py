@@ -86,6 +86,75 @@ date: "{today_str}"
     return target_path
 
 
+def export_trending_intel_to_blog(report_json_path, output_dir="../github-to-blogspot/posts", limit=5):
+    """
+    Mengekspor artikel intelijen global & nasional dengan skor tertinggi dari MD-V14
+    langsung ke format markdown github-to-blogspot dengan metadata gambar (thumbnail) terjamin.
+    """
+    if not os.path.exists(report_json_path):
+        print(f"[!] Berkas laporan {report_json_path} tidak ditemukan.")
+        return []
+
+    with open(report_json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    signals = data.get("signals", []) or data.get("brief", {}).get("items", [])
+    if not signals:
+        print("[!] Tidak ada sinyal intelijen berita yang ditemukan.")
+        return []
+
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    exported = []
+
+    # Urutkan berdasarkan skor tertinggi (momentum / attention potential)
+    signals.sort(key=lambda x: x.get("score", 0), reverse=True)
+
+    for item in signals[:limit]:
+        title = item.get("title", "").strip()
+        url = item.get("url", "")
+        img_url = item.get("image_url", "")
+        summary = item.get("summary", "")
+        topics = item.get("topics", ["Berita", "Global"])
+        if not title:
+            continue
+
+        slug = re.sub(r"[^\w\s-]", "", title.lower())
+        slug = re.sub(r"[\s_-]+", "-", slug)[:50].strip("-")
+        filename = f"{today_str}-{slug}.md"
+        target_path = os.path.join(output_dir, filename)
+
+        if os.path.exists(target_path):
+            continue
+
+        frontmatter = f"""---
+title: "{title}"
+labels: {json.dumps(topics[:4], ensure_ascii=False)}
+description: "{summary[:150]}"
+status: "draft"
+date: "{today_str}"
+thumbnail: "{img_url}"
+original_url: "{url}"
+---
+
+{summary}
+
+---
+*Sumber & Referensi: Dirangkum dari pemantauan intelijen global MD-V14 Paduka Sambas.*
+"""
+        with open(target_path, "w", encoding="utf-8") as f:
+            f.write(frontmatter)
+        print(f"[+] Berita global MD-V14 berhasil diekspor ke blog: {target_path}")
+        exported.append(target_path)
+
+    return exported
+
+
 if __name__ == "__main__":
-    airtable_path = sys.argv[1] if len(sys.argv) > 1 else "examples/airtable-bps-dashboard.json"
-    generate_sambas_data_article(airtable_path)
+    if len(sys.argv) > 1 and sys.argv[1].endswith(".json"):
+        if "report" in sys.argv[1] or "research" in sys.argv[1]:
+            export_trending_intel_to_blog(sys.argv[1])
+        else:
+            generate_sambas_data_article(sys.argv[1])
+    else:
+        airtable_path = "examples/airtable-bps-dashboard.json"
+        generate_sambas_data_article(airtable_path)
