@@ -87,6 +87,64 @@ def _entry_url(entry: ET.Element) -> str:
     return ""
 
 
+TOPIC_EDITORIAL_IMAGES = {
+    "geopolitics": "https://images.unsplash.com/photo-1541872703-74c5e44368f9?w=1200&q=80",
+    "politics": "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1200&q=80",
+    "economy": "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=1200&q=80",
+    "business": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80",
+    "transport": "https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=1200&q=80",
+    "law": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80",
+    "sports": "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1200&q=80",
+    "default": "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80",
+}
+
+
+def get_fallback_editorial_image(title: str, topics: list[str]) -> str:
+    """Mengembalikan foto jurnalistik kurasi sesuai topik jika RSS/OpenGraph tidak menyediakan foto."""
+    text = (title + " " + " ".join(topics)).lower()
+    if any(k in text for k in ["china", "as", "amerika", "rusia", "perang", "dunia", "global", "pbb", "geopolitics"]):
+        return TOPIC_EDITORIAL_IMAGES["geopolitics"]
+    if any(k in text for k in ["ekonomi", "saham", "rupiah", "inflasi", "pasar", "ihsg", "komoditas", "bisnis"]):
+        return TOPIC_EDITORIAL_IMAGES["economy"]
+    if any(k in text for k in ["kereta", "lrt", "mrt", "jalan", "tol", "pesawat", "transportasi"]):
+        return TOPIC_EDITORIAL_IMAGES["transport"]
+    if any(k in text for k in ["sidang", "polisi", "jaksa", "hakim", "hukum", "etik", "tersangka", "korupsi"]):
+        return TOPIC_EDITORIAL_IMAGES["law"]
+    if any(k in text for k in ["bola", "timnas", "liga", "stadion", "gol", "olahraga"]):
+        return TOPIC_EDITORIAL_IMAGES["sports"]
+    if any(k in text for k in ["presiden", "menteri", "dpr", "pemilu", "pilkada", "politik"]):
+        return TOPIC_EDITORIAL_IMAGES["politics"]
+    return TOPIC_EDITORIAL_IMAGES["default"]
+
+
+def extract_opengraph_image(article_url: str, timeout: int = 5) -> str:
+    """Mengekstrak tag og:image atau twitter:image langsung dari HTML artikel asli."""
+    if not _valid_article_url(article_url):
+        return ""
+    try:
+        req = urllib.request.Request(
+            article_url,
+            headers={
+                "User-Agent": USER_AGENT,
+                "Accept": "text/html,application/xhtml+xml"
+            }
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            chunk = resp.read(32768).decode("utf-8", errors="ignore")
+            m = re.search(r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']', chunk, re.IGNORECASE)
+            if not m:
+                m = re.search(r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']', chunk, re.IGNORECASE)
+            if not m:
+                m = re.search(r'<meta[^>]+name=["\']twitter:image["\'][^>]+content=["\']([^"\']+)["\']', chunk, re.IGNORECASE)
+            if m:
+                candidate = m.group(1).strip()
+                if _valid_article_url(candidate):
+                    return candidate
+    except Exception:
+        pass
+    return ""
+
+
 def parse_feed(xml_bytes: bytes, feed_url: str, source_name: str = "") -> list[dict[str, Any]]:
     """Parse common RSS 2.0 and Atom entries; skip entries without safe title/link."""
     root = ET.fromstring(xml_bytes)
@@ -124,11 +182,19 @@ def parse_feed(xml_bytes: bytes, feed_url: str, source_name: str = "") -> list[d
             if m and _valid_article_url(m.group(1)):
                 image_url = m.group(1)
 
+        # Fallback bertingkat jika foto belum ada di tag RSS standar
+        image_source = "rss_feed" if image_url else "none"
+        if not image_url:
+            image_url = get_fallback_editorial_image(title, topics)
+            image_source = "editorial_curated"
+
         results.append({
             "title": title,
             "source": source_name.strip() or urlparse(feed_url).hostname or "RSS feed",
             "url": link,
             "image_url": image_url,
+            "image_source": image_source,
+            "has_image": bool(image_url),
             "summary": summary,
             "published_at": published,
             "author": author,
@@ -174,6 +240,14 @@ def fetch_feed(
             if len(body) > max_bytes:
                 raise ValueError("feed response exceeds configured size limit")
         entries = parse_feed(body, feed_url, source_name)
+        # Live enrichment: Coba cari og:image asli dari portal berita jika gambar masih fallback kurasi
+        for it in entries:
+            if it.get("image_source") == "editorial_curated":
+                og_img = extract_opengraph_image(it["url"])
+                if og_img:
+                    it["image_url"] = og_img
+                    it["image_source"] = "opengraph_media"
+
         return {"feed_url": feed_url, "ok": True, "items": entries, "item_count": len(entries)}
     except (urllib.error.URLError, TimeoutError, OSError, ET.ParseError, ValueError) as exc:
         return {"feed_url": feed_url, "ok": False, "items": [], "item_count": 0, "error": str(exc)}
