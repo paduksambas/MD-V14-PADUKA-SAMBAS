@@ -164,5 +164,66 @@
       "Politics"
     ],
     "enabled": true
+  },
+  {
+    "id": "cnn-internasional",
+    "name": "CNN Indonesia Internasional",
+    "publisher": "CNN Indonesia",
+    "url": "https://www.cnnindonesia.com/internasional/rss",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "World",
+      "Geopolitics",
+      "Global"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "antara-dunia",
+    "name": "ANTARA News Dunia",
+    "publisher": "ANTARA",
+    "url": "https://www.antaranews.com/rss/dunia.xml",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "World",
+      "Geopolitics",
+      "Diplomacy"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "detik-internasional",
+    "name": "Detikcom Internasional",
+    "publisher": "detikcom",
+    "url": "https://news.detik.com/internasional/rss",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "World",
+      "Geopolitics",
+      "Trending"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "cnbc-news",
+    "name": "CNBC Indonesia News",
+    "publisher": "CNBC Indonesia",
+    "url": "https://www.cnbcindonesia.com/news/rss",
+    "country": "Indonesia",
+    "language": "id",
+    "source_type": "news",
+    "topics": [
+      "Economy",
+      "Markets",
+      "Breaking",
+      "National"
+    ],
+    "enabled": true
   }
 ]
